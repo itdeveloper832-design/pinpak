@@ -275,7 +275,7 @@ Registration adds confidence where it applies: an FBR NTN for tax-registered fir
 
 ### Put Your ${city} Business on PakPin — Free
 
-If you run a business in ${city}, a PakPin listing costs nothing and carries no subscription. Open a free account and work through the Add Business form — contact details, category, location, opening hours, services and products. Our team checks every submission, and once yours is approved it goes live with the next weekly release, appearing on this city page, on your category page and in search results, with your call and WhatsApp buttons live for customers.
+If you run a business in ${city}, a PakPin listing costs nothing and carries no subscription. Open a free account and work through the Add Business form — contact details, category, location, opening hours, services and products. Our team checks every submission, and once yours is approved it goes live immediately, appearing on this city page, on your category page and in search results, with your call and WhatsApp buttons live for customers.
 
 ### What ${city} Residents Usually Search For
 
@@ -289,7 +289,7 @@ No. Phone numbers and WhatsApp buttons on approved profiles are public. Open the
 
 ### How quickly does a new listing appear in ${city}?
 
-Listings are reviewed by our team first, then published in the next weekly release batch. Once live, the profile appears on this city page, on its category page and in search.
+Listings are reviewed by our team first, then published immediately once approved. Once live, the profile appears on this city page, on its category page and in search.
 
 ### What if a phone number or address on a listing is wrong?
 
@@ -335,7 +335,7 @@ Step back from any ${info.label.toLowerCase()} provider that will not put a pric
 
 ### List Your ${info.label} Business — Free
 
-Run a ${info.label.toLowerCase()} business anywhere in Pakistan? Create a free account and complete the Add Business form — contact, category, location, hours, services and products. After our team reviews and approves it, the listing goes public with the next weekly release and shows up in this category, on your city page and in search. No charge, no card details, no subscription.
+Run a ${info.label.toLowerCase()} business anywhere in Pakistan? Create a free account and complete the Add Business form — contact, category, location, hours, services and products. After our team reviews and approves it, the listing goes live immediately and shows up in this category, on your city page and in search. No charge, no card details, no subscription.
 
 ### Frequently Asked Questions About ${info.label} in Pakistan
 
@@ -415,7 +415,7 @@ Yes. Owners submit their own listings and our team reviews each one before it ap
 
 ### I run a ${catInfo.label.toLowerCase()} business in ${city}. How do I get listed here?
 
-Create a free account and complete the Add Business form. Once approved, it goes public with the next weekly release, then appears on this page, on the ${city} page and in search — free, with your call and WhatsApp buttons live.
+Create a free account and complete the Add Business form. Once approved, it goes live immediately, then appears on this page, on the ${city} page and in search — free, with your call and WhatsApp buttons live.
 
 ### Own a ${catInfo.label} Business in ${city}? List It Free
 

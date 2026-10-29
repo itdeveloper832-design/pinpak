@@ -233,7 +233,7 @@ const ABOUT_FAQS = [
   {
     question: 'When will my approved listing go live?',
     answer:
-      'Approved listings go public in PakPin’s weekly publishing batch, not instantly. Once your listing passes review and is approved, it appears on the site in the next weekly batch, so every new listing gets a fair, organised launch.',
+      'Approved listings go public immediately once approved. Once your listing passes review and is approved, it appears on the site right away, so every new listing gets a fair, organised launch.',
   },
 ]
 
@@ -693,8 +693,7 @@ export default function AboutPage() {
                 <p>
                   PakPin was founded in 2026 as the answer. It was engineered from the ground up
                   with modern web technologies and secure cloud infrastructure, organised around cities and categories, and built
-                  with a review step, after which approved listings go public in weekly publishing
-                  batches. Customers can discover a business and
+                  with a review step, after which approved listings go public immediately. Customers can discover a business and
                   reach it through direct phone and WhatsApp details; owners can create visibility
                   without paying to reveal their own contact information.
                 </p>

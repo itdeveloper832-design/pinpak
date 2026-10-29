@@ -46,7 +46,7 @@ const FAQS = [
   },
   {
     question: 'I run a business. How can I get listed?',
-    answer: 'Open a free account and complete the Add Business form — eight short steps for your contact details, category, city, hours, services and products. Our team reviews each submission; once approved, it goes public with the next weekly release and shows up on your city page, your category page and in search.'
+    answer: 'Open a free account and complete the Add Business form — eight short steps for your contact details, category, city, hours, services and products. Our team reviews each submission; once approved, it goes live immediately and shows up on your city page, your category page and in search.'
   }
 ]
 
@@ -314,7 +314,7 @@ export default function HomePage() {
               Get Your Business Found — Free
             </h2>
             <p className="text-slate-500 text-xs sm:text-sm">
-              Register in minutes and complete the eight-step Add Business form. Once approved, your listing goes public with the next weekly release — on your city page, your category page and in search.
+              Register in minutes and complete the eight-step Add Business form. Once approved, your listing goes live immediately — on your city page, your category page and in search.
             </p>
           </div>
 
@@ -485,7 +485,7 @@ export default function HomePage() {
                 Customers Are Searching Right Now. Be Findable.
               </h2>
               <p className="text-blue-100 text-xs sm:text-sm leading-relaxed">
-                Open a free account and add your business in eight short steps. Once approved, it goes public with the next weekly release — in your category, your city and search.
+                Open a free account and add your business in eight short steps. Once approved, it goes live immediately — in your category, your city and search.
               </p>
             </div>
 

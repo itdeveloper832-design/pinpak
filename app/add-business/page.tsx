@@ -702,7 +702,7 @@ export default function AddBusinessPage() {
 
                 <div className="flex gap-2.5 p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-slate-600">
                   <Info className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
-                  <span>Your listing goes through a quick review; once approved, it goes public with the next weekly release.</span>
+                  <span>Your listing goes through a quick review; once approved, it goes live immediately.</span>
                 </div>
 
                 <TierSelect value={tier} onChange={setTier} />
