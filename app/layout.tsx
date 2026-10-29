@@ -28,9 +28,11 @@ const inter = Inter({
 // meta tags below stay env-gated: they render only when the owner sets
 // PakPin's own IDs.
 const siteVerification: { google?: string; other?: Record<string, string> } = {}
-if (process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION) {
-  siteVerification.google = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION
-}
+// PakPin's own Google Search Console verification (owner-supplied 2026-10-29).
+// Env var wins when set; otherwise this fallback guarantees the tag renders.
+siteVerification.google =
+  process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ||
+  'vow0IR_605uY_PGLRr5zcCivk_N1dp40r3WmvNFxmL8'
 if (process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION) {
   siteVerification.other = { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
 }
