@@ -1,5 +1,5 @@
 // ============================================================
-// PakPin — manual payment methods (payment screen)
+// PakListings — manual payment methods (payment screen)
 // ------------------------------------------------------------
 // These are the owner's receiving accounts, shown publicly on
 // the listing payment screen so owners can pay for their tier

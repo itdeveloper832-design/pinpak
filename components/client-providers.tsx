@@ -111,10 +111,9 @@ export default function ClientProviders() {
 
   return (
     <>
-      {/* Site-protection guard (components/protection-guard.tsx): LocalePak
-          mounts it in the root layout; PakListings' layout is out of scope for
-          this port, so it mounts here instead — ClientProviders renders on
-          every page via the root layout, same coverage. */}
+      {/* Site-protection guard (components/protection-guard.tsx): mounted
+          here instead of the root layout — ClientProviders renders on every
+          page via the root layout, same coverage. */}
       <ProtectionGuard />
       <BottomNav />
       {deferredReady && <CookieConsentBanner />}
