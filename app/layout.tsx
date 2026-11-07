@@ -20,13 +20,12 @@ const inter = Inter({
   weight: ['400', '500', '600', '700'],
 })
 
-// Search verification (Google Search Console / Bing) — REMOVED in the
-// PakListings rebrand (2026-11-06). The old verification codes verified the
-// previous domain/setup and do NOT carry over to paklistings.com. After the
-// user buys the domain, re-add fresh verification meta tags here (or via
-// NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION / NEXT_PUBLIC_BING_SITE_VERIFICATION)
-// once Search Console and Bing Webmaster Tools issue new codes for the new
-// domain. Google Analytics / gtag IDs are unchanged (not domain-bound).
+// Search verification (Google Search Console / Bing) — codes supplied by the
+// user 2026-11-07 for paklistings.com. NOTE: the Bing msvalidate.01 code is
+// identical to LocalePak's — verify in Bing Webmaster Tools that it verifies
+// paklistings.com; if Bing rejects it, replace with the code Bing issues for
+// the paklistings.com property. Google Analytics / gtag IDs are unchanged
+// (not domain-bound).
 
 export const metadata: Metadata = {
   title: "PakListings – Pakistan Business Directory & Yellow Pages",
@@ -62,6 +61,12 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+  },
+  verification: {
+    google: 'A8XcQ1zkhbytCkZQ9BSxcrgWk8TLo1Ed2z08SQI4AE4',
+    other: {
+      'msvalidate.01': '207473D434A6B2FA4E2217EFA3CB53DB',
+    },
   },
 }
 
