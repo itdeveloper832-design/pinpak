@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { Analytics } from '@vercel/analytics/next'
 import BottomNav from '@/components/bottom-nav'
+import ProtectionGuard from '@/components/protection-guard'
 import { COOKIE_PREFS_KEY } from '@/components/cookie-consent-banner'
 
 // Deferred until after the page has loaded: the toast system and the cookie
@@ -100,16 +101,21 @@ export default function ClientProviders() {
       }
     }
     read()
-    window.addEventListener('pakpin:consent-changed', read)
+    window.addEventListener('paklistings:consent-changed', read)
     window.addEventListener('storage', read)
     return () => {
-      window.removeEventListener('pakpin:consent-changed', read)
+      window.removeEventListener('paklistings:consent-changed', read)
       window.removeEventListener('storage', read)
     }
   }, [])
 
   return (
     <>
+      {/* Site-protection guard (components/protection-guard.tsx): LocalePak
+          mounts it in the root layout; PakListings' layout is out of scope for
+          this port, so it mounts here instead — ClientProviders renders on
+          every page via the root layout, same coverage. */}
+      <ProtectionGuard />
       <BottomNav />
       {deferredReady && <CookieConsentBanner />}
       {deferredReady && (
@@ -121,7 +127,7 @@ export default function ClientProviders() {
           expand={true}
           toastOptions={{
             duration: 5000,
-            className: 'pakpin-popup-toast',
+            className: 'paklistings-popup-toast',
           }}
         />
       )}

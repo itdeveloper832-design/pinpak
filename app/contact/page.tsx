@@ -12,7 +12,7 @@ export default function ContactPage() {
     email: '',
     phone: '',
     city: '',
-    subject: 'Free Business Listing Help',
+    subject: 'Business Listing Help',
     message: ''
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -41,7 +41,7 @@ export default function ContactPage() {
       if (!res.ok) throw new Error('Contact submission failed')
       setIsSubmitting(false)
       setSubmitted(true)
-      toast.success('Your message has been submitted successfully to PakPin administration.')
+      toast.success('Your message has been submitted successfully to PakListings administration.')
     } catch (err) {
       console.error(err)
       setIsSubmitting(false)
@@ -52,9 +52,9 @@ export default function ContactPage() {
   const contactPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    name: 'Contact PakPin: Free Business Listing Website Pakistan',
-    description: 'Contact PakPin support for business listing assistance, company profiles, job-posting questions, directory support, and technical issues.',
-    url: 'https://www.geotaggingphotos.com/contact/',
+    name: 'Contact PakListings: Pakistan Business Directory',
+    description: 'Contact PakListings support for business listing assistance, company profiles, job-posting questions, directory support, and technical issues.',
+    url: 'https://www.paklistings.com/contact/',
   }
 
   return (
@@ -70,10 +70,10 @@ export default function ContactPage() {
         <section className="bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white py-16 sm:py-20 border-b border-slate-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white max-w-4xl mx-auto">
-              Contact PakPin: Business Support & Inquiries
+              Contact PakListings: Business Support & Inquiries
             </h1>
             <p className="mt-4 text-base sm:text-lg text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Need help with a business listing, company profile, job posting, or directory feature? Contact PakPin support with the relevant details so the team can review your question.
+              Need help with a business listing, company profile, job posting, or directory feature? Contact PakListings support with the relevant details so the team can review your question.
             </p>
           </div>
         </section>
@@ -82,7 +82,7 @@ export default function ContactPage() {
         <section className="py-16 bg-white border-b border-[#D1FAE5]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <h2 className="text-3xl font-extrabold text-[#0F172A]">Multiple Ways to Reach PakPin Support Team</h2>
+              <h2 className="text-3xl font-extrabold text-[#0F172A]">Multiple Ways to Reach PakListings Support Team</h2>
               <p className="mt-2 text-[#475569]">Choose your preferred channel for fast and friendly support.</p>
             </div>
 
@@ -90,7 +90,7 @@ export default function ContactPage() {
               {/* Email Support */}
               <div className="bg-[#F4F7FC] border border-[#D1FAE5] rounded-2xl p-8 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#1D4ED8] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-50 text-[#0E7490] flex items-center justify-center">
                     <Mail className="w-6 h-6" />
                   </div>
                   <div>
@@ -99,10 +99,10 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <ul className="space-y-2 text-xs sm:text-sm text-[#475569] mb-4">
-                  <li><strong>Official Email:</strong> admin@geotaggingphotos.com</li>
-                  <li><strong>Support Email:</strong> support@geotaggingphotos.com</li>
-                  <li><strong>Listing Support:</strong> support@geotaggingphotos.com</li>
-                  <li><strong>Job Portal:</strong> admin@geotaggingphotos.com</li>
+                  <li><strong>Official Email:</strong> admin@paklistings.com</li>
+                  <li><strong>Support Email:</strong> support@paklistings.com</li>
+                  <li><strong>Listing Support:</strong> support@paklistings.com</li>
+                  <li><strong>Job Portal:</strong> admin@paklistings.com</li>
                 </ul>
                 <p className="text-xs text-[#64748B] leading-relaxed">Include the page URL, listing name, and a clear description of the issue when relevant.</p>
               </div>
@@ -110,7 +110,7 @@ export default function ContactPage() {
               {/* Phone Support */}
               <div className="bg-[#F4F7FC] border border-[#D1FAE5] rounded-2xl p-8 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#16A34A] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-50 text-[#16A34A] flex items-center justify-center">
                     <Phone className="w-6 h-6" />
                   </div>
                   <div>
@@ -122,13 +122,13 @@ export default function ContactPage() {
                   <li><strong>Official Helpline:</strong> +92 334 5636230</li>
                   <li>                  <strong>Listed address:</strong> Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan</li>
                 </ul>
-                <p className="text-xs text-[#64748B] leading-relaxed">Assistance with creating free business listings, listing reviews, and job postings.</p>
+                <p className="text-xs text-[#64748B] leading-relaxed">Assistance with business listings (from PKR 99 one-time), listing reviews, and job postings.</p>
               </div>
 
               {/* WhatsApp Support */}
               <div className="bg-[#F4F7FC] border border-[#D1FAE5] rounded-2xl p-8 shadow-sm">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#16A34A] flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-xl bg-cyan-50 text-[#16A34A] flex items-center justify-center">
                     <MessageSquare className="w-6 h-6" />
                   </div>
                   <div>
@@ -156,7 +156,7 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div className="space-y-3 text-xs text-[#475569]">
-                  <p><strong>PakPin Enterprise:</strong> Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan</p>
+                  <p><strong>PakListings Enterprise:</strong> Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan</p>
                 </div>
               </div>
             </div>
@@ -164,15 +164,15 @@ export default function ContactPage() {
         </section>
 
         {/* INQUIRY FORM (FIRESTORE PERSISTENT) */}
-        <section className="py-16 bg-[#EFF6FF] border-b border-[#D1FAE5]">
+        <section className="py-16 bg-[#ECFEFF] border-b border-[#D1FAE5]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white border border-[#D1FAE5] rounded-2xl p-8 shadow-md">
               <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Send Us a Message</h2>
               <p className="text-xs text-[#64748B] mb-6">Fill out the form below and your inquiry will be logged directly into our administration queue.</p>
 
               {submitted ? (
-                <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200 text-center space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mx-auto">
+                <div className="p-6 bg-cyan-50 rounded-2xl border border-cyan-200 text-center space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-cyan-100 text-cyan-700 flex items-center justify-center mx-auto">
                     <ShieldCheck className="w-6 h-6" />
                   </div>
                   <h3 className="font-bold text-slate-900 text-base">Message Sent Successfully!</h3>
@@ -189,7 +189,7 @@ export default function ContactPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Enter your full name"
-                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                       />
                     </div>
                     <div>
@@ -200,7 +200,7 @@ export default function ContactPage() {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="your@email.com"
-                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                       />
                     </div>
                   </div>
@@ -213,7 +213,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+92 334 5636230"
-                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                       />
                     </div>
                     <div>
@@ -223,7 +223,7 @@ export default function ContactPage() {
                         value={formData.city}
                         onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                         placeholder="e.g. Islamabad, Karachi, Lahore"
-                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                        className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                       />
                     </div>
                   </div>
@@ -233,9 +233,9 @@ export default function ContactPage() {
                     <select
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                      className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                     >
-                      <option value="Free Business Listing Help">Free Business Listing Help</option>
+                      <option value="Business Listing Help">Business Listing Help</option>
                       <option value="Job Posting Support">Job Posting Support</option>
                       <option value="Job Seeker Profile Help">Job Seeker Profile Help</option>
                       <option value="Technical Issue">Technical Issue</option>
@@ -251,16 +251,16 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Describe your question or issue in detail..."
-                      className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                      className="w-full px-4 py-2.5 bg-[#F4F7FC] border border-[#D1FAE5] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                     ></textarea>
                   </div>
 
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 bg-[#F43F5E] hover:bg-[#D97706] text-white font-bold rounded-xl transition-colors shadow-md text-sm cursor-pointer disabled:opacity-50"
+                    className="w-full py-3.5 bg-[#7C3AED] hover:bg-[#D97706] text-white font-bold rounded-xl transition-colors shadow-md text-sm cursor-pointer disabled:opacity-50"
                   >
-                    {isSubmitting ? 'Submitting Inquiry...' : 'Send Message to PakPin Support'}
+                    {isSubmitting ? 'Submitting Inquiry...' : 'Send Message to PakListings Support'}
                   </button>
                 </form>
               )}

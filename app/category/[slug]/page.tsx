@@ -8,7 +8,8 @@ import OwnerCtaBand from '@/components/owner-cta-band'
 import ListBusinessCta from '@/components/list-business-cta'
 import { CATEGORIES, TOP_CITIES } from '@/lib/data'
 import { getCategoryCards } from '@/lib/public-listings'
-import { generateCategoryContent } from '@/lib/seo-content'
+import FeaturedBadge from '@/components/featured-badge'
+import { generateCategoryContent, fitMetaDescription, pickTitleInRange } from '@/lib/seo-content'
 import { getCategorySeoCopy } from '@/lib/seo-directory-content'
 import { BreadcrumbSchema } from '@/components/seo/breadcrumb-schema'
 import MarkdownContent from '@/components/seo/markdown-content'
@@ -38,11 +39,30 @@ export async function generateMetadata(props: {
   const params = await props.params
   const cat = CATEGORIES.find(c => c.id === params.slug.toLowerCase())
   if (!cat) {
-    return { title: 'Category Not Found | PakPin', robots: { index: false, follow: false } }
+    return { title: 'Category Not Found | PakListings', robots: { index: false, follow: false } }
   }
-  const title = `${cat.name} in Pakistan – Directory | PakPin`
-  const description = `Find ${cat.name.toLowerCase()} across Pakistan's major cities: browse free listings, compare providers, and choose the right one with our local guide.`
-  const canonical = `https://www.geotaggingphotos.com/category/${cat.id}/`
+  // Title + description formulas (verified over all 24 categories:
+  // every title 50-60, every description 150-160). The description
+  // names the three biggest cities and the 180 more behind them —
+  // 183 cities in total — and states what the page offers.
+  const title = pickTitleInRange([
+    `${cat.name} in Pakistan – Find Contacts | PakListings`,
+    `${cat.name} in Pakistan – Directory | PakListings`,
+    `${cat.name} Across Pakistan | PakListings`,
+    `${cat.name} in Pakistan | PakListings`,
+  ])
+  const description = fitMetaDescription(
+    `Find ${cat.name.toLowerCase()} across Pakistan — Karachi, Lahore, Islamabad and 180 more cities.`,
+    [
+      ' Compare phone numbers, hours and addresses, then call or WhatsApp providers directly.',
+      ' Browse providers, compare phone numbers and hours, then call or WhatsApp directly.',
+      ' Compare phone numbers and hours, then call or WhatsApp directly.',
+      ' Check phone numbers and hours, then call or WhatsApp directly.',
+      ' Compare phone numbers and hours, then call or WhatsApp.',
+      ' Check phone numbers, then call or WhatsApp directly.',
+    ]
+  )
+  const canonical = `https://www.paklistings.com/category/${cat.id}/`
   // Mirror the city and city×category pages: an empty category page is a
   // thin page, so it noindexes itself — and the sitemap only lists
   // categories with at least one seed listing, keeping the two consistent.
@@ -52,7 +72,7 @@ export async function generateMetadata(props: {
     description,
     ...(listings.length === 0 ? { robots: { index: false, follow: false } } : {}),
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, siteName: 'PakPin', locale: 'en_PK', type: 'website' },
+    openGraph: { title, description, url: canonical, siteName: 'PakListings', locale: 'en_PK', type: 'website' },
     twitter: { card: 'summary_large_image', title, description },
   }
 }
@@ -82,17 +102,17 @@ export default async function CategoryPage(props: {
         {/* Hero */}
         <section className="bg-slate-900 text-white py-14 px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">
               <Building2 className="w-3.5 h-3.5" />
               Business Category
             </span>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-              {cat.name} <span className="text-blue-400">in Pakistan</span>
+              {cat.name} <span className="text-cyan-400">in Pakistan</span>
             </h1>
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
               {copy?.intro || cat.desc}
             </p>
-            <p className="text-blue-300 text-sm font-semibold">
+            <p className="text-cyan-300 text-sm font-semibold">
               {listings.length === 0
                 ? `No ${cat.name} listings yet.`
                 : `${listings.length} ${listings.length === 1 ? 'listing' : 'listings'} in this category across Pakistan.`}
@@ -113,14 +133,14 @@ export default async function CategoryPage(props: {
               </h3>
               <p className="text-sm text-slate-500 max-w-md mx-auto">
                 This page is ready for its first {cat.name.toLowerCase()} listing. If you run one,
-                add it free and, once approved, your profile will appear here immediately.
+                add it for a one-time fee from PKR 99 and, once approved, your profile will appear here at the next weekly release.
               </p>
               <Link
                 href="/add-business"
                 prefetch={false}
-                className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
               >
-                Add Your Business — Free <ArrowRight className="w-4 h-4" />
+                Add Your Business <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           ) : (
@@ -129,18 +149,21 @@ export default async function CategoryPage(props: {
                 <article key={biz.id} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:shadow-lg transition-all flex flex-col gap-3">
                   <div className="flex items-start justify-between gap-3">
                     <h3 className="font-extrabold text-slate-900 leading-snug">{biz.name}</h3>
-                    <span className="shrink-0 px-2.5 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 text-[11px] font-bold">
-                      {biz.category}
+                    <span className="flex shrink-0 items-center gap-1.5">
+                      {biz.featured && <FeaturedBadge />}
+                      <span className="px-2.5 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-100 text-[11px] font-bold">
+                        {biz.category}
+                      </span>
                     </span>
                   </div>
                   {biz.city && (
                     <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
-                      <MapPin className="w-3.5 h-3.5 text-blue-700" /> {biz.city}
+                      <MapPin className="w-3.5 h-3.5 text-cyan-700" /> {biz.city}
                     </p>
                   )}
                   {biz.phone && (
                     <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
-                      <Phone className="w-3.5 h-3.5 text-blue-700" /> {biz.phone}
+                      <Phone className="w-3.5 h-3.5 text-cyan-700" /> {biz.phone}
                     </p>
                   )}
                   {biz.description && (
@@ -149,7 +172,7 @@ export default async function CategoryPage(props: {
                   <Link
                     href={`/business/${biz.slug}`}
                     prefetch={false}
-                    className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800"
+                    className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:text-cyan-800"
                   >
                     View Business <ArrowRight className="w-4 h-4" />
                   </Link>
@@ -171,9 +194,9 @@ export default async function CategoryPage(props: {
                 <Link
                   key={city}
                   href={`/city/${cityToSlug(city)}/${cat.id}`}
-                  className="p-3.5 bg-white hover:bg-blue-700 rounded-xl border border-slate-200 text-slate-700 hover:text-white transition-all flex items-center gap-2 font-semibold text-xs group"
+                  className="p-3.5 bg-white hover:bg-cyan-700 rounded-xl border border-slate-200 text-slate-700 hover:text-white transition-all flex items-center gap-2 font-semibold text-xs group"
                 >
-                  <MapPin className="w-3.5 h-3.5 shrink-0 text-blue-700 group-hover:text-white" />
+                  <MapPin className="w-3.5 h-3.5 shrink-0 text-cyan-700 group-hover:text-white" />
                   <span className="min-w-0">
                     <span className="block truncate">{cat.name} in {city}</span>
                     <span className="block text-[11px] font-medium text-slate-400 group-hover:text-white/80">
@@ -199,7 +222,7 @@ export default async function CategoryPage(props: {
                 <ul className="space-y-1.5">
                   {liveLinks.map(l => (
                     <li key={l.href}>
-                      <Link href={l.href} className="text-blue-700 hover:underline text-sm font-medium inline-flex items-center gap-1">
+                      <Link href={l.href} className="text-cyan-700 hover:underline text-sm font-medium inline-flex items-center gap-1">
                         {l.label}
                         <ArrowRight className="w-3.5 h-3.5" />
                       </Link>
@@ -215,7 +238,7 @@ export default async function CategoryPage(props: {
         <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
           <div className="flex items-end justify-between gap-4">
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Other Categories</h2>
-            <Link href="/categories" className="text-xs font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 shrink-0">
+            <Link href="/categories" className="text-xs font-bold text-cyan-700 hover:text-cyan-800 flex items-center gap-1 shrink-0">
               <span>All Categories</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
@@ -225,10 +248,10 @@ export default async function CategoryPage(props: {
               <Link
                 key={c.id}
                 href={`/category/${c.id}`}
-                className="bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-blue-500 hover:shadow-md transition-all group"
+                className="bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-cyan-500 hover:shadow-md transition-all group"
               >
-                <Building2 className="w-6 h-6 text-blue-700 mb-2" />
-                <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-700">{c.name}</h3>
+                <Building2 className="w-6 h-6 text-cyan-700 mb-2" />
+                <h3 className="font-bold text-slate-900 text-sm group-hover:text-cyan-700">{c.name}</h3>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{c.desc}</p>
               </Link>
             ))}
@@ -236,8 +259,8 @@ export default async function CategoryPage(props: {
         </section>
 
         <OwnerCtaBand
-          title={`Run a ${cat.name} business? Get listed free.`}
-          text={`Add your business to the ${cat.name} category: a free profile with call and WhatsApp buttons, hours, services and products — shown in your city and in search as soon as it is approved.`}
+          title={`Run a ${cat.name} business? Get listed.`}
+          text={`Add your business to the ${cat.name} category for a one-time fee from PKR 99: a profile with call and WhatsApp buttons, hours, services and products — shown in your city and in search once approved, at the next weekly release.`}
           links={[
             { label: 'All businesses', href: '/businesses' },
             { label: 'All companies', href: '/companies' },

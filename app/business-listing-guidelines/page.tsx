@@ -5,10 +5,10 @@ import Footer from '@/components/footer'
 import OwnerCtaBand from '@/components/owner-cta-band'
 
 export const metadata: Metadata = {
-  title: 'Business Listing Guidelines | PakPin',
-  description: 'Requirements for adding your company, shop, or professional service to PakPin free business directory.',
+  title: 'Business Listing Guidelines | PakListings Pakistan Rules',
+  description: 'PakListings listing rules: accurate names, addresses and phones, honest descriptions, correct categories and cities — and what happens after you submit.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/business-listing-guidelines/',
+    canonical: 'https://www.paklistings.com/business-listing-guidelines/',
   },
 }
 
@@ -22,12 +22,12 @@ export default function BusinessListingGuidelinesPage() {
             Business Listing Guidelines
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Enterprise Ecosystem
+            Last Updated: August 2026 • PakListings Enterprise Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             <p>
-              To keep search quality high for Pakistani enterprises, business owners must adhere to the following listing criteria when submitting their profile to PakPin.
+              To keep search quality high for Pakistani enterprises, business owners must adhere to the following listing criteria when submitting their profile to PakListings. Listings cost a one-time fee — Basic PKR 99, Premium PKR 199, Featured PKR 299 — and approved listings go live at the next weekly release.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Eligible Businesses</h2>
@@ -72,11 +72,11 @@ export default function BusinessListingGuidelinesPage() {
             </ul>
             <p>
               Listings are owner-submitted and reviewed by our team before they appear. Approval means the
-              submission passed these checks — it is not an endorsement, and PakPin does not guarantee
+              submission passed these checks — it is not an endorsement, and PakListings does not guarantee
               rankings, enquiries or sales for any listing. Read the full{' '}
-              <Link href="/verification-policy" className="text-blue-700 font-semibold hover:underline">verification policy</Link>{' '}
+              <Link href="/verification-policy" className="text-cyan-700 font-semibold hover:underline">verification policy</Link>{' '}
               for how checks work, and the{' '}
-              <Link href="/help-center" className="text-blue-700 font-semibold hover:underline">help center</Link>{' '}
+              <Link href="/help-center" className="text-cyan-700 font-semibold hover:underline">help center</Link>{' '}
               for a step-by-step walkthrough.
             </p>
           </div>

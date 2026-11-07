@@ -3,10 +3,10 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Editorial Policy | PakPin - Pakistan Business Directory',
-  description: 'Our standards for publishing, reviewing, and fact-checking business listings, blogs, and market insights on PakPin.',
+  title: 'Editorial Policy | PakListings - Pakistan Business Directory',
+  description: 'How PakListings reviews submissions, keeps paid tiers separate from approval, checks facts, and corrects errors in listings, guides and directory pages.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/editorial-policy/',
+    canonical: 'https://www.paklistings.com/editorial-policy/',
   },
 }
 
@@ -20,12 +20,12 @@ export default function EditorialPolicyPage() {
             Editorial & Publishing Policy
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Enterprise Ecosystem
+            Last Updated: August 2026 • PakListings Enterprise Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             <p>
-              At <strong>PakPin</strong>, we are committed to maintaining the highest level of integrity, accuracy, and trustworthiness across all published articles, business profiles, and city marketplace guides.
+              At <strong>PakListings</strong>, we are committed to maintaining the highest level of integrity, accuracy, and trustworthiness across all published articles, business profiles, and city marketplace guides.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Content Verification</h2>
@@ -35,12 +35,12 @@ export default function EditorialPolicyPage() {
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">2. Independence & Objectivity</h2>
             <p>
-              Paid listings or advertising partnerships, when they launch, will not influence which listings are approved or which reviews are shown. Featured placement and the Verified Badge are launching soon; when they open, the Verified Badge will involve a document check of the business.
+              Paid tiers do not influence which listings are approved or which reviews are shown. Featured placement is a paid tier (PKR 299, one-time) and does not change review outcomes; the Verified Badge is launching soon, and when it opens it will involve a document check of the business.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">3. Corrections & Updates</h2>
             <p>
-              If a business listing or published guide contains factual errors, users and owners can submit correction requests through our <a href="/contact" className="text-blue-700 underline">Contact Portal</a> for immediate audit.
+              If a business listing or published guide contains factual errors, users and owners can submit correction requests through our <a href="/contact" className="text-cyan-700 underline">Contact Portal</a> for immediate audit.
             </p>
           </div>
         </div>

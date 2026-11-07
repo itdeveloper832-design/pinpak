@@ -9,11 +9,11 @@ interface BreadcrumbItem {
 
 export function generateBreadcrumbs(pathname: string): BreadcrumbItem[] {
   const breadcrumbs: BreadcrumbItem[] = [
-    { name: 'Home', url: 'https://www.geotaggingphotos.com/' }
+    { name: 'Home', url: 'https://www.paklistings.com/' }
   ]
 
   const pathSegments = pathname.split('/').filter(segment => segment)
-  let currentUrl = 'https://www.geotaggingphotos.com'
+  let currentUrl = 'https://www.paklistings.com'
 
   pathSegments.forEach((segment) => {
     currentUrl += `/${segment}`

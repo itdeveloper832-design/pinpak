@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Building2, MapPin, Phone, ArrowRight } from 'lucide-react'
 import type { PublicBusinessCard } from '@/lib/public-listings'
+import FeaturedBadge from '@/components/featured-badge'
 
 // SERVER component (Round 3): the parent page fetches the approved +
 // released Firestore listings for this city x category on the server
@@ -25,14 +26,14 @@ export default function CityCategoryListings({
         </h2>
         <p className="text-sm text-slate-500 max-w-md mx-auto">
           This page is ready for its first {categoryName.toLowerCase()} listing. If you run one in {city},
-          add it free and, once approved, your profile will appear here immediately.
+          add it from PKR 99 one-time and, once approved, your profile will appear here at the next weekly release.
         </p>
         <Link
           href="/add-business"
           prefetch={false}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
         >
-          Add Your Business — Free <ArrowRight className="w-4 h-4" />
+          Add Your Business — PKR 99 <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
     )
@@ -45,15 +46,18 @@ export default function CityCategoryListings({
           key={business.id}
           href={`/business/${business.slug}`}
           prefetch={false}
-          className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 hover:border-blue-500 hover:shadow-md transition-all group"
+          className="bg-white rounded-3xl border border-slate-200 p-6 space-y-3 hover:border-cyan-500 hover:shadow-md transition-all group"
         >
-          <span className="inline-block px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 text-[11px] font-bold">
-            {business.category}
+          <span className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-block px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-100 text-[11px] font-bold">
+              {business.category}
+            </span>
+            {business.featured && <FeaturedBadge />}
           </span>
-          <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-blue-800">{business.name}</h3>
+          <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-cyan-800">{business.name}</h3>
           {business.city && (
             <p className="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
-              <MapPin className="w-3.5 h-3.5 text-blue-700" /> {business.city}
+              <MapPin className="w-3.5 h-3.5 text-cyan-700" /> {business.city}
             </p>
           )}
           {business.description && (
@@ -61,7 +65,7 @@ export default function CityCategoryListings({
           )}
           {business.phone && (
             <p className="flex items-center gap-1.5 text-xs font-bold text-slate-700 pt-1">
-              <Phone className="w-3.5 h-3.5 text-blue-700" /> {business.phone}
+              <Phone className="w-3.5 h-3.5 text-cyan-700" /> {business.phone}
             </p>
           )}
         </Link>

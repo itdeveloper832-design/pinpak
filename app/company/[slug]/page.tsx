@@ -6,6 +6,7 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { MapPin, Phone, Globe, Mail, ArrowLeft } from 'lucide-react'
 import { fetchCompanyBySlug } from '@/lib/public-listings'
+import { detailTitle, fitMetaDescription } from '@/lib/seo-content'
 
 // Company detail route — SERVER component (Round 3 parity with
 // /business/[slug]): the company is fetched HERE, on the server, and
@@ -32,12 +33,31 @@ const loadCompany = cache(async (slug: string): Promise<any | null> => {
   return { id: found.id, ...found.data }
 })
 
+// Tails for topping up a short company description (150-160).
+// All state what the profile shows — contact details, address,
+// website — never a fact about the company itself.
+const DESCRIPTION_TAILS = [
+  ' Contact details and company profile on PakListings.',
+  ' See its PakListings profile for contact details and more.',
+  ' Find its phone, address and website on its profile.',
+  ' Browse similar companies to compare and choose.',
+  ' See the full company profile on PakListings.',
+  ' See its PakListings profile for contact details, address, email and website.',
+  ' See more on its PakListings profile.',
+  ' More on its PakListings profile.',
+  ' See its full profile.',
+  ' More on PakListings.',
+  ' Get in touch.',
+  ' Reach out.',
+]
+
 function metaDescriptionFor(company: any): string {
-  const industryLabel = company.industry || company.category || 'Company'
   const rawDesc = (company.description || '').replace(/\s+/g, ' ').trim()
-  return rawDesc
-    ? `${rawDesc.slice(0, 150)}${rawDesc.length > 150 ? '...' : ''}`
-    : `${company.name} is a ${industryLabel} company in ${company.city || 'Pakistan'}. Contact details and company profile on PakPin.`
+  const industryLabel = company.industry || company.category || 'Company'
+  const text = rawDesc.length >= 50
+    ? rawDesc
+    : `${company.name} is a ${industryLabel} company in ${company.city || 'Pakistan'}.`
+  return fitMetaDescription(text, DESCRIPTION_TAILS)
 }
 
 export async function generateMetadata({
@@ -51,9 +71,30 @@ export async function generateMetadata({
   // index instead of inheriting the homepage meta.
   if (!company) return { robots: { index: false, follow: false } }
   const industryLabel = company.industry || company.category || 'Company'
+  // Title guard (50-60, hard cap 60) — same rule as business
+  // detail pages: the company name is truncated at a word boundary
+  // with an ellipsis only when it cannot fit any other way, and
+  // the city is never dropped.
+  const title = detailTitle(company.name, industryLabel, company.city, false)
+  const description = metaDescriptionFor(company)
+  const canonical = `https://www.paklistings.com/company/${company.slug || slug}/`
   return {
-    title: `${company.name} — ${industryLabel} in ${company.city || 'Pakistan'} | PakPin`,
-    description: metaDescriptionFor(company),
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName: 'PakListings',
+      locale: 'en_PK',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary',
+      title,
+      description,
+    },
   }
 }
 
@@ -74,7 +115,7 @@ export default async function CompanyDetailPage({
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: company.name,
-      url: `https://www.geotaggingphotos.com/company/${company.slug || slug}`,
+      url: `https://www.paklistings.com/company/${company.slug || slug}`,
     }
     if (company.description) jsonLd.description = company.description
     if (company.phone) jsonLd.telephone = company.phone
@@ -101,7 +142,7 @@ export default async function CompanyDetailPage({
       )}
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
-        <Link href="/companies" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 mb-6">
+        <Link href="/companies" className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:text-cyan-800 mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Companies
         </Link>
 
@@ -109,7 +150,7 @@ export default async function CompanyDetailPage({
           <section className="bg-white rounded-3xl border border-slate-200 p-8 space-y-5">
             <div className="flex flex-wrap items-center gap-2">
               {(company.industry || company.category) && (
-                <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 text-[11px] font-bold">
+                <span className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-100 text-[11px] font-bold">
                   {company.industry || company.category}
                 </span>
               )}
@@ -118,12 +159,12 @@ export default async function CompanyDetailPage({
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 font-medium">
               {company.city && (
                 <span className="flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-blue-700" /> {company.city}
+                  <MapPin className="w-4 h-4 text-cyan-700" /> {company.city}
                 </span>
               )}
               {company.phone && (
                 <span className="flex items-center gap-1.5">
-                  <Phone className="w-4 h-4 text-blue-700" /> {company.phone}
+                  <Phone className="w-4 h-4 text-cyan-700" /> {company.phone}
                 </span>
               )}
               {company.email && (
@@ -148,7 +189,7 @@ export default async function CompanyDetailPage({
               {company.phone && (
                 <a
                   href={`tel:${company.phone}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                 >
                   <Phone className="w-4 h-4" /> Call Now
                 </a>
@@ -156,7 +197,7 @@ export default async function CompanyDetailPage({
               {company.email && (
                 <a
                   href={`mailto:${company.email}`}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                 >
                   <Mail className="w-4 h-4" /> Send Email
                 </a>
@@ -166,7 +207,7 @@ export default async function CompanyDetailPage({
                   href={company.website}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 text-slate-700 font-bold text-sm rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 text-slate-700 font-bold text-sm rounded-xl transition-colors"
                 >
                   <Globe className="w-4 h-4" /> Visit Website
                 </a>

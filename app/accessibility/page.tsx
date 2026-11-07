@@ -3,10 +3,10 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Accessibility Statement | PakPin Digital Inclusivity',
-  description: 'Our commitment to web accessibility (WCAG 2.1) ensuring equal access for all users across Pakistan.',
+  title: 'Accessibility Statement | PakListings Digital Inclusivity',
+  description: 'PakListings aims to keep its Pakistan directory usable by everyone: keyboard navigation, screen-reader support, clear contrast, and a way to report barriers.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/accessibility/',
+    canonical: 'https://www.paklistings.com/accessibility/',
   },
 }
 
@@ -20,12 +20,12 @@ export default function AccessibilityPage() {
             Accessibility Statement
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Enterprise Ecosystem
+            Last Updated: August 2026 • PakListings Enterprise Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             <p>
-              <strong>PakPin</strong> is committed to ensuring digital accessibility for people of all abilities. We continuously improve user experience for everyone and apply the relevant accessibility standards (WCAG 2.1 Level AA guidelines).
+              <strong>PakListings</strong> is committed to ensuring digital accessibility for people of all abilities. We continuously improve user experience for everyone and apply the relevant accessibility standards (WCAG 2.1 Level AA guidelines).
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Accessibility Features</h2>
@@ -37,7 +37,7 @@ export default function AccessibilityPage() {
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">2. Feedback & Support</h2>
             <p>
-              We welcome your feedback on the accessibility of PakPin. If you encounter accessibility barriers, please notify us at <a href="mailto:admin@geotaggingphotos.com" className="text-blue-700 underline">admin@geotaggingphotos.com</a>.
+              We welcome your feedback on the accessibility of PakListings. If you encounter accessibility barriers, please notify us at <a href="mailto:admin@paklistings.com" className="text-cyan-700 underline">admin@paklistings.com</a>.
             </p>
           </div>
         </div>

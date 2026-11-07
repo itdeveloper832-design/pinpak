@@ -7,11 +7,11 @@ import Footer from '@/components/footer'
 import OwnerCtaBand from '@/components/owner-cta-band'
 import ListBusinessCta from '@/components/list-business-cta'
 import { CITIES, CATEGORIES, TOP_CITIES } from '@/lib/data'
-import { CITY_INFO, generateCityCategoryContent } from '@/lib/seo-content'
+import { CITY_INFO, generateCityCategoryContent, categoryLabel, fitMetaDescription, pickTitleInRange } from '@/lib/seo-content'
 import MarkdownContent from '@/components/seo/markdown-content'
 import CityCategoryListings from './listings'
-import { getCityCategoryCards } from '@/lib/public-listings'
-import { MapPin, Building2, ArrowRight } from 'lucide-react'
+import { getCityCategoryCards, getApprovedReviewAverages, getTopRatedCards } from '@/lib/public-listings'
+import { MapPin, Building2, Phone, ArrowRight } from 'lucide-react'
 
 function cityToSlug(name: string): string {
   return name.toLowerCase().replace(/\s+/g, '-')
@@ -45,14 +45,37 @@ const getCachedCityCategoryCards = cache((
   categoryId: string,
   categoryName: string
 ) => getCityCategoryCards({ city, citySlug, categoryId, categoryName }))
+const getCachedReviewAverages = cache(() => getApprovedReviewAverages())
 
-function cityCategoryTitle(categoryName: string, city: string): string {
-  const long = `${categoryName} in ${city}: Find Contacts & Services | PakPin`
-  if (long.length <= 65) return long
-  const mid = `${categoryName} in ${city}: Contacts & Services | PakPin`
-  if (mid.length <= 65) return mid
-  return `${categoryName} in ${city}: Contacts | PakPin`
+// Title chain (verified over all 4,392 city x category combos:
+// every title lands 50-60 chars). Longest-first; the short label
+// form (e.g. 'Pets & Animals' for 'Pets & Veterinary Clinics')
+// covers the longest pairs, and the comma form covers the single
+// worst pair (Manufacturing & Industrial in Tando Muhammad Khan).
+function cityCategoryTitle(categoryName: string, city: string, label: string): string {
+  return pickTitleInRange([
+    `${categoryName} in ${city} – Contacts & Hours | PakListings`,
+    `${categoryName} in ${city} – Listings | PakListings`,
+    `${categoryName} in ${city} | PakListings`,
+    `${label} in ${city} | PakListings`,
+    `${categoryName}, ${city} | PakListings`,
+    `${label}, ${city} | PakListings`,
+  ])
 }
+
+// Appends for the minimum-length rule: the guide's first paragraph
+// is the description source; short ones are extended with a real
+// call-to-action clause until they reach 150-160 chars.
+const DESCRIPTION_APPENDS = [
+  ' Call or WhatsApp providers directly from their profiles.',
+  ' Call or WhatsApp providers directly.',
+  ' Call or WhatsApp them directly.',
+  ' Message them on WhatsApp.',
+  ' Call or message them.',
+  ' Call them today.',
+  ' Call today.',
+  ' Call now.',
+]
 
 function metaDescription(city: string, categoryId: string, categoryName: string): string {
   const md = generateCityCategoryContent(city, categoryId)
@@ -60,14 +83,8 @@ function metaDescription(city: string, categoryId: string, categoryName: string)
     .split(/\n{2,}/)
     .map(s => s.trim())
     .find(s => s.length > 0 && !s.startsWith('#'))
-  const text = (firstPara || `${categoryName} businesses and services in ${city}, Pakistan.`)
-    .replace(/[#*_]/g, '')
-    .replace(/\s+/g, ' ')
-    .trim()
-  if (text.length <= 158) return text
-  const cut = text.slice(0, 155)
-  const lastSpace = cut.lastIndexOf(' ')
-  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()
+  const text = firstPara || `${categoryName} businesses and services in ${city}, Pakistan.`
+  return fitMetaDescription(text, DESCRIPTION_APPENDS)
 }
 
 export async function generateMetadata(props: {
@@ -77,18 +94,18 @@ export async function generateMetadata(props: {
   const city = resolveCity(params.slug)
   const cat = resolveCategory(params.category)
   if (!city || !cat) {
-    return { title: 'Page Not Found | PakPin', robots: { index: false, follow: false } }
+    return { title: 'Page Not Found | PakListings', robots: { index: false, follow: false } }
   }
-  const title = cityCategoryTitle(cat.name, city)
+  const title = cityCategoryTitle(cat.name, city, categoryLabel(cat.id))
   const description = metaDescription(city, cat.id, cat.name)
   const listings = await getCachedCityCategoryCards(city, cityToSlug(city), cat.id, cat.name)
-  const canonical = `https://www.geotaggingphotos.com/city/${cityToSlug(city)}/${cat.id}`
+  const canonical = `https://www.paklistings.com/city/${cityToSlug(city)}/${cat.id}`
   return {
     title,
     description,
     ...(listings.length === 0 ? { robots: { index: false, follow: false } } : {}),
     alternates: { canonical },
-    openGraph: { title, description, url: canonical, siteName: 'PakPin', locale: 'en_PK', type: 'website' },
+    openGraph: { title, description, url: canonical, siteName: 'PakListings', locale: 'en_PK', type: 'website' },
     twitter: { card: 'summary_large_image', title, description },
   }
 }
@@ -103,6 +120,8 @@ export default async function CityCategoryPage(props: {
 
   const citySlug = cityToSlug(city)
   const listings = await getCachedCityCategoryCards(city, citySlug, cat.id, cat.name)
+  const averages = await getCachedReviewAverages()
+  const topRated = getTopRatedCards(listings, averages)
   const info = CITY_INFO[city]
   const guide = generateCityCategoryContent(city, cat.id)
   const otherCategories = CATEGORIES.filter(c => c.id !== cat.id).slice(0, 8)
@@ -112,10 +131,10 @@ export default async function CityCategoryPage(props: {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.geotaggingphotos.com/' },
-      { '@type': 'ListItem', position: 2, name: 'Cities', item: 'https://www.geotaggingphotos.com/cities/' },
-      { '@type': 'ListItem', position: 3, name: city, item: `https://www.geotaggingphotos.com/city/${citySlug}/` },
-      { '@type': 'ListItem', position: 4, name: cat.name, item: `https://www.geotaggingphotos.com/city/${citySlug}/${cat.id}/` },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.paklistings.com/' },
+      { '@type': 'ListItem', position: 2, name: 'Cities', item: 'https://www.paklistings.com/cities/' },
+      { '@type': 'ListItem', position: 3, name: city, item: `https://www.paklistings.com/city/${citySlug}/` },
+      { '@type': 'ListItem', position: 4, name: cat.name, item: `https://www.paklistings.com/city/${citySlug}/${cat.id}/` },
     ],
   }
 
@@ -128,20 +147,20 @@ export default async function CityCategoryPage(props: {
         {/* Hero */}
         <section className="bg-slate-900 text-white py-14 px-4 sm:px-6 lg:px-8">
           <div className="max-w-5xl mx-auto space-y-4">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold border border-blue-500/30">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-bold border border-cyan-500/30">
               <Building2 className="w-3.5 h-3.5" />
               {city} · {info ? info.province : 'Pakistan'}
             </span>
             <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-              {cat.name} <span className="text-blue-400">in {city}</span>
+              {cat.name} <span className="text-cyan-400">in {city}</span>
             </h1>
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed max-w-3xl">
               {cat.desc}. Browse the approved {cat.name.toLowerCase()} businesses listed in {city} so far,
               read our local guide, and contact providers directly by phone or WhatsApp.
             </p>
             <p className="text-xs text-slate-400 flex items-center gap-1.5">
-              <MapPin className="w-3.5 h-3.5 text-blue-400" />
-              <Link href={`/city/${citySlug}`} className="hover:text-blue-300 font-semibold">
+              <MapPin className="w-3.5 h-3.5 text-cyan-400" />
+              <Link href={`/city/${citySlug}`} className="hover:text-cyan-300 font-semibold">
                 See all businesses and categories in {city}
               </Link>
             </p>
@@ -155,6 +174,51 @@ export default async function CityCategoryPage(props: {
           </h2>
           <CityCategoryListings businesses={listings} city={city} categoryName={cat.name} />
         </section>
+
+        {/* Top rated in this city × category — rendered ONLY when real
+            approved reviews exist for these listings. */}
+        {topRated.length > 0 && (
+          <section className="py-14 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto space-y-6">
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              Top rated {cat.name} in {city}
+            </h2>
+            <p className="text-sm text-slate-500">
+              The highest-rated {cat.name.toLowerCase()} businesses in {city}, ranked by their approved customer reviews.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {topRated.map(biz => (
+                <article key={biz.id} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-xs hover:shadow-lg transition-all flex flex-col gap-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-extrabold text-slate-900 leading-snug">{biz.name}</h3>
+                    <span className="shrink-0 px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 text-[11px] font-bold">
+                      ★ {biz.avgRating.toFixed(1)} · {biz.reviewCount} review{biz.reviewCount === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  {biz.city && (
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                      <MapPin className="w-3.5 h-3.5 text-cyan-700" /> {biz.city}
+                    </p>
+                  )}
+                  {biz.phone && (
+                    <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
+                      <Phone className="w-3.5 h-3.5 text-cyan-700" /> {biz.phone}
+                    </p>
+                  )}
+                  {biz.description && (
+                    <p className="text-sm text-slate-600 leading-relaxed line-clamp-3">{biz.description}</p>
+                  )}
+                  <Link
+                    href={`/business/${biz.slug}`}
+                    prefetch={false}
+                    className="mt-auto inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:text-cyan-800"
+                  >
+                    View Business <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Guide */}
         <section className="bg-white py-14 px-4 sm:px-6 lg:px-8 border-y border-slate-200/80">
@@ -173,10 +237,10 @@ export default async function CityCategoryPage(props: {
               <Link
                 key={c.id}
                 href={`/city/${citySlug}/${c.id}`}
-                className="bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-blue-500 hover:shadow-md transition-all group"
+                className="bg-white rounded-2xl p-5 border border-slate-200/80 hover:border-cyan-500 hover:shadow-md transition-all group"
               >
-                <Building2 className="w-6 h-6 text-blue-700 mb-2" />
-                <h3 className="font-bold text-slate-900 text-sm group-hover:text-blue-700">{c.name} in {city}</h3>
+                <Building2 className="w-6 h-6 text-cyan-700 mb-2" />
+                <h3 className="font-bold text-slate-900 text-sm group-hover:text-cyan-700">{c.name} in {city}</h3>
                 <p className="text-[11px] text-slate-500 mt-1 line-clamp-2">{c.desc}</p>
               </Link>
             ))}
@@ -193,13 +257,13 @@ export default async function CityCategoryPage(props: {
               <Link
                 key={c}
                 href={`/city/${cityToSlug(c)}/${cat.id}`}
-                className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl hover:border-blue-500 text-xs font-medium inline-flex items-center gap-1"
+                className="px-3.5 py-2 bg-white border border-slate-200 rounded-xl hover:border-cyan-500 text-xs font-medium inline-flex items-center gap-1"
               >
                 {cat.name} in {c}
                 <ArrowRight className="w-3 h-3" />
               </Link>
             ))}
-            <Link href={`/category/${cat.id}`} className="px-3.5 py-2 bg-blue-700 text-white rounded-xl hover:bg-blue-800 text-xs font-bold">
+            <Link href={`/category/${cat.id}`} className="px-3.5 py-2 bg-cyan-700 text-white rounded-xl hover:bg-cyan-800 text-xs font-bold">
               {cat.name} Across Pakistan
             </Link>
           </div>
@@ -207,7 +271,7 @@ export default async function CityCategoryPage(props: {
 
         <OwnerCtaBand
           title={`Run a ${cat.name.toLowerCase()} business in ${city}?`}
-          text={`List it free on this page: register, complete the eight-step form, and once approved, your profile goes live immediately, and then appears here with call and WhatsApp buttons customers can use directly.`}
+          text={`List it on this page for a one-time fee from PKR 99: register, complete the eight-step form, and once approved, your profile appears at the next weekly release with call and WhatsApp buttons customers can use directly.`}
           links={[
             { label: `All businesses in ${city}`, href: `/city/${citySlug}` },
             { label: `${cat.name} across Pakistan`, href: `/category/${cat.id}` },

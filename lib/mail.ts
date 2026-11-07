@@ -2,7 +2,7 @@ import { queueOwnerEmail } from '@/lib/owner-mail'
 import { loadOwnerEmail } from '@/lib/owner-contact'
 
 // ============================================================
-// PakPin — transactional mail (welcome / received /
+// PakListings — transactional mail (welcome / received /
 // approved / payment + admin notifications)
 // ------------------------------------------------------------
 // Every email the site sends goes through queueOwnerEmail()
@@ -17,10 +17,10 @@ import { loadOwnerEmail } from '@/lib/owner-contact'
 // ============================================================
 
 /** Where admin notification emails go. One place only — change here. */
-export const ADMIN_EMAIL = 'admin@geotaggingphotos.com'
+export const ADMIN_EMAIL = 'admin@paklistings.com'
 
-const SITE = 'https://www.geotaggingphotos.com'
-const SUPPORT_LINE = 'Questions? Contact our team at https://www.geotaggingphotos.com/contact and we will be happy to help.'
+const SITE = 'https://www.paklistings.com'
+const SUPPORT_LINE = 'Questions? Contact our team at https://www.paklistings.com/contact and we will be happy to help.'
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -31,11 +31,11 @@ function shell(innerHtml: string): string {
   return `
 <div style="font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.6;max-width:600px;margin:0 auto">
   <div style="background:#0f172a;color:#ffffff;padding:20px 24px;border-radius:12px 12px 0 0">
-    <strong style="font-size:18px">PakPin</strong>
+    <strong style="font-size:18px">PakListings</strong>
   </div>
   <div style="border:1px solid #e2e8f0;border-top:none;padding:24px;border-radius:0 0 12px 12px">
     ${innerHtml}
-    <p>— The PakPin Team</p>
+    <p>— The PakListings Team</p>
   </div>
 </div>`.trim()
 }
@@ -48,14 +48,14 @@ function greeting(ownerName?: string): string {
 // (a) Welcome — queued right after a successful registration.
 // ------------------------------------------------------------
 export async function queueWelcomeEmail(to: string, ownerName?: string): Promise<boolean> {
-  const subject = 'Welcome to PakPin — your account is ready'
+  const subject = 'Welcome to PakListings — your account is ready'
   const text = [
     greeting(ownerName),
     '',
-    'Welcome to PakPin, and thank you for creating your account.',
+    'Welcome to PakListings, and thank you for creating your account.',
     '',
     'From your dashboard you can now:',
-    '- Add a business listing (free) and get found by customers across Pakistan',
+    '- Add a business listing (from PKR 99 one-time) and get found by customers across Pakistan',
     '- Add a company profile',
     '- Post a job and reach candidates',
     '',
@@ -65,14 +65,14 @@ export async function queueWelcomeEmail(to: string, ownerName?: string): Promise
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
   const html = shell(`
     <p>${esc(greeting(ownerName))}</p>
-    <p>Welcome to <strong>PakPin</strong>, and thank you for creating your account.</p>
+    <p>Welcome to <strong>PakListings</strong>, and thank you for creating your account.</p>
     <p>From your dashboard you can now:</p>
     <ul>
-      <li>Add a <strong>business listing</strong> (free) and get found by customers across Pakistan</li>
+      <li>Add a <strong>business listing</strong> (from PKR 99 one-time) and get found by customers across Pakistan</li>
       <li>Add a <strong>company profile</strong></li>
       <li><strong>Post a job</strong> and reach candidates</li>
     </ul>
@@ -116,8 +116,8 @@ export async function queueSubmissionEmails(args: {
   const subject = `We received your ${label} '${name}' — it is under review`
   const releaseNote =
     kind === 'business'
-      ? ' Once approved, it goes live on PakPin straight away.'
-      : ' Once approved, it goes live on PakPin straight away.'
+      ? ' Once approved, it goes live on PakListings straight away.'
+      : ' Once approved, it goes live on PakListings straight away.'
   const text = [
     greeting(ownerName),
     '',
@@ -129,7 +129,7 @@ export async function queueSubmissionEmails(args: {
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
   const html = shell(`
     <p>${esc(greeting(ownerName))}</p>
@@ -152,7 +152,7 @@ export async function queueSubmissionEmails(args: {
 
 // ------------------------------------------------------------
 // Admin notifications. Subject pattern:
-//   [PakPin Admin] New <type>: <name> — <city>
+//   [PakListings Admin] New <type>: <name> — <city>
 // (city suffix omitted when the source flow has no city.)
 // ------------------------------------------------------------
 export async function notifyAdmin(args: {
@@ -163,10 +163,10 @@ export async function notifyAdmin(args: {
   lines?: string[]
 }): Promise<boolean> {
   const { type, name, city, adminPath, lines = [] } = args
-  const subject = `[PakPin Admin] New ${type}: ${name}${city ? ` — ${city}` : ''}`
+  const subject = `[PakListings Admin] New ${type}: ${name}${city ? ` — ${city}` : ''}`
   const url = `${SITE}${adminPath}`
   const text = [
-    `A new ${type} is waiting for review on PakPin.`,
+    `A new ${type} is waiting for review on PakListings.`,
     '',
     `Name: ${name}`,
     ...(city ? [`City: ${city}`] : []),
@@ -175,7 +175,7 @@ export async function notifyAdmin(args: {
     `Review it here: ${url}`,
   ].join('\n')
   const html = shell(`
-    <p>A new <strong>${esc(type)}</strong> is waiting for review on PakPin.</p>
+    <p>A new <strong>${esc(type)}</strong> is waiting for review on PakListings.</p>
     <p><strong>Name:</strong> ${esc(name)}${city ? `<br /><strong>City:</strong> ${esc(city)}` : ''}</p>
     ${lines.length ? `<p>${lines.map((l) => esc(l)).join('<br />')}</p>` : ''}
     <p><a href="${url}">Review it in the admin panel</a></p>
@@ -259,7 +259,7 @@ export async function queueListingApprovedEmail(
       '',
       SUPPORT_LINE,
       '',
-      '— The PakPin Team',
+      '— The PakListings Team',
     ].join('\n')
     const html = shell(`
       <p>${esc(greeting(ownerName))}</p>
@@ -279,18 +279,18 @@ export async function queueListingApprovedEmail(
   const text = [
     greeting(ownerName),
     '',
-    `Great news: your ${label} '${name}' has been approved by our review team and is now live on PakPin.`,
+    `Great news: your ${label} '${name}' has been approved by our review team and is now live on PakListings.`,
     ...(publicUrl ? ['', `See it here: ${publicUrl}`] : []),
     '',
     `You can update its details any time from your dashboard: ${SITE}/dashboard`,
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
   const html = shell(`
     <p>${esc(greeting(ownerName))}</p>
-    <p>Great news: your ${label} <strong>${esc(name)}</strong> has been approved by our review team and is <strong>now live</strong> on PakPin.</p>
+    <p>Great news: your ${label} <strong>${esc(name)}</strong> has been approved by our review team and is <strong>now live</strong> on PakListings.</p>
     ${publicUrl ? `<p><a href="${publicUrl}">See your live profile</a></p>` : ''}
     <p>You can update its details any time from <a href="${SITE}/dashboard">your dashboard</a>.</p>
     <p>Questions? <a href="${SITE}/contact">Contact our team</a> and we will be happy to help.</p>
@@ -332,19 +332,19 @@ export async function queuePaymentApprovedEmail(item: { id: string; data: any })
       `We have verified your payment, and your ${tierLabel} listing '${listingName}' has been approved.`,
       '',
       isBusiness
-        ? 'Your listing is now live on PakPin.'
-        : 'Your listing is now live on PakPin.',
+        ? 'Your listing is now live on PakListings.'
+        : 'Your listing is now live on PakListings.',
       '',
       `Manage your listing any time from your dashboard: ${SITE}/dashboard`,
       '',
       SUPPORT_LINE,
       '',
-      '— The PakPin Team',
+      '— The PakListings Team',
     ].join('\n')
     const html = shell(`
       <p>Hello,</p>
-      <p>We have verified your payment, and your ${tierLabel} listing <strong>${esc(listingName)}</strong> has been approved.</p>
-      <p>Your listing is now live on PakPin.</p>
+      <p>We have verified your payment, and your <strong>${tierLabel}</strong> listing <strong>${esc(listingName)}</strong> has been approved.</p>
+      <p>Your listing is now live on PakListings.</p>
       <p>Manage your listing any time from <a href="${SITE}/dashboard">your dashboard</a>.</p>
       <p>Questions? <a href="${SITE}/contact">Contact our team</a> and we will be happy to help.</p>
     `)
@@ -361,7 +361,7 @@ export async function queuePaymentApprovedEmail(item: { id: string; data: any })
   const text = [
     'Hello,',
     '',
-    `We have verified your payment, and your listing '${listingName}' is now ${planLabel} on PakPin.`,
+    `We have verified your payment, and your listing '${listingName}' is now ${planLabel} on PakListings.`,
     '',
     benefit,
     '',
@@ -369,11 +369,11 @@ export async function queuePaymentApprovedEmail(item: { id: string; data: any })
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
   const html = shell(`
     <p>Hello,</p>
-    <p>We have verified your payment, and your listing <strong>${esc(listingName)}</strong> is now <strong>${planLabel}</strong> on PakPin.</p>
+    <p>We have verified your payment, and your listing <strong>${esc(listingName)}</strong> is now <strong>${planLabel}</strong> on PakListings.</p>
     <p>${esc(benefit)}</p>
     <p>Manage your listing any time from <a href="${SITE}/dashboard">your dashboard</a>.</p>
     <p>Questions? <a href="${SITE}/contact">Contact our team</a> and we will be happy to help.</p>

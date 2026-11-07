@@ -5,10 +5,10 @@ import Footer from '@/components/footer'
 import { Briefcase, Building2, MapPin, Users } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Careers at PakPin | Join Pakistan Digital Business Platform',
-  description: 'Explore career opportunities at PakPin. Help build Pakistan\'s free digital business and employment ecosystem.',
+  title: 'Careers at PakListings | Join Our Pakistan Directory Team',
+  description: "Work on PakListings, the Pakistan business directory: help owners across 183 cities get found, grow local search, and see the roles we expect to hire for.",
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/careers/',
+    canonical: 'https://www.paklistings.com/careers/',
   },
 }
 
@@ -23,7 +23,7 @@ export default function CareersPage() {
               Build the Future of Digital Pakistan
             </h1>
             <p className="mt-4 text-slate-300 text-base sm:text-lg max-w-2xl mx-auto">
-              PakPin is a small, founder-led team, and we have no open roles right now. The roles below
+              PakListings is a small, founder-led team, and we have no open roles right now. The roles below
               describe the kind of help we expect to hire for as the directory grows — speculative
               applications are welcome in the meantime.
             </p>
@@ -31,11 +31,11 @@ export default function CareersPage() {
         </section>
 
         <section className="max-w-4xl mx-auto px-4 py-12 space-y-6">
-          <h2 className="text-2xl font-bold text-slate-900 border-b border-slate-200 pb-3">Open Positions at PakPin HQ</h2>
+          <h2 className="text-2xl font-bold text-slate-900 border-b border-slate-200 pb-3">Open Positions at PakListings HQ</h2>
           
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">Engineering</span>
+              <span className="text-xs font-bold text-cyan-700 bg-cyan-50 px-2.5 py-1 rounded-md">Engineering</span>
               <h3 className="font-bold text-slate-900 text-lg mt-2">Senior Full Stack Engineer</h3>
               <p className="text-xs text-slate-500 flex items-center gap-3 mt-1">
                 <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> Islamabad / Remote</span>
@@ -49,7 +49,7 @@ export default function CareersPage() {
 
           <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <span className="text-xs font-bold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md">Growth & SEO</span>
+              <span className="text-xs font-bold text-cyan-700 bg-cyan-50 px-2.5 py-1 rounded-md">Growth & SEO</span>
               <h3 className="font-bold text-slate-900 text-lg mt-2">SEO & Content Operations Lead</h3>
               <p className="text-xs text-slate-500 flex items-center gap-3 mt-1">
                 <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400" /> Islamabad HQ</span>
@@ -62,7 +62,7 @@ export default function CareersPage() {
           </div>
 
           <div className="pt-8 text-center text-xs text-slate-500">
-            Don&apos;t see your role? Submit your resume to <a href="mailto:careers@geotaggingphotos.com" className="text-blue-700 underline font-medium">careers@geotaggingphotos.com</a> for future consideration.
+            Don&apos;t see your role? Submit your resume to <a href="mailto:careers@paklistings.com" className="text-cyan-700 underline font-medium">careers@paklistings.com</a> for future consideration.
           </div>
         </section>
       </main>

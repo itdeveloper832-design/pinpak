@@ -134,7 +134,7 @@ export default function AdminCompaniesPage() {
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
             className={`px-4 py-2 rounded-full text-xs font-bold border capitalize cursor-pointer transition-colors ${
-              tab === t ? 'bg-blue-700 border-blue-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-500'
+              tab === t ? 'bg-cyan-700 border-cyan-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-cyan-500'
             }`}
           >
             {t} ({t === 'all' ? items.length : items.filter((it) => (it.data.status || 'pending') === t).length})
@@ -158,12 +158,12 @@ export default function AdminCompaniesPage() {
                       <h2 className="font-extrabold text-slate-900 text-sm">{data.name || 'Unnamed company'}</h2>
                       <StatusBadge status={data.status || 'pending'} />
                       {data.featured && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-50 text-violet-700 border border-violet-200 text-[10px] font-bold">
                           <Star className="w-3 h-3" /> Featured
                         </span>
                       )}
                       {data.verified && (
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-50 text-blue-800 border border-blue-200 text-[10px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-200 text-[10px] font-bold">
                           <BadgeCheck className="w-3 h-3" /> Verified
                         </span>
                       )}

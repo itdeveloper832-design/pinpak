@@ -52,7 +52,7 @@ export default function HeroSearchForm() {
       <button
         id="hero-search-submit"
         type="submit"
-        className="bg-[#0f2b3d] hover:bg-[#1a3f57] text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-colors duration-200 text-sm sm:text-base cursor-pointer"
+        className="bg-[#155E75] hover:bg-[#0E7490] text-white font-semibold px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl transition-colors duration-200 text-sm sm:text-base cursor-pointer"
         aria-label="Submit business search"
       >
         Search

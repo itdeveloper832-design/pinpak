@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const INDEXNOW_API_KEY = 'your_indexnow_api_key_here'
-const HOST = 'www.geotaggingphotos.com';
+const HOST = 'www.paklistings.com';
 const KEY_LOCATION = `https://${HOST}/${INDEXNOW_API_KEY}.txt`;
 
 async function runIndexNowSubmission() {

@@ -19,6 +19,6 @@ export default function robots(): MetadataRoute.Robots {
         '/business-dashboard/*',
       ],
     },
-    sitemap: 'https://www.geotaggingphotos.com/sitemap.xml',
+    sitemap: 'https://www.paklistings.com/sitemap.xml',
   }
 }

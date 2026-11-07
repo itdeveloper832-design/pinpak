@@ -1,7 +1,7 @@
 rules_version = '2';
 
 // ============================================================
-// PakPin — Firestore Security Rules
+// PakListings — Firestore Security Rules
 // Firebase Console > Firestore Database > Rules mein paste karein
 // ============================================================
 
@@ -188,7 +188,7 @@ service cloud.firestore {
     // ---------- Mail Queue (Firebase "Trigger Email" extension ke liye) ----------
     // Admin kisi bhi action (approve/reject/delete waghera) par email queue kar sakta hai.
     // Signed-in user bhi queue kar sakta hai — LEKIN sirf (1) apni khud ki login
-    // email par, ya (2) admin ki notification email (admin@geotaggingphotos.com) par;
+    // email par, ya (2) admin ki notification email (admin@paklistings.com) par;
     // aur document mein sirf to + message ho sakta hai, message mein sirf
     // subject/text/html strings, size ki sakht had ke saath. Is se koi user
     // kisi teesre bande ko email/spam nahi bhej sakta.
@@ -201,7 +201,7 @@ service cloud.firestore {
           && request.resource.data.keys().hasOnly(['to', 'message'])
           && request.resource.data.to is string
           && (request.resource.data.to == request.auth.token.email
-              || request.resource.data.to == 'admin@geotaggingphotos.com')
+              || request.resource.data.to == 'admin@paklistings.com')
           && request.resource.data.message is map
           && request.resource.data.message.keys().hasAll(['subject', 'text', 'html'])
           && request.resource.data.message.keys().hasOnly(['subject', 'text', 'html'])
@@ -240,6 +240,16 @@ service cloud.firestore {
         && request.resource.data.content is string;
       allow read: if resource.data.status == 'approved' || isOwner(resource.data.authorId) || isAdmin();
       allow update, delete: if isAdmin();
+    }
+
+    // ---------- Site Settings (Admin → Settings / site-protection guard) ----------
+    // The protection guard reads settings/site and Admin → Settings writes
+    // it — without this rule the catch-all below denies both, so the
+    // guard's OFF switch could never work. Public read only; writes are
+    // admin-only, exactly like the other admin-managed collections.
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // ---------- Baaki sab collections: band ----------

@@ -70,9 +70,9 @@ export const TOP_CITIES = [
 export const CATEGORIES = [
   { id: 'professional-job-seeker', name: 'Professional / Job Seeker', icon: 'users', count: 1450, color: '#2563eb', desc: 'Verified personal profiles for professionals, freelancers, doctors, engineers, skilled workers & job seekers' },
   { id: 'hiring-company-hr', name: 'Hiring Company / HR', icon: 'briefcase', count: 980, color: '#0284c7', desc: 'Verified company hiring profiles, recruitment agencies, HR departments & job vacancy postings across Pakistan' },
-  { id: 'restaurants', name: 'Restaurants & Food', icon: 'restaurant', count: 8420, color: '#f43f5e', desc: 'Find local cafes, fine dining, fast food, and food caterers' },
-  { id: 'real-estate', name: 'Real Estate & Property', icon: 'real-estate', count: 5210, color: '#3b82f6', desc: 'Verified property dealers, builders, and real estate consultants' },
-  { id: 'technology', name: 'Technology & IT', icon: 'technology', count: 4890, color: '#3b82f6', desc: 'Software houses, web developers, mobile apps, and IT agencies' },
+  { id: 'restaurants', name: 'Restaurants & Food', icon: 'restaurant', count: 8420, color: '#7C3AED', desc: 'Find local cafes, fine dining, fast food, and food caterers' },
+  { id: 'real-estate', name: 'Real Estate & Property', icon: 'real-estate', count: 5210, color: '#0891B2', desc: 'Verified property dealers, builders, and real estate consultants' },
+  { id: 'technology', name: 'Technology & IT', icon: 'technology', count: 4890, color: '#0891B2', desc: 'Software houses, web developers, mobile apps, and IT agencies' },
   { id: 'healthcare', name: 'Healthcare & Medical', icon: 'healthcare', count: 6320, color: '#ef4444', desc: 'Hospitals, specialist doctors, diagnostic labs, and pharmacies' },
   { id: 'education', name: 'Education & Training', icon: 'education', count: 3780, color: '#8b5cf6', desc: 'Schools, universities, academies, and professional institutes' },
   { id: 'retail', name: 'Retail & Shopping', icon: 'retail', count: 9100, color: '#ec4899', desc: 'Boutiques, wholesale stores, electronic shops, and markets' },
@@ -85,7 +85,7 @@ export const CATEGORIES = [
   { id: 'home-services', name: 'Home Services & Repairs', icon: 'home-services', count: 3410, color: '#0284c7', desc: 'Plumbers, electricians, AC technicians, painters, and handymen' },
   { id: 'legal', name: 'Legal & Law Consultants', icon: 'legal', count: 1540, color: '#4f46e5', desc: 'Advocates, corporate lawyers, tax attorneys, and legal firms' },
   { id: 'solar-energy', name: 'Solar & Renewable Energy', icon: 'solar-energy', count: 2180, color: '#eab308', desc: 'Solar panel installers, inverter suppliers, and green energy firms' },
-  { id: 'events', name: 'Event Management & Wedding', icon: 'events', count: 2890, color: '#f43f5e', desc: 'Marquees, wedding planners, catering, photography, and sound' },
+  { id: 'events', name: 'Event Management & Wedding', icon: 'events', count: 2890, color: '#7C3AED', desc: 'Marquees, wedding planners, catering, photography, and sound' },
   { id: 'manufacturing', name: 'Manufacturing & Industrial', icon: 'manufacturing', count: 1760, color: '#64748b', desc: 'Factories, industrial machinery, textile mills, and suppliers' },
   { id: 'agriculture', name: 'Agriculture & Farming', icon: 'agriculture', count: 1420, color: '#15803d', desc: 'Agri machinery, fertilizers, seed suppliers, and livestock' },
   { id: 'security', name: 'Security Services & Systems', icon: 'security', count: 1120, color: '#334155', desc: 'CCTV cameras, security guard agencies, and access control' },
@@ -367,7 +367,7 @@ async function rebuildDataTs() {
       phone: data.phone || '+92 300 0000000',
       whatsapp: data.whatsapp || '923000000000',
       email: data.email || 'contact@business.pk',
-      website: data.website || data.websiteUrl || 'https://www.geotaggingphotos.com',
+      website: data.website || data.websiteUrl || 'https://www.paklistings.com',
       address: data.address || 'Pakistan',
       locations: data.locations || [],
       coverImage: data.coverImage || 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80',
@@ -408,9 +408,9 @@ async function rebuildDataTs() {
       expiresAt: data.expiresAt || new Date(Date.now() + 30*86400000).toISOString(),
       status: data.status || 'approved',
       isFeatured: data.isFeatured ?? false,
-      applicationEmail: data.applicationEmail || 'jobs@geotaggingphotos.com',
+      applicationEmail: data.applicationEmail || 'jobs@paklistings.com',
       applicationWhatsapp: data.applicationWhatsapp || '+923000000000',
-      applicationWebsite: data.applicationWebsite || 'https://www.geotaggingphotos.com'
+      applicationWebsite: data.applicationWebsite || 'https://www.paklistings.com'
     });
   });
 
@@ -451,7 +451,7 @@ async function rebuildDataTs() {
       verificationStatus: data.verificationStatus || 'VERIFIED',
       phone: data.phone || '+92 300 0000000',
       whatsapp: data.whatsapp || '923000000000',
-      email: data.email || 'contact@geotaggingphotos.com',
+      email: data.email || 'contact@paklistings.com',
       website: data.website || '',
       linkedin: data.linkedin || '',
       github: data.github || '',

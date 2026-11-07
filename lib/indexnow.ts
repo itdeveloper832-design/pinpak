@@ -4,7 +4,7 @@
  */
 
 export const INDEXNOW_API_KEY = 'your_indexnow_api_key_here'
-export const INDEXNOW_HOST = process.env.NEXT_PUBLIC_SITE_HOST || 'www.geotaggingphotos.com'
+export const INDEXNOW_HOST = process.env.NEXT_PUBLIC_SITE_HOST || 'www.paklistings.com'
 export const INDEXNOW_KEY_LOCATION = `https://${INDEXNOW_HOST}/${INDEXNOW_API_KEY}.txt`
 
 export async function submitToIndexNow(urls: string | string[]): Promise<{ success: boolean; status: number; message: string }> {

@@ -14,7 +14,8 @@ import { fetchUserBlogPostBySlug } from '@/lib/public-listings'
 
 export const revalidate = 86400
 
-// Meta spec: titles 50-65 chars, descriptions 120-158 chars.
+// Meta spec: titles 50-60 chars, descriptions 150-160 chars (descriptions
+// trimmed to at most 158).
 // BLOG_POSTS metaTitles (51-77 chars) and metaDescriptions (137-199 chars)
 // live in lib/blog-data.ts, so the template adapts them here instead of
 // editing the data: keep the brand suffix when it fits, drop it when the
@@ -22,10 +23,10 @@ export const revalidate = 86400
 // then shorten at a segment boundary (never mid-word) so the topic phrase
 // stays intact. Over-long descriptions are trimmed at the last word
 // boundary with an ellipsis; in-spec ones pass through untouched.
-const META_TITLE_SUFFIX = ' | PakPin'
+const META_TITLE_SUFFIX = ' | PakListings'
 
 function fitMetaTitle(metaTitle: string): string {
-  const inSpec = (s: string) => s.length >= 50 && s.length <= 65
+  const inSpec = (s: string) => s.length >= 50 && s.length <= 60
   if (inSpec(metaTitle + META_TITLE_SUFFIX)) return metaTitle + META_TITLE_SUFFIX
   if (inSpec(metaTitle)) return metaTitle
   const noYear = metaTitle.replace(' 2026', '')
@@ -60,18 +61,18 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   if (!post) {
     const userPost = await fetchUserBlogPostBySlug(slug)
     if (userPost) {
-      const title = `${userPost.title} | PakPin`
+      const title = `${userPost.title} | PakListings`
       const description = userPost.excerpt || userPost.content.slice(0, 150)
       return {
         title,
         description,
-        alternates: { canonical: `https://www.geotaggingphotos.com/blog/${slug}/` },
-        authors: [{ name: userPost.authorName || 'PakPin Community', url: 'https://www.geotaggingphotos.com/about/' }],
+        alternates: { canonical: `https://www.paklistings.com/blog/${slug}/` },
+        authors: [{ name: userPost.authorName || 'PakListings Community', url: 'https://www.paklistings.com/about/' }],
         openGraph: {
           title,
           description,
-          url: `https://www.geotaggingphotos.com/blog/${slug}/`,
-          siteName: 'PakPin',
+          url: `https://www.paklistings.com/blog/${slug}/`,
+          siteName: 'PakListings',
           locale: 'en_PK',
           type: 'article',
         },
@@ -80,8 +81,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
   const cleanTitle = post ? post.metaTitle : slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
-  const title = post ? fitMetaTitle(post.metaTitle) : `${cleanTitle} | PakPin`
-  const description = post ? fitMetaDescription(post.metaDescription) : `Read ${cleanTitle} on PakPin Blog.`
+  const title = post ? fitMetaTitle(post.metaTitle) : `${cleanTitle} | PakListings`
+  const description = post ? fitMetaDescription(post.metaDescription) : `Read ${cleanTitle} on PakListings Blog.`
   const publishedDate = post?.date ? new Date(post.date).toISOString() : undefined
   const modifiedDate = post?.dateModified ? new Date(post.dateModified).toISOString() : publishedDate
 
@@ -90,14 +91,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description,
     keywords: post ? [post.focusKeyword, 'Business Directory Pakistan', 'Pakistan Business Directory', 'Local Business Directory', 'Company Directory Pakistan'] : [],
     alternates: {
-      canonical: `https://www.geotaggingphotos.com/blog/${slug}/`,
+      canonical: `https://www.paklistings.com/blog/${slug}/`,
     },
-    authors: post?.authorName ? [{ name: post.authorName, url: post.authorUrl }] : [{ name: 'PakPin Editorial Team', url: 'https://www.geotaggingphotos.com/about/' }],
+    authors: post?.authorName ? [{ name: post.authorName, url: post.authorUrl }] : [{ name: 'PakListings Editorial Team', url: 'https://www.paklistings.com/about/' }],
     openGraph: {
       title,
       description,
-      url: `https://www.geotaggingphotos.com/blog/${slug}/`,
-      siteName: 'PakPin',
+      url: `https://www.paklistings.com/blog/${slug}/`,
+      siteName: 'PakListings',
       locale: 'en_PK',
       type: 'article',
       publishedTime: publishedDate,
@@ -127,16 +128,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         <main className="bg-[#F8FAFC] text-[#0F172A] font-sans pb-16">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pt-10">
             <nav className="text-xs text-slate-500 mb-6" aria-label="Breadcrumb">
-              <Link href="/" className="hover:text-blue-700">Home</Link>
+              <Link href="/" className="hover:text-cyan-700">Home</Link>
               <span className="mx-2">/</span>
-              <Link href="/blog/" className="hover:text-blue-700">Blog</Link>
+              <Link href="/blog/" className="hover:text-cyan-700">Blog</Link>
               <span className="mx-2">/</span>
               <span className="text-slate-700">Community Post</span>
             </nav>
-            <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">Community Post</span>
+            <span className="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full">Community Post</span>
             <h1 className="text-3xl sm:text-4xl font-extrabold leading-tight mt-4 mb-4">{userPost.title}</h1>
             <p className="text-sm text-slate-500 mb-8">
-              {userPost.authorName ? `By ${userPost.authorName}` : 'By a PakPin community member'}
+              {userPost.authorName ? `By ${userPost.authorName}` : 'By a PakListings community member'}
               {userPost.listingName ? ` · ${userPost.listingName}` : ''}
               {userPost.createdAt ? ` · ${new Date(userPost.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}` : ''}
             </p>
@@ -146,7 +147,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ))}
             </article>
             <div className="mt-10">
-              <Link href="/blog/" className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:underline">
+              <Link href="/blog/" className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:underline">
                 <ArrowLeft className="w-4 h-4" /> Back to Blog
               </Link>
             </div>
@@ -181,18 +182,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     description: post ? fitMetaDescription(post.metaDescription) : `Guide on ${title}`,
     author: {
       '@type': post.authorName ? 'Person' : 'Organization',
-      name: post.authorName || 'PakPin Editorial Team',
-      url: post.authorUrl || 'https://www.geotaggingphotos.com/about/',
+      name: post.authorName || 'PakListings Editorial Team',
+      url: post.authorUrl || 'https://www.paklistings.com/about/',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'PakPin',
-      logo: 'https://www.geotaggingphotos.com/logo.png',
+      name: 'PakListings',
+      logo: 'https://www.paklistings.com/logo.png',
     },
     datePublished: publishedDate,
     dateModified: modifiedDate,
-    image: post.image ? [post.image] : ['https://www.geotaggingphotos.com/logo.png'],
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.geotaggingphotos.com/blog/${slug}/` },
+    image: post.image ? [post.image] : ['https://www.paklistings.com/logo.png'],
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://www.paklistings.com/blog/${slug}/` },
     inLanguage: 'en-PK',
   }
 
@@ -226,9 +227,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <main className="bg-[#F8FAFC] text-[#0F172A] font-sans pb-16">
         <nav aria-label="Breadcrumb" className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 text-xs text-slate-500">
-          <Link href="/" className="hover:text-blue-800 underline">Home</Link>
+          <Link href="/" className="hover:text-cyan-800 underline">Home</Link>
           <span className="mx-2">/</span>
-          <Link href="/blog" className="hover:text-blue-800 underline">Blog</Link>
+          <Link href="/blog" className="hover:text-cyan-800 underline">Blog</Link>
           <span className="mx-2">/</span>
           <span>{category}</span>
         </nav>
@@ -236,12 +237,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* HERO SECTION */}
         <section className="bg-white border-b border-[#E2E8F0] py-12 sm:py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Link href="/blog" aria-label="Back to All Blog Posts" className="inline-flex items-center gap-2 text-xs font-bold text-[#1D4ED8] hover:underline mb-6">
+            <Link href="/blog" aria-label="Back to All Blog Posts" className="inline-flex items-center gap-2 text-xs font-bold text-[#0E7490] hover:underline mb-6">
               <ArrowLeft className="w-4 h-4" />
               <span>Back to All Blog Posts</span>
             </Link>
 
-            <div className="flex items-center gap-3 text-xs font-semibold text-[#16A34A] bg-blue-50 px-3 py-1 rounded-full w-fit mb-4">
+            <div className="flex items-center gap-3 text-xs font-semibold text-[#16A34A] bg-cyan-50 px-3 py-1 rounded-full w-fit mb-4">
               <Sparkles className="w-3.5 h-3.5 text-[#16A34A]" />
               <span>{category}</span>
             </div>
@@ -251,7 +252,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             </h1>
 
             <div className="flex items-center gap-6 text-xs text-slate-500 font-medium pt-4 border-t border-slate-100 flex-wrap">
-              <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-[#1D4ED8]" /> PakPin Editorial Team</span>
+              <span className="flex items-center gap-1.5"><User className="w-4 h-4 text-[#0E7490]" /> PakListings Editorial Team</span>
               <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4 text-slate-400" /> {publishDate}</span>
               <span className="flex items-center gap-1.5"><Clock className="w-4 h-4 text-slate-400" /> {readTime}</span>
             </div>
@@ -268,16 +269,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ) : (slug === 'restaurants-in-karachi' ? (
                 <>
                   {/* Article Intro */}
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-rose-50 to-orange-50/50 p-6 rounded-2xl border border-rose-100/80 shadow-xs">
+                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-violet-50 p-6 rounded-2xl border border-violet-100/80 shadow-xs">
                     Karachi is one of Pakistan&apos;s biggest and most diverse food destinations. From traditional Pakistani meals and BBQ to fast food, cafés, seafood, Chinese cuisine and fine dining, the city offers restaurants for almost every taste, budget and occasion.
                   </p>
 
                   <p>
-                    This guide explains how to find <strong>restaurants in Karachi</strong> by cuisine, area, budget and occasion, while also showing how PakPin can make local restaurant discovery easier.
+                    This guide explains how to find <strong>restaurants in Karachi</strong> by cuisine, area, budget and occasion, while also showing how PakListings can make local restaurant discovery easier.
                   </p>
 
-                  <p className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm font-semibold text-blue-950">
-                    💡 <strong>Start with the directory:</strong> Comparing places in other cities too? Browse <Link href="/category/restaurants/" className="text-blue-800 font-extrabold underline">restaurants and food businesses</Link> by city and cuisine on PakPin, and check each listing&apos;s hours and contact details before you set out.
+                  <p className="p-4 bg-cyan-50 rounded-xl border border-cyan-100 text-sm font-semibold text-cyan-950">
+                    💡 <strong>Start with the directory:</strong> Comparing places in other cities too? Browse <Link href="/category/restaurants/" className="text-cyan-800 font-extrabold underline">restaurants and food businesses</Link> by city and cuisine on PakListings, and check each listing&apos;s hours and contact details before you set out.
                   </p>
 
                   {/* Section 1: Restaurants by Cuisine */}
@@ -287,27 +288,27 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Pakistani & Biryani</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Pakistani & Biryani</strong>
                         <p className="text-slate-600">Iconic Karachi biryani, nihari, karahi, handi, and traditional breakfast places.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Pakistani BBQ</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Pakistani BBQ</strong>
                         <p className="text-slate-600">Chicken Tikka, Seekh Kebab, Malai Boti, Reshmi Kebab, and Mutton Kebabs.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Chinese & Pan-Asian</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Chinese & Pan-Asian</strong>
                         <p className="text-slate-600">Chow Mein, Manchurian, Fried Rice, Soups, and seafood specialties.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Fast-Food & Burgers</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Fast-Food & Burgers</strong>
                         <p className="text-slate-600">Gourmet burgers, fried chicken, pizzas, shawarma, and late-night food places.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Coastal Seafood</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Coastal Seafood</strong>
                         <p className="text-slate-600">Fresh grilled fish, fried prawns, fish curries, and seafood platters.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-rose-700 font-bold block text-sm">Cafés & Coffee Shops</strong>
+                        <strong className="text-violet-700 font-bold block text-sm">Cafés & Coffee Shops</strong>
                         <p className="text-slate-600">Work-friendly cafés, specialty coffee, desserts, and study spots.</p>
                       </div>
                     </div>
@@ -344,12 +345,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       Choosing the Right Karachi Restaurant for Your Occasion
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Family Gatherings</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Family Gatherings</strong>
                         <p className="text-slate-700">Check for large table arrangements, family halls, child-friendly menus, and convenient parking in DHA, Clifton, or Gulshan.</p>
                       </div>
-                      <div className="p-5 bg-rose-50/70 rounded-2xl border border-rose-100 space-y-2">
-                        <strong className="text-sm font-bold text-rose-900 block">Work & Freelance Cafés</strong>
+                      <div className="p-5 bg-violet-50/70 rounded-2xl border border-violet-100 space-y-2">
+                        <strong className="text-sm font-bold text-violet-900 block">Work & Freelance Cafés</strong>
                         <p className="text-slate-700">Look for stable Wi-Fi, power outlets, quiet ambient volume, and quality espresso in Clifton & DHA phases.</p>
                       </div>
                       <div className="p-5 bg-purple-50/70 rounded-2xl border border-purple-100 space-y-2">
@@ -359,19 +360,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </div>
                   </div>
 
-                  {/* Section 4: PakPin Integration */}
+                  {/* Section 4: PakListings Integration */}
                   <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8 rounded-3xl space-y-4 border border-slate-800">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                      Promote Your Karachi Restaurant on PakPin
+                      Promote Your Karachi Restaurant on PakListings
                     </h2>
                     <p className="text-slate-300 text-sm leading-relaxed">
-                      Do you own a restaurant, café, bakery, or food business in Karachi? List your business free on PakPin to show your location, opening hours, and phone and WhatsApp number to customers searching by area and cuisine.
+                      Do you own a restaurant, café, bakery, or food business in Karachi? List your business on PakListings from PKR 99 to show your location, opening hours, and phone and WhatsApp number to customers searching by area and cuisine.
                     </p>
                     <div className="pt-2 flex flex-wrap gap-3">
-                      <Link href="/add-business" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                      <Link href="/add-business" className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
                         List Your Karachi Restaurant
                       </Link>
-                      <Link href="/categories" className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl transition-all">
+                      <Link href="/categories" className="px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-xl transition-all">
                         Browse Food Categories
                       </Link>
                     </div>
@@ -380,7 +381,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {/* Frequently Asked Questions (FAQ) */}
                   <div className="space-y-6 pt-6 border-t border-slate-200">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2">
-                      <HelpCircle className="w-6 h-6 text-blue-700" />
+                      <HelpCircle className="w-6 h-6 text-cyan-700" />
                       <span>Frequently Asked Questions (FAQ)</span>
                     </h2>
 
@@ -396,12 +397,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                   {/* Internal Linking Navigation Grid */}
                   <div className="pt-8 border-t border-slate-200 space-y-4">
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakPin Directory & Guides</h3>
+                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakListings Directory & Guides</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
-                      <Link href="/blog/businesses-in-lahore-by-category" className="p-3 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-rose-200">Lahore Businesses Guide</Link>
-                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Jobs in Pakistan</Link>
-                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">IT Jobs in Pakistan</Link>
-                      <Link href="/blog/universities-in-pakistan" className="p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-indigo-200">Universities Guide</Link>
+                      <Link href="/blog/businesses-in-lahore-by-category" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Lahore Businesses Guide</Link>
+                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Jobs in Pakistan</Link>
+                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">IT Jobs in Pakistan</Link>
+                      <Link href="/blog/universities-in-pakistan" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Universities Guide</Link>
                       <Link href="/blog/best-universities-computer-science-pakistan" className="p-3 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-purple-200">CS Universities</Link>
                       <Link href="/add-job" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Post a Job (Employers)</Link>
                       <Link href="/companies" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Hiring Companies</Link>
@@ -414,7 +415,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ) : slug === 'best-universities-computer-science-pakistan' ? (
                 <>
                   {/* Article Intro */}
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-blue-50 to-indigo-50/50 p-6 rounded-2xl border border-blue-100/80 shadow-xs">
+                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-cyan-50 to-violet-50/50 p-6 rounded-2xl border border-cyan-100/80 shadow-xs">
                     Computer Science, Information Technology and Software Engineering are among the most attractive degree paths for students who want to build careers in technology. Students in Pakistan can choose from universities offering undergraduate and graduate programs in CS, software engineering, IT, AI, data science, cybersecurity and related fields.
                   </p>
 
@@ -426,8 +427,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     This guide explains how to compare <strong>Computer Science universities in Pakistan</strong>, what to look for in a BS Computer Science program, how Software Engineering and IT differ from CS, and how a technology degree connects to future jobs.
                   </p>
 
-                  <p className="p-4 bg-blue-50 rounded-xl border border-blue-200 text-sm font-semibold text-blue-950">
-                    💡 <strong>General University Guide:</strong> Researching universities more broadly across all faculties? Read our main guide to <Link href="/blog/universities-in-pakistan" className="text-blue-800 font-extrabold underline">Universities in Pakistan</Link>, covering admissions, public vs. private, fees, and major cities.
+                  <p className="p-4 bg-cyan-50 rounded-xl border border-cyan-200 text-sm font-semibold text-cyan-950">
+                    💡 <strong>General University Guide:</strong> Researching universities more broadly across all faculties? Read our main guide to <Link href="/blog/universities-in-pakistan" className="text-cyan-800 font-extrabold underline">Universities in Pakistan</Link>, covering admissions, public vs. private, fees, and major cities.
                   </p>
 
                   {/* Section 1: Computer Science vs IT vs Software Engineering */}
@@ -439,16 +440,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       Before choosing a university, understand the difference between these three related technology degrees:
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Computer Science (BS CS)</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Computer Science (BS CS)</strong>
                         <p className="text-slate-700">Focuses on computing algorithms, programming concepts, data structures, artificial intelligence, and theoretical foundations. Flexible path for developers, data scientists, and AI engineers.</p>
                       </div>
                       <div className="p-5 bg-purple-50/70 rounded-2xl border border-purple-100 space-y-2">
                         <strong className="text-sm font-bold text-purple-900 block">Software Engineering (BS SE)</strong>
                         <p className="text-slate-700">Focuses on systematic software architecture, testing, quality assurance, project management, and large-scale software engineering processes.</p>
                       </div>
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Information Technology (BS IT)</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Information Technology (BS IT)</strong>
                         <p className="text-slate-700">Focuses on technology infrastructure, networks, databases, web servers, systems administration, and enterprise IT management.</p>
                       </div>
                     </div>
@@ -464,19 +465,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-950 font-bold block text-sm">1. Official HEC Recognition</strong>
-                        <p className="text-slate-600">Verify status via the official <a href="https://www.hec.gov.pk/english/universities/Pages/default.aspx" target="_blank" rel="noopener noreferrer" className="text-blue-700 font-bold underline">Higher Education Commission (HEC) portal</a>.</p>
+                        <strong className="text-cyan-950 font-bold block text-sm">1. Official HEC Recognition</strong>
+                        <p className="text-slate-600">Verify status via the official <a href="https://www.hec.gov.pk/english/universities/Pages/default.aspx" target="_blank" rel="noopener noreferrer" className="text-cyan-700 font-bold underline">Higher Education Commission (HEC) portal</a>.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-950 font-bold block text-sm">2. Modern Curriculum</strong>
+                        <strong className="text-cyan-950 font-bold block text-sm">2. Modern Curriculum</strong>
                         <p className="text-slate-600">Ensure coverage of Data Structures, Algorithms, Databases, Web & Mobile Dev, AI, and Cybersecurity.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-950 font-bold block text-sm">3. Computing Facilities</strong>
+                        <strong className="text-cyan-950 font-bold block text-sm">3. Computing Facilities</strong>
                         <p className="text-slate-600">High-performance computer labs, cloud environments, networking labs, and project spaces.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-950 font-bold block text-sm">4. Industry & Internship Support</strong>
+                        <strong className="text-cyan-950 font-bold block text-sm">4. Industry & Internship Support</strong>
                         <p className="text-slate-600">Active placement offices, job fairs, tech company tie-ups, and alumni networks.</p>
                       </div>
                     </div>
@@ -511,7 +512,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p>
                       University education alone does not guarantee employment. The strongest formula for tech career success is:
                     </p>
-                    <p className="text-sm font-bold text-blue-950 bg-blue-50 p-4 rounded-xl border border-blue-100 text-center">
+                    <p className="text-sm font-bold text-cyan-950 bg-cyan-50 p-4 rounded-xl border border-cyan-100 text-center">
                       Degree + Practical Projects + GitHub Portfolio + Internships + Verified Professional Profile
                     </p>
                     <div className="flex flex-wrap gap-2 text-xs font-semibold">
@@ -529,24 +530,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p>
                       A CS degree opens doors to careers as a software engineer, web developer, AI specialist, data analyst, QA engineer, or cybersecurity analyst.
                     </p>
-                    <p className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-xs font-semibold text-blue-950">
-                      💼 Ready to explore tech vacancies and fresh-graduate internships? See our detailed guide to <Link href="/blog/it-jobs-in-pakistan" className="text-blue-800 font-extrabold underline">IT Jobs in Pakistan</Link>.
+                    <p className="p-4 bg-cyan-50 rounded-xl border border-cyan-100 text-xs font-semibold text-cyan-950">
+                      💼 Ready to explore tech vacancies and fresh-graduate internships? See our detailed guide to <Link href="/blog/it-jobs-in-pakistan" className="text-cyan-800 font-extrabold underline">IT Jobs in Pakistan</Link>.
                     </p>
                   </div>
 
-                  {/* Section 6: PakPin Education & Professional Directory */}
+                  {/* Section 6: PakListings Education & Professional Directory */}
                   <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8 rounded-3xl space-y-4 border border-slate-800">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                      Discover CS Universities & Training Providers on PakPin
+                      Discover CS Universities & Training Providers on PakListings
                     </h2>
                     <p className="text-slate-300 text-sm leading-relaxed">
-                      PakPin organizes educational institutions, coding academies, and tech training centers across Pakistan by city and category. Explore listed institutes or list your educational organization.
+                      PakListings organizes educational institutions, coding academies, and tech training centers across Pakistan by city and category. Explore listed institutes or list your educational organization.
                     </p>
                     <div className="pt-2 flex flex-wrap gap-3">
-                      <Link href="/categories" className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl transition-all">
+                      <Link href="/categories" className="px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-xl transition-all">
                         Browse Education Categories
                       </Link>
-                      <Link href="/add-business" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                      <Link href="/add-business" className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
                         List an Education Provider
                       </Link>
                     </div>
@@ -555,7 +556,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {/* Frequently Asked Questions (FAQ) */}
                   <div className="space-y-6 pt-6 border-t border-slate-200">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2">
-                      <HelpCircle className="w-6 h-6 text-blue-700" />
+                      <HelpCircle className="w-6 h-6 text-cyan-700" />
                       <span>Frequently Asked Questions (FAQ)</span>
                     </h2>
 
@@ -571,14 +572,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                   {/* Internal Linking Navigation Grid */}
                   <div className="pt-8 border-t border-slate-200 space-y-4">
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakPin Directory & Education Ecosystem</h3>
+                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakListings Directory & Education Ecosystem</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
-                      <Link href="/blog/universities-in-pakistan" className="p-3 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-indigo-200">Universities Guide</Link>
-                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Jobs in Pakistan</Link>
-                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">IT Jobs in Pakistan</Link>
+                      <Link href="/blog/universities-in-pakistan" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Universities Guide</Link>
+                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Jobs in Pakistan</Link>
+                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">IT Jobs in Pakistan</Link>
                       <Link href="/companies" className="p-3 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-purple-200">Job Vacancies</Link>
-                      <Link href="/companies" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Hiring Companies</Link>
-                      <Link href="/businesses" className="p-3 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-rose-200">Professionals</Link>
+                      <Link href="/companies" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Hiring Companies</Link>
+                      <Link href="/businesses" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Professionals</Link>
                       <Link href="/search" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Search Directory</Link>
                       <Link href="/cities" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Cities Index</Link>
                       <Link href="/add-business" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Add Institute</Link>
@@ -589,7 +590,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ) : slug === 'universities-in-pakistan' ? (
                 <>
                   {/* Article Intro */}
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-indigo-50 to-blue-50/50 p-6 rounded-2xl border border-indigo-100/80 shadow-xs">
+                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-violet-50 to-cyan-50/50 p-6 rounded-2xl border border-violet-100/80 shadow-xs">
                     Choosing a university is one of the most important decisions a student can make. With universities, degree programs and campuses available across Pakistan, students often have many questions before applying: Which university should I choose? Which degree is right for me? Should I study at a public or private university? Which city offers better opportunities? What should I check before applying?
                   </p>
 
@@ -598,11 +599,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   </p>
 
                   <p>
-                    Pakistan has universities and degree-awarding institutions offering programs in fields ranging from computer science and engineering to medicine, business, law, education, social sciences and the arts. The <a href="https://www.hec.gov.pk/english/universities/Pages/default.aspx" target="_blank" rel="noopener noreferrer" className="text-blue-700 font-bold underline">Higher Education Commission (HEC)</a> maintains information about recognized higher education institutions, making recognition and accreditation an important consideration when comparing universities.
+                    Pakistan has universities and degree-awarding institutions offering programs in fields ranging from computer science and engineering to medicine, business, law, education, social sciences and the arts. The <a href="https://www.hec.gov.pk/english/universities/Pages/default.aspx" target="_blank" rel="noopener noreferrer" className="text-cyan-700 font-bold underline">Higher Education Commission (HEC)</a> maintains information about recognized higher education institutions, making recognition and accreditation an important consideration when comparing universities.
                   </p>
 
-                  <p className="p-4 bg-blue-50 rounded-xl border border-blue-200 text-sm font-semibold text-blue-950">
-                    💡 <strong>Specialized Technology Degrees:</strong> Students interested in CS, IT, and Software Engineering can explore our dedicated guide to the <Link href="/blog/best-universities-computer-science-pakistan" className="text-blue-800 font-extrabold underline">Best Universities for Computer Science in Pakistan</Link>. Planning for future employment? Check our guides to <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="text-blue-800 font-extrabold underline">Jobs in Pakistan</Link> and <Link href="/blog/it-jobs-in-pakistan" className="text-blue-800 font-extrabold underline">IT Jobs in Pakistan</Link>.
+                  <p className="p-4 bg-cyan-50 rounded-xl border border-cyan-200 text-sm font-semibold text-cyan-950">
+                    💡 <strong>Specialized Technology Degrees:</strong> Students interested in CS, IT, and Software Engineering can explore our dedicated guide to the <Link href="/blog/best-universities-computer-science-pakistan" className="text-cyan-800 font-extrabold underline">Best Universities for Computer Science in Pakistan</Link>. Planning for future employment? Check our guides to <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="text-cyan-800 font-extrabold underline">Jobs in Pakistan</Link> and <Link href="/blog/it-jobs-in-pakistan" className="text-cyan-800 font-extrabold underline">IT Jobs in Pakistan</Link>.
                   </p>
 
                   {/* Section 1: What Should Students Consider? */}
@@ -627,8 +628,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       Public vs Private Universities in Pakistan
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Public-Sector Universities</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Public-Sector Universities</strong>
                         <p className="text-slate-700">Established under government frameworks. Main advantages include comparatively affordable tuition and government funding, though admission competition for merit seats is very high.</p>
                       </div>
                       <div className="p-5 bg-purple-50/70 rounded-2xl border border-purple-100 space-y-2">
@@ -672,27 +673,27 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Computer Science & IT</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Computer Science & IT</strong>
                         <p className="text-slate-600">Software development, AI, cybersecurity, cloud computing, data science, and web development.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Engineering</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Engineering</strong>
                         <p className="text-slate-600">Electrical, mechanical, civil, chemical, software, and mechatronics engineering.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Business & Management</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Business & Management</strong>
                         <p className="text-slate-600">BBA, MBA, Accounting & Finance, Marketing, Supply Chain, and HR.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Medicine & Health Sciences</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Medicine & Health Sciences</strong>
                         <p className="text-slate-600">MBBS, BDS, Pharmacy (Pharm-D), Nursing, DPT, and Allied Health Sciences.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Law & Social Sciences</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Law & Social Sciences</strong>
                         <p className="text-slate-600">LLB, International Relations, Psychology, Economics, and Mass Communication.</p>
                       </div>
                       <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
-                        <strong className="text-blue-800 font-bold block text-sm">Education & Teaching</strong>
+                        <strong className="text-cyan-800 font-bold block text-sm">Education & Teaching</strong>
                         <p className="text-slate-600">B.Ed, M.Ed, Educational Leadership, and Special Education.</p>
                       </div>
                     </div>
@@ -706,25 +707,25 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p>
                       Admissions usually require intermediate certificates, entrance test scores, identification documents, and application forms. Always verify official admission deadlines and eligibility directly on the university website.
                     </p>
-                    <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-900 space-y-1">
+                    <div className="p-4 bg-violet-50 rounded-xl border border-violet-200 text-xs text-violet-900 space-y-1">
                       <strong className="block text-sm font-bold">Scholarship & Fee Advice:</strong>
                       <p>Calculate total costs including semester fees, transport, hostel, and books. Check for merit-based and need-based scholarships offered by universities and government programs like HEC financial aid.</p>
                     </div>
                   </div>
 
-                  {/* Section 6: Find Education Providers on PakPin */}
+                  {/* Section 6: Find Education Providers on PakListings */}
                   <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8 rounded-3xl space-y-4 border border-slate-800">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                      Discover Educational Institutes on PakPin
+                      Discover Educational Institutes on PakListings
                     </h2>
                     <p className="text-slate-300 text-sm leading-relaxed">
-                      PakPin lists educational institutions, universities, colleges, computer institutes, tuition academies, and skill development centers by city and category, where owners have added them.
+                      PakListings lists educational institutions, universities, colleges, computer institutes, tuition academies, and skill development centers by city and category, where owners have added them.
                     </p>
                     <div className="pt-2 flex flex-wrap gap-3">
-                      <Link href="/categories" className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl transition-all">
+                      <Link href="/categories" className="px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-xl transition-all">
                         Browse Education Categories
                       </Link>
-                      <Link href="/add-business" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                      <Link href="/add-business" className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
                         List an Educational Institute
                       </Link>
                     </div>
@@ -733,7 +734,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {/* Frequently Asked Questions (FAQ) */}
                   <div className="space-y-6 pt-6 border-t border-slate-200">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2">
-                      <HelpCircle className="w-6 h-6 text-blue-700" />
+                      <HelpCircle className="w-6 h-6 text-cyan-700" />
                       <span>Frequently Asked Questions (FAQ)</span>
                     </h2>
 
@@ -749,13 +750,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                   {/* Internal Linking Suggestions Navigation Grid */}
                   <div className="pt-8 border-t border-slate-200 space-y-4">
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakPin Directory & Education Ecosystem</h3>
+                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakListings Directory & Education Ecosystem</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
-                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Jobs in Pakistan</Link>
-                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">IT Jobs in Pakistan</Link>
+                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Jobs in Pakistan</Link>
+                      <Link href="/blog/it-jobs-in-pakistan" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">IT Jobs in Pakistan</Link>
                       <Link href="/companies" className="p-3 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-purple-200">Job Vacancies</Link>
-                      <Link href="/companies" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Hiring Companies</Link>
-                      <Link href="/businesses" className="p-3 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-rose-200">Professionals</Link>
+                      <Link href="/companies" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Hiring Companies</Link>
+                      <Link href="/businesses" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Professionals</Link>
                       <Link href="/search" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Search Directory</Link>
                       <Link href="/cities" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Cities Index</Link>
                       <Link href="/add-business" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Add Institute</Link>
@@ -767,7 +768,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ) : slug === 'it-jobs-in-pakistan' ? (
                 <>
                   {/* Article Intro */}
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-blue-50 to-blue-50/50 p-6 rounded-2xl border border-blue-100/80 shadow-xs">
+                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-gradient-to-r from-cyan-50 to-cyan-50/50 p-6 rounded-2xl border border-cyan-100/80 shadow-xs">
                     Information technology has become one of the most important career fields for students, graduates and experienced professionals in Pakistan. Software development, web development, artificial intelligence, cybersecurity, cloud computing, data analysis, digital marketing and IT support are among the many areas where people can build technology careers.
                   </p>
 
@@ -779,8 +780,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     This guide explains how to find <strong>IT jobs in Pakistan</strong>, which technology careers are available, what skills employers look for, how fresh graduates can enter the industry, where to search for opportunities and how professionals can make themselves easier for companies to discover.
                   </p>
 
-                  <p className="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm font-medium text-blue-950">
-                    💡 If you are also exploring employment opportunities outside technology, see our broader guide to <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="text-blue-800 font-bold underline">Jobs in Pakistan</Link>, which covers government, private, graduate, remote and other career opportunities.
+                  <p className="p-4 bg-cyan-50 rounded-xl border border-cyan-100 text-sm font-medium text-cyan-950">
+                    💡 If you are also exploring employment opportunities outside technology, see our broader guide to <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="text-cyan-800 font-bold underline">Jobs in Pakistan</Link>, which covers government, private, graduate, remote and other career opportunities.
                   </p>
 
                   {/* Section 1: What Types of IT Jobs Are Available in Pakistan? */}
@@ -806,7 +807,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">
                       IT Jobs in Pakistan for Fresh Graduates
                     </h2>
-                    <p className="text-base font-semibold text-slate-800 italic bg-rose-50/70 p-4 rounded-xl border border-rose-200">
+                    <p className="text-base font-semibold text-slate-800 italic bg-violet-50/70 p-4 rounded-xl border border-violet-200">
                       &quot;How can I get an IT job without professional experience?&quot;
                     </p>
                     <p>
@@ -825,7 +826,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </p>
                     <div className="flex flex-wrap gap-2 text-xs font-semibold">
                       {['Junior Software Developer', 'Junior Web Developer', 'Graduate Software Engineer', 'Trainee Software Engineer', 'Software Development Intern', 'IT Intern', 'Junior QA Engineer', 'Technical Support Associate', 'Junior Data Analyst', 'IT Support Officer'].map(t => (
-                        <span key={t} className="px-2.5 py-1 bg-blue-100 text-blue-950 rounded-lg">{t}</span>
+                        <span key={t} className="px-2.5 py-1 bg-cyan-100 text-cyan-950 rounded-lg">{t}</span>
                       ))}
                     </div>
                   </div>
@@ -839,7 +840,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       Software developers create and maintain applications, websites, systems and digital products. Popular technologies include JavaScript, TypeScript, Python, Java, C#, PHP, SQL, React, Next.js, Node.js, .NET, Laravel, and Django.
                     </p>
                     <div className="space-y-3 bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                      <h3 className="text-lg font-bold text-blue-800">Front-End vs Back-End vs Full-Stack</h3>
+                      <h3 className="text-lg font-bold text-cyan-800">Front-End vs Back-End vs Full-Stack</h3>
                       <ul className="space-y-2 text-xs text-slate-700">
                         <li>• <strong>Front-end:</strong> HTML, CSS, JavaScript, React, Next.js, Vue, Angular</li>
                         <li>• <strong>Back-end:</strong> Node.js, Python, PHP, Java, .NET, SQL, PostgreSQL, MongoDB</li>
@@ -861,12 +862,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                         <strong className="text-sm font-bold text-purple-900 block">AI & Data Science</strong>
                         <p className="text-slate-700">Roles include ML Engineer, Data Analyst, Data Scientist, and AI Automation Developer. Key skills: Python, Statistics, Algorithms, SQL, and Model Evaluation.</p>
                       </div>
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Cybersecurity</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Cybersecurity</strong>
                         <p className="text-slate-700">Roles include Security Analyst, Penetration Tester, and Network Security Specialist. Key skills: Linux, Networking, Web Security, and Incident Response.</p>
                       </div>
-                      <div className="p-5 bg-blue-50/70 rounded-2xl border border-blue-100 space-y-2">
-                        <strong className="text-sm font-bold text-blue-950 block">Digital Marketing & SEO</strong>
+                      <div className="p-5 bg-cyan-50/70 rounded-2xl border border-cyan-100 space-y-2">
+                        <strong className="text-sm font-bold text-cyan-950 block">Digital Marketing & SEO</strong>
                         <p className="text-slate-700">Roles include SEO Specialist, Digital Marketer, and Content Strategist. Key skills: Search Engine Optimization, Analytics, Search Console, and Keyword Strategy.</p>
                       </div>
                     </div>
@@ -880,7 +881,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p>
                       Remote work allows Pakistani professionals to work with international employers or companies outside their home city. Roles include software engineering, UI/UX design, QA, SEO, and tech support.
                     </p>
-                    <div className="p-4 bg-rose-50 rounded-xl border border-rose-200 text-xs text-rose-900 space-y-1">
+                    <div className="p-4 bg-violet-50 rounded-xl border border-violet-200 text-xs text-violet-900 space-y-1">
                       <strong className="block text-sm font-bold">Evaluating IT Internships:</strong>
                       <p>Before accepting an internship, ask: Will I work on real projects? Will someone mentor me? Will I learn industry tools like Git and Jira? A high-quality internship provides verifiable portfolio experience.</p>
                     </div>
@@ -907,19 +908,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </div>
                   </div>
 
-                  {/* Section 7: Build Your IT Profile on PakPin */}
+                  {/* Section 7: Build Your IT Profile on PakListings */}
                   <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-8 rounded-3xl space-y-4 border border-slate-800">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                      Make Your IT Skills Discoverable on PakPin
+                      Make Your IT Skills Discoverable on PakListings
                     </h2>
                     <p className="text-slate-300 text-sm leading-relaxed">
-                      Instead of relying solely on cold job applications, build a free professional listing on PakPin. Show your technical skills, GitHub repositories, portfolio links, and education to hiring managers across Pakistan.
+                      Instead of relying solely on cold job applications, build a professional listing on PakListings. Show your technical skills, GitHub repositories, portfolio links, and education to hiring managers across Pakistan.
                     </p>
                     <div className="pt-2 flex flex-wrap gap-3">
-                      <Link href="/add-business" className="px-5 py-2.5 bg-blue-500 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
-                        Create Free Developer / IT Profile
+                      <Link href="/add-business" className="px-5 py-2.5 bg-cyan-500 hover:bg-cyan-700 text-white text-xs font-bold rounded-xl shadow-md transition-all">
+                        Create a Developer / IT Profile
                       </Link>
-                      <Link href="/companies" className="px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-xl transition-all">
+                      <Link href="/companies" className="px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold rounded-xl transition-all">
                         Browse Open IT Jobs
                       </Link>
                       <Link href="/companies" className="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-xl transition-all">
@@ -931,7 +932,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {/* Frequently Asked Questions (FAQ) */}
                   <div className="space-y-6 pt-6 border-t border-slate-200">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2">
-                      <HelpCircle className="w-6 h-6 text-blue-700" />
+                      <HelpCircle className="w-6 h-6 text-cyan-700" />
                       <span>Frequently Asked Questions (FAQ)</span>
                     </h2>
 
@@ -947,13 +948,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                   {/* Internal Linking Suggestions Navigation Grid */}
                   <div className="pt-8 border-t border-slate-200 space-y-4">
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakPin Directory & Tech Jobs Ecosystem</h3>
+                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakListings Directory & Tech Jobs Ecosystem</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
-                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Jobs in Pakistan Guide</Link>
+                      <Link href="/blog/how-to-find-jobs-in-pakistan-2026" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Jobs in Pakistan Guide</Link>
                       <Link href="/companies" className="p-3 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-purple-200">Companies Directory</Link>
-                      <Link href="/post-job" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Post a Job Opening</Link>
-                      <Link href="/companies" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Hiring Companies</Link>
-                      <Link href="/businesses" className="p-3 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-rose-200">Businesses Directory</Link>
+                      <Link href="/post-job" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Post a Job Opening</Link>
+                      <Link href="/companies" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Hiring Companies</Link>
+                      <Link href="/businesses" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Businesses Directory</Link>
                       <Link href="/search" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Search Directory</Link>
                       <Link href="/cities" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Cities Index</Link>
                       <Link href="/add-business" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Add Business</Link>
@@ -965,7 +966,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
               ) : slug === 'top-business-directory-websites-pakistan' ? (
                 <>
                   {/* Article Intro */}
-                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+                  <p className="text-lg font-medium text-slate-800 leading-relaxed bg-cyan-50/50 p-6 rounded-2xl border border-cyan-100">
                     Finding trustworthy businesses online has become more important than ever. Whether you are looking for a nearby restaurant, hospital, software company, real estate agency, electrician, plumber, freelancer, or any other service, a reliable business directory can save time and help you make informed decisions.
                   </p>
 
@@ -1015,7 +1016,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       For customers, they make it easier to discover trusted local services. For businesses, they improve online visibility and help generate qualified leads.
                     </p>
                     <p className="font-bold text-[#0F172A]">Some of the biggest advantages include:</p>
-                    <ul className="space-y-2 text-sm text-slate-700 pl-4 border-l-4 border-blue-700">
+                    <ul className="space-y-2 text-sm text-slate-700 pl-4 border-l-4 border-cyan-700">
                       <li>• Better local search visibility on Google and search engines</li>
                       <li>• Increased website traffic and direct phone inquiries</li>
                       <li>• More customer inquiries via WhatsApp and call buttons</li>
@@ -1035,35 +1036,35 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     </h2>
                     
                     <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-blue-800">Improve Local SEO</h3>
+                      <h3 className="text-xl font-bold text-cyan-800">Improve Local SEO</h3>
                       <p>
                         Business directories help search engines verify business information, making it easier for customers to find businesses in local search results. Consistent business information (NAP: Name, Address, Phone) across multiple platforms improves search engine trust.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-blue-800">Reach More Customers</h3>
+                      <h3 className="text-xl font-bold text-cyan-800">Reach More Customers</h3>
                       <p>
                         People search online before purchasing products or hiring services. A business directory increases the chances of being discovered by new customers actively searching in your city.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-blue-800">Build Trust</h3>
+                      <h3 className="text-xl font-bold text-cyan-800">Build Trust</h3>
                       <p>
                         Detailed business profiles with contact information, descriptions, photos, and customer reviews create confidence among potential customers.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-blue-800">Generate Quality Leads</h3>
+                      <h3 className="text-xl font-bold text-cyan-800">Generate Quality Leads</h3>
                       <p>
                         Visitors searching a business directory already have buying intent. This means businesses receive highly targeted traffic that is more likely to convert into paying customers.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <h3 className="text-xl font-bold text-blue-800">Increase Brand Visibility</h3>
+                      <h3 className="text-xl font-bold text-cyan-800">Increase Brand Visibility</h3>
                       <p>
                         Every business profile acts as an additional online presence that can appear in Google Search and AI-powered search engines like ChatGPT, Gemini, and Perplexity.
                       </p>
@@ -1131,7 +1132,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                       Why Business Listings Matter for SEO
                     </h2>
                     <p>Business listings provide valuable signals to search engines. Key benefits include:</p>
-                    <ul className="space-y-2 text-sm text-slate-700 pl-4 border-l-4 border-blue-500">
+                    <ul className="space-y-2 text-sm text-slate-700 pl-4 border-l-4 border-cyan-500">
                       <li>• More indexed pages for brand terms</li>
                       <li>• Improved topical relevance in local niches</li>
                       <li>• Stronger entity recognition by search engines</li>
@@ -1158,16 +1159,16 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                     <p>Business directories continue to evolve with technology. Modern platforms now incorporate AI-powered search, voice search optimization, smart recommendations, advanced filtering, rich business profiles, interactive maps, verified business badges, and personalized search experiences.</p>
                   </div>
 
-                  {/* Section 9: Why PakPin Is Building the Future */}
+                  {/* Section 9: Why PakListings Is Building the Future */}
                   <div className="bg-slate-900 text-white p-8 rounded-3xl space-y-4 border border-slate-800">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                      Why PakPin Is Building the Future of Pakistan&apos;s Business Directory
+                      Why PakListings Is Building the Future of Pakistan&apos;s Business Directory
                     </h2>
                     <p className="text-slate-300 text-sm leading-relaxed">
                       Pakistan&apos;s digital economy is growing rapidly, creating opportunities for businesses of all sizes to establish a strong online presence. A modern business directory should not only connect customers with businesses but also support professionals, freelancers, startups, hiring companies, and service providers through comprehensive business profiles and powerful search features.
                     </p>
                     <p className="text-slate-300 text-sm leading-relaxed">
-                      PakPin is designed with this vision in mind, offering organized categories, location-based discovery, detailed business listings, and a user-friendly experience that helps businesses reach more customers while making it easier for users to find trusted services across Pakistan.
+                      PakListings is designed with this vision in mind, offering organized categories, location-based discovery, detailed business listings, and a user-friendly experience that helps businesses reach more customers while making it easier for users to find trusted services across Pakistan.
                     </p>
                   </div>
 
@@ -1187,7 +1188,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   {/* Frequently Asked Questions (FAQ) */}
                   <div className="space-y-6 pt-6 border-t border-slate-200">
                     <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight flex items-center gap-2">
-                      <HelpCircle className="w-6 h-6 text-blue-700" />
+                      <HelpCircle className="w-6 h-6 text-cyan-700" />
                       <span>Frequently Asked Questions (FAQ)</span>
                     </h2>
 
@@ -1203,12 +1204,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
                   {/* Internal Linking Suggestions Navigation Grid */}
                   <div className="pt-8 border-t border-slate-200 space-y-4">
-                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakPin Directory</h3>
+                    <h3 className="text-xl font-extrabold text-[#0F172A]">Explore PakListings Directory</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-xs">
-                      <Link href="/categories" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Business Categories</Link>
-                      <Link href="/search" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Browse Businesses</Link>
-                      <Link href="/add-business" className="p-3 bg-rose-50 text-rose-700 hover:bg-rose-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-rose-200">Add Your Business</Link>
-                      <Link href="/businesses" className="p-3 bg-blue-50 text-blue-800 hover:bg-blue-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-blue-200">Professional Directory</Link>
+                      <Link href="/categories" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Business Categories</Link>
+                      <Link href="/search" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Browse Businesses</Link>
+                      <Link href="/add-business" className="p-3 bg-violet-50 text-violet-700 hover:bg-violet-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-violet-200">Add Your Business</Link>
+                      <Link href="/businesses" className="p-3 bg-cyan-50 text-cyan-800 hover:bg-cyan-700 hover:text-white rounded-xl font-bold transition-colors text-center border border-cyan-200">Professional Directory</Link>
                       <Link href="/companies" className="p-3 bg-purple-50 text-purple-700 hover:bg-purple-600 hover:text-white rounded-xl font-bold transition-colors text-center border border-purple-200">Hiring Companies</Link>
                       <Link href="/cities" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">City Directory</Link>
                       <Link href="/blog" className="p-3 bg-slate-100 text-slate-700 hover:bg-slate-800 hover:text-white rounded-xl font-bold transition-colors text-center border border-slate-200">Latest Blogs</Link>
@@ -1222,13 +1223,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
               {post.relatedSlugs && post.relatedSlugs.length > 0 && (
                 <section className="pt-8 border-t border-slate-200 space-y-4">
-                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Related PakPin guides</h2>
+                  <h2 className="text-xl sm:text-2xl font-extrabold text-[#0F172A]">Related PakListings guides</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {post.relatedSlugs.map((relatedSlug) => {
                       const relatedPost = BLOG_POSTS[relatedSlug]
                       if (!relatedPost) return null
                       return (
-                        <Link key={relatedSlug} href={`/blog/${relatedSlug}`} className="p-4 rounded-xl bg-blue-50 border border-blue-100 text-blue-900 font-bold hover:bg-blue-100">
+                        <Link key={relatedSlug} href={`/blog/${relatedSlug}`} className="p-4 rounded-xl bg-cyan-50 border border-cyan-100 text-cyan-900 font-bold hover:bg-cyan-100">
                           {relatedPost.title}
                         </Link>
                       )
@@ -1243,26 +1244,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             <aside className="mt-8 bg-white border border-[#E2E8F0] rounded-3xl p-6 sm:p-8 space-y-3">
               <h2 className="font-extrabold text-slate-900 text-base">About the author</h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                This guide is published by the <strong className="text-slate-900">PakPin Editorial Team</strong>,
-                the content team behind PakPin — the free business directory founded by{' '}
+                This guide is published by the <strong className="text-slate-900">PakListings Editorial Team</strong>,
+                the content team behind PakListings — the Pakistan business directory founded by{' '}
                 <strong className="text-slate-900">Muhammad Imran</strong> of{' '}
-                <a href="https://www.imrandigitals.com" target="_blank" rel="noopener noreferrer" className="text-blue-800 font-semibold hover:underline">Imran Digitals</a>.
+                <a href="https://www.imrandigitals.com" target="_blank" rel="noopener noreferrer" className="text-cyan-800 font-semibold hover:underline">Imran Digitals</a>.
                 We write practical guides for Pakistani customers and business owners, and we update them
                 when the directory changes. Read more{' '}
-                <Link href="/about" className="text-blue-800 font-semibold hover:underline">about PakPin</Link>,
+                <Link href="/about" className="text-cyan-800 font-semibold hover:underline">about PakListings</Link>,
                 our{' '}
-                <Link href="/editorial-policy" className="text-blue-800 font-semibold hover:underline">editorial policy</Link>{' '}
+                <Link href="/editorial-policy" className="text-cyan-800 font-semibold hover:underline">editorial policy</Link>{' '}
                 and how{' '}
-                <Link href="/verification-policy" className="text-blue-800 font-semibold hover:underline">listing verification</Link>{' '}
+                <Link href="/verification-policy" className="text-cyan-800 font-semibold hover:underline">listing verification</Link>{' '}
                 works. Spotted something out of date?{' '}
-                <Link href="/contact" className="text-blue-800 font-semibold hover:underline">Tell us</Link> and we will check it.
+                <Link href="/contact" className="text-cyan-800 font-semibold hover:underline">Tell us</Link> and we will check it.
               </p>
               <p className="text-sm text-slate-600 leading-relaxed">
                 Run a business this guide mentions?{' '}
-                <Link href="/add-business" className="text-blue-800 font-semibold hover:underline">Add it to PakPin free</Link>{' '}
+                <Link href="/add-business" className="text-cyan-800 font-semibold hover:underline">Add it to PakListings</Link>{' '}
                 — or browse{' '}
-                <Link href="/businesses" className="text-blue-800 font-semibold hover:underline">listed businesses</Link> and{' '}
-                <Link href="/companies" className="text-blue-800 font-semibold hover:underline">companies</Link>.
+                <Link href="/businesses" className="text-cyan-800 font-semibold hover:underline">listed businesses</Link> and{' '}
+                <Link href="/companies" className="text-cyan-800 font-semibold hover:underline">companies</Link>.
               </p>
             </aside>
           </div>

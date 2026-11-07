@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { ShieldCheck, MapPin, Briefcase, Sparkles, Phone, Mail, HelpCircle, FileText, Globe } from 'lucide-react'
 import UniversalHelpBanner from '@/components/universal-help-banner'
 
-export default function Footer() {
+export default function Footer({ hideSitePhone = false }: { hideSitePhone?: boolean }) {
   return (
     <>
       <UniversalHelpBanner />
@@ -13,10 +13,10 @@ export default function Footer() {
         {/* Top Branding & NAP Bar */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center pb-12 border-b border-zinc-800/80 gap-6">
           <div className="flex flex-col gap-3">
-            <Link href="/" aria-label="PakPin Home Page" className="inline-block group">
+            <Link href="/" aria-label="PakListings Home Page" className="inline-block group">
               <Image
                 src="/logo.svg"
-                alt="PakPin - Pakistan Business Directory"
+                alt="PakListings - Pakistan Business Directory"
                 width={160}
                 height={48}
                 loading="lazy"
@@ -30,28 +30,32 @@ export default function Footer() {
             {/* Official NAP Display */}
             <div className="pt-2 space-y-1 text-xs text-zinc-300">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
                 <span><strong>Official HQ Address:</strong> Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan</span>
               </div>
+              {/* Site phone hidden on listing detail pages: visitors were
+                  calling PakListings' number thinking it was the business's. */}
+              {!hideSitePhone && (
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                 <span><strong>Phone Contact:</strong> +92 334 5636230</span>
               </div>
+              )}
             </div>
           </div>
 
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium">
-              <ShieldCheck className="w-4 h-4 text-blue-400" />
+              <ShieldCheck className="w-4 h-4 text-cyan-400" />
               <span>Business profiles</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium">
-              <MapPin className="w-4 h-4 text-red-500" />
+              <MapPin className="w-4 h-4 text-cyan-500" />
               <span>City-based discovery</span>
             </div>
             <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-xs font-medium">
-              <Briefcase className="w-4 h-4 text-rose-400" />
-              <span>Free Job Postings</span>
+              <Briefcase className="w-4 h-4 text-violet-400" />
+              <span>Job Postings from PKR 99</span>
             </div>
           </div>
         </div>
@@ -61,64 +65,65 @@ export default function Footer() {
           
           {/* Section 1: Directory & Explore */}
           <div>
-            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-blue-400 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-blue-400" />
+            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-cyan-400 flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-400" />
               <span>Directory</span>
             </h3>
             <ul className="space-y-2 text-xs text-slate-300">
-              <li><Link href="/categories" className="hover:text-blue-400 transition-colors">All Categories</Link></li>
-              <li><Link href="/cities" className="hover:text-blue-400 transition-colors">All Cities</Link></li>
-              <li><Link href="/businesses" prefetch={false} className="hover:text-blue-400 transition-colors">Businesses</Link></li>
-              <li><Link href="/companies" prefetch={false} className="hover:text-blue-400 transition-colors">Companies</Link></li>
-              <li><Link href="/search" prefetch={false} className="hover:text-blue-400 transition-colors">Search</Link></li>
+              <li><Link href="/categories" className="hover:text-cyan-400 transition-colors">All Categories</Link></li>
+              <li><Link href="/cities" className="hover:text-cyan-400 transition-colors">All Cities</Link></li>
+              <li><Link href="/businesses" prefetch={false} className="hover:text-cyan-400 transition-colors">Businesses</Link></li>
+              <li><Link href="/companies" prefetch={false} className="hover:text-cyan-400 transition-colors">Companies</Link></li>
+              <li><Link href="/jobs" prefetch={false} className="hover:text-cyan-400 transition-colors">Jobs</Link></li>
+              <li><Link href="/search" prefetch={false} className="hover:text-cyan-400 transition-colors">Search</Link></li>
             </ul>
           </div>
 
           {/* Section 2: Major Cities */}
           <div>
-            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-blue-400 flex items-center gap-2">
-              <MapPin className="w-4 h-4 text-blue-400" />
+            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-cyan-400 flex items-center gap-2">
+              <MapPin className="w-4 h-4 text-cyan-400" />
               <span>Top Hubs</span>
             </h3>
             <ul className="space-y-2 text-xs text-slate-300">
-              <li><Link href="/city/karachi" className="hover:text-blue-400 transition-colors">Karachi Directory</Link></li>
-              <li><Link href="/city/lahore" className="hover:text-blue-400 transition-colors">Lahore Directory</Link></li>
-              <li><Link href="/city/islamabad" className="hover:text-blue-400 transition-colors">Islamabad Directory</Link></li>
-              <li><Link href="/city/rawalpindi" className="hover:text-blue-400 transition-colors">Rawalpindi Directory</Link></li>
-              <li><Link href="/city/faisalabad" className="hover:text-blue-400 transition-colors">Faisalabad Directory</Link></li>
-              <li><Link href="/city/multan" className="hover:text-blue-400 transition-colors">Multan Directory</Link></li>
-              <li><Link href="/city/peshawar" className="hover:text-blue-400 transition-colors">Peshawar Directory</Link></li>
+              <li><Link href="/city/karachi" className="hover:text-cyan-400 transition-colors">Karachi Directory</Link></li>
+              <li><Link href="/city/lahore" className="hover:text-cyan-400 transition-colors">Lahore Directory</Link></li>
+              <li><Link href="/city/islamabad" className="hover:text-cyan-400 transition-colors">Islamabad Directory</Link></li>
+              <li><Link href="/city/rawalpindi" className="hover:text-cyan-400 transition-colors">Rawalpindi Directory</Link></li>
+              <li><Link href="/city/faisalabad" className="hover:text-cyan-400 transition-colors">Faisalabad Directory</Link></li>
+              <li><Link href="/city/multan" className="hover:text-cyan-400 transition-colors">Multan Directory</Link></li>
+              <li><Link href="/city/peshawar" className="hover:text-cyan-400 transition-colors">Peshawar Directory</Link></li>
             </ul>
           </div>
 
           {/* Section 3: Company & Trust */}
           <div>
-            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-rose-400 flex items-center gap-2">
-              <Globe className="w-4 h-4 text-rose-400" />
+            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-violet-400 flex items-center gap-2">
+              <Globe className="w-4 h-4 text-violet-400" />
               <span>Company</span>
             </h3>
             <ul className="space-y-2 text-xs text-slate-300">
-              <li><Link href="/about" className="hover:text-rose-400 transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-rose-400 transition-colors">Contact Us</Link></li>
-              <li><Link href="/careers" className="hover:text-rose-400 transition-colors">Careers</Link></li>
-              <li><Link href="/advertise-with-us" className="hover:text-rose-400 transition-colors">Advertise With Us</Link></li>
-              <li><Link href="/blog" className="hover:text-rose-400 transition-colors">Pakistan Business Blog</Link></li>
-              <li><Link href="/html-sitemap" className="hover:text-rose-400 transition-colors">HTML Sitemap</Link></li>
+              <li><Link href="/about" className="hover:text-violet-400 transition-colors">About Us</Link></li>
+              <li><Link href="/contact" className="hover:text-violet-400 transition-colors">Contact Us</Link></li>
+              <li><Link href="/careers" className="hover:text-violet-400 transition-colors">Careers</Link></li>
+              <li><Link href="/advertise-with-us" className="hover:text-violet-400 transition-colors">Advertise With Us</Link></li>
+              <li><Link href="/blog" className="hover:text-violet-400 transition-colors">Pakistan Business Blog</Link></li>
+              <li><Link href="/html-sitemap" className="hover:text-violet-400 transition-colors">HTML Sitemap</Link></li>
             </ul>
           </div>
 
           {/* Section 4: Support & FAQs */}
           <div>
-            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-sky-400 flex items-center gap-2">
-              <HelpCircle className="w-4 h-4 text-sky-400" />
+            <h3 className="font-bold text-white text-sm tracking-wider uppercase mb-4 text-cyan-400 flex items-center gap-2">
+              <HelpCircle className="w-4 h-4 text-cyan-400" />
               <span>Help & Support</span>
             </h3>
             <ul className="space-y-2 text-xs text-slate-300">
-              <li><Link href="/help-center" className="hover:text-sky-400 transition-colors">Help Center</Link></li>
-              <li><Link href="/support" className="hover:text-sky-400 transition-colors">Customer Support</Link></li>
-              <li><Link href="/faqs" className="hover:text-sky-400 transition-colors">FAQs</Link></li>
-              <li><Link href="/report-abuse" className="hover:text-sky-400 transition-colors">Report Abuse</Link></li>
-              <li><Link href="/accessibility" className="hover:text-sky-400 transition-colors">Accessibility Statement</Link></li>
+              <li><Link href="/help-center" className="hover:text-cyan-400 transition-colors">Help Center</Link></li>
+              <li><Link href="/support" className="hover:text-cyan-400 transition-colors">Customer Support</Link></li>
+              <li><Link href="/faqs" className="hover:text-cyan-400 transition-colors">FAQs</Link></li>
+              <li><Link href="/report-abuse" className="hover:text-cyan-400 transition-colors">Report Abuse</Link></li>
+              <li><Link href="/accessibility" className="hover:text-cyan-400 transition-colors">Accessibility Statement</Link></li>
             </ul>
           </div>
 
@@ -143,10 +148,15 @@ export default function Footer() {
 
         </div>
 
+        {/* Yellow-pages synonym line: honest positioning copy only. */}
+        <p className="pt-8 text-xs text-slate-400 text-center md:text-left">
+          PakListings — Pakistan&apos;s modern online yellow pages: a list of companies, suppliers and local services across Pakistan, organised by city and category.
+        </p>
+
         {/* Footer Bottom */}
         <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-400">
           <p className="text-center md:text-left">
-            © 2026 PakPin Enterprise Ecosystem. All rights reserved. Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan.
+            © 2026 PakListings Enterprise Ecosystem. All rights reserved. Office 303, Evacuee Trust Complex, F-5/1, Islamabad 44000, Pakistan.
           </p>
           <div className="flex items-center gap-3 text-slate-400 flex-wrap justify-center">
             <Link href="/privacy" className="hover:text-white">Privacy</Link>

@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-const content = fs.readFileSync('d:/pakpin/branches/lib/data.ts', 'utf8');
+const content = fs.readFileSync('d:/paklistings/branches/lib/data.ts', 'utf8');
 
 function getArray(startStr, endStr) {
   const s = content.indexOf(startStr);

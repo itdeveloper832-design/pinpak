@@ -3,10 +3,10 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Disclaimer | PakPin - Pakistan Business Ecosystem',
-  description: 'Legal disclaimer for PakPin business directory listings, professional talent profiles, job postings, and third-party content accuracy.',
+  title: 'Disclaimer | PakListings - Pakistan Business Ecosystem',
+  description: 'PakListings is a directory, not a guarantor: details come from owners and third parties, listings are not advice, and external links are beyond our control.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/disclaimer/',
+    canonical: 'https://www.paklistings.com/disclaimer/',
   },
 }
 
@@ -20,17 +20,17 @@ export default function DisclaimerPage() {
             Disclaimer
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Enterprise Ecosystem
+            Last Updated: August 2026 • PakListings Enterprise Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             <p>
-              The information provided by <strong>PakPin</strong> (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) on <a href="https://www.geotaggingphotos.com/" className="text-blue-700 underline">https://www.geotaggingphotos.com/</a> is for general informational and commercial directory purposes only.
+              The information provided by <strong>PakListings</strong> (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) on <a href="https://www.paklistings.com/" className="text-cyan-700 underline">https://www.paklistings.com/</a> is for general informational and commercial directory purposes only.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Information Accuracy</h2>
             <p>
-              While we strive to keep business details, addresses, contacts, and job openings accurate and up-to-date, PakPin makes no representation or warranty of any kind, express or implied, regarding the completeness or accuracy of third-party user listings.
+              While we strive to keep business details, addresses, contacts, and job openings accurate and up-to-date, PakListings makes no representation or warranty of any kind, express or implied, regarding the completeness or accuracy of third-party user listings.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">2. Professional Advice Disclaimer</h2>
@@ -40,12 +40,12 @@ export default function DisclaimerPage() {
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">3. External Links Disclaimer</h2>
             <p>
-              PakPin may contain links to external third-party websites. We do not monitor, endorse, or guarantee the content or privacy practices of these external sites.
+              PakListings may contain links to external third-party websites. We do not monitor, endorse, or guarantee the content or privacy practices of these external sites.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">4. Limitation of Liability</h2>
             <p>
-              In no event shall PakPin be liable for any special, direct, indirect, or consequential damages arising out of or in connection with the use of our website or services.
+              In no event shall PakListings be liable for any special, direct, indirect, or consequential damages arising out of or in connection with the use of our website or services.
             </p>
           </div>
         </div>

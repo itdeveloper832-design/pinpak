@@ -9,7 +9,7 @@ import { doc, getDoc, collection, query, where, getCountFromServer } from 'fireb
 import {
   LayoutDashboard, Building2, Factory, Briefcase, Star, CreditCard,
   Mail, FileText, Users, Home, LayoutGrid, LogOut, ShieldAlert,
-  Lock, Eye, EyeOff, AlertCircle, ShieldCheck, Pencil, Newspaper,
+  Lock, Eye, EyeOff, AlertCircle, ShieldCheck, Pencil, Newspaper, Settings,
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -25,6 +25,7 @@ const NAV = [
   { href: '/admin/messages', label: 'Messages', Icon: Mail },
   { href: '/admin/applications', label: 'Applications', Icon: FileText },
   { href: '/admin/users', label: 'Users', Icon: Users },
+  { href: '/admin/settings', label: 'Settings', Icon: Settings },
 ]
 
 function mapAdminLoginError(err: any): string {
@@ -154,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
             <h1 className="text-2xl font-extrabold text-slate-900">Admin Sign In</h1>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Sign in with your administrator account to open the PakPin admin panel.
+              Sign in with your administrator account to open the PakListings admin panel.
             </p>
           </div>
 
@@ -176,8 +177,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   autoComplete="email"
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
-                  placeholder="admin@geotaggingphotos.com"
-                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  placeholder="admin@paklistings.com"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
               </div>
             </div>
@@ -193,7 +194,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
                 <button
                   type="button"
@@ -209,14 +210,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <button
               type="submit"
               disabled={loginBusy}
-              className="w-full py-3 bg-blue-700 hover:bg-blue-800 disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer"
+              className="w-full py-3 bg-cyan-700 hover:bg-cyan-800 disabled:opacity-60 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer"
             >
               {loginBusy ? 'Signing in...' : 'Sign In to Admin Panel'}
             </button>
           </form>
 
           <div className="text-center">
-            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-blue-700">
+            <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-cyan-700">
               ← Back to Home
             </Link>
           </div>
@@ -232,16 +233,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <ShieldAlert className="w-12 h-12 text-red-400 mx-auto" />
           <h1 className="font-extrabold text-slate-900 text-xl">Access denied</h1>
           <p className="text-sm text-slate-500">
-            This area is for PakPin administrators only. Your account does not have the admin role.
+            This area is for PakListings administrators only. Your account does not have the admin role.
           </p>
           <div className="flex gap-3 justify-center pt-2">
-            <Link href="/" className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors">
+            <Link href="/" className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors">
               Back to Home
             </Link>
             <button
               type="button"
               onClick={handleSignOutStay}
-              className="px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 font-bold text-sm rounded-xl transition-colors cursor-pointer"
+              className="px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 font-bold text-sm rounded-xl transition-colors cursor-pointer"
             >
               Sign Out
             </button>
@@ -256,7 +257,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* Sidebar */}
       <aside className="lg:w-64 shrink-0 bg-slate-900 text-white lg:min-h-screen">
         <div className="p-5 space-y-1 border-b border-white/10">
-          <p className="font-extrabold text-lg tracking-tight">PakPin Admin</p>
+          <p className="font-extrabold text-lg tracking-tight">PakListings Admin</p>
           <p className="text-[11px] text-slate-400 truncate">{user?.email}</p>
         </div>
         <nav className="p-3 flex lg:flex-col gap-1 overflow-x-auto" aria-label="Admin">
@@ -267,7 +268,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 key={href}
                 href={href}
                 className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
-                  active ? 'bg-blue-700 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white'
+                  active ? 'bg-cyan-700 text-white' : 'text-slate-300 hover:bg-white/10 hover:text-white'
                 }`}
               >
                 <Icon className="w-4 h-4 shrink-0" />

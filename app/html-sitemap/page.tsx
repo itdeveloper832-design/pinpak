@@ -6,9 +6,9 @@ import { CATEGORIES, TOP_CITIES, CITIES } from '@/lib/data'
 import { BLOG_POSTS } from '@/lib/blog-data'
 
 export const metadata: Metadata = {
-  title: 'Sitemap | PakPin',
-  description: 'A complete map of PakPin — core pages, business categories, city guides and blog articles.',
-  alternates: { canonical: 'https://www.geotaggingphotos.com/html-sitemap/' },
+  title: 'PakListings Sitemap – All Pages, Categories & Cities',
+  description: 'Every PakListings page in one place: core pages, all 24 business categories, 183 city guides, top city-by-category pages, policies and every blog article.',
+  alternates: { canonical: 'https://www.paklistings.com/html-sitemap/' },
 }
 
 function cityToSlug(name: string): string {
@@ -17,7 +17,7 @@ function cityToSlug(name: string): string {
 
 const CORE_LINKS: { label: string; href: string }[] = [
   { label: 'Home', href: '/' },
-  { label: 'About PakPin', href: '/about' },
+  { label: 'About PakListings', href: '/about' },
   { label: 'Contact Us', href: '/contact' },
   { label: 'Search', href: '/search' },
   { label: 'Sign In', href: '/login' },
@@ -27,9 +27,10 @@ const CORE_LINKS: { label: string; href: string }[] = [
   { label: 'All Cities', href: '/cities' },
   { label: 'All Businesses', href: '/businesses' },
   { label: 'All Companies', href: '/companies' },
-  { label: 'Add Your Business — Free', href: '/add-business' },
-  { label: 'Add Your Company — Free', href: '/add-company' },
-  { label: 'Post a Job — Free', href: '/add-job' },
+  { label: 'All Jobs', href: '/jobs' },
+  { label: 'Add Your Business — from PKR 99', href: '/add-business' },
+  { label: 'Add Your Company — from PKR 99', href: '/add-company' },
+  { label: 'Post a Job — from PKR 99', href: '/add-job' },
   { label: 'Blog', href: '/blog' },
   { label: 'Careers', href: '/careers' },
   { label: 'Advertise With Us', href: '/advertise-with-us' },
@@ -57,7 +58,7 @@ function LinkList({ items }: { items: { label: string; href: string }[] }) {
     <ul className="space-y-2">
       {items.map(item => (
         <li key={item.href}>
-          <Link href={item.href} className="text-sm text-blue-800 hover:underline font-medium">
+          <Link href={item.href} className="text-sm text-cyan-800 hover:underline font-medium">
             {item.label}
           </Link>
         </li>
@@ -76,8 +77,8 @@ export default function HtmlSitemapPage() {
       <main id="main-content" className="flex-1 py-14 px-4 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto space-y-12">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">PakPin Sitemap</h1>
-            <p className="text-sm text-slate-500">PakPin's core pages, business categories, city guides and blog articles, organized by section.</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">PakListings Sitemap</h1>
+            <p className="text-sm text-slate-500">PakListings' core pages, business categories, city guides and blog articles, organized by section.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

@@ -1,5 +1,5 @@
 // ============================================================
-// PakPin — Weekly batch release for admin-approved businesses
+// PakListings — Weekly batch release for admin-approved businesses
 // ------------------------------------------------------------
 // Approvals happen any time in the admin panel, but an approved
 // business does NOT go public immediately. Public visibility is

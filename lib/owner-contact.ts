@@ -2,7 +2,7 @@ import { db } from '@/lib/firebase'
 import { doc, getDoc, setDoc } from 'firebase/firestore'
 
 // ============================================================
-// PakPin — owner-private contact data (ANTI-SCRAPE, Round 3)
+// PakListings — owner-private contact data (ANTI-SCRAPE, Round 3)
 // ------------------------------------------------------------
 // A listing owner's login email is CONTACT data, not listing
 // data. It used to be stored as `ownerEmail` inside the main
@@ -34,7 +34,10 @@ export function ownerContactRef(col: string, listingId: string) {
  * itself (or the mail step that follows it). If live rules deny this write,
  * the listing is still created and the submission emails still go out; the
  * admin can still resolve the owner via the listing's ownerId. Returns true
- * when the private document was written. */
+ * when the private document was written. Callers MUST surface a false
+ * return to the user (toast warning): a silent failure means admin
+ * reject/delete emails fall back to the listing's public email field,
+ * which may not be the owner's login email. */
 export async function writeOwnerContact(
   col: string,
   listingId: string,

@@ -25,7 +25,7 @@ function whatsappDigits(raw: string): string {
 }
 
 export default function SeedBusinessDetail({ business }: { business: SeedBusiness }) {
-  const url = `https://www.geotaggingphotos.com/business/${business.slug}`
+  const url = `https://www.paklistings.com/business/${business.slug}`
   const waNumber = business.phone ? whatsappDigits(business.phone) : ''
   // Other real seed listings in the same city + category (self
   // excluded). Rendered only when at least one sibling exists.
@@ -57,7 +57,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
-        <Link href="/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 mb-6">
+        <Link href="/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:text-cyan-800 mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Businesses
         </Link>
 
@@ -66,7 +66,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
             <div className="flex flex-wrap items-center gap-2">
               <Link
                 href={`/category/${business.categorySlug}`}
-                className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 text-[11px] font-bold hover:border-blue-300"
+                className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-100 text-[11px] font-bold hover:border-cyan-300"
               >
                 {business.category}
               </Link>
@@ -79,22 +79,22 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
 
             <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 font-medium">
               <span className="flex items-center gap-1.5">
-                <MapPin className="w-4 h-4 text-blue-700" /> {business.city}, Pakistan
+                <MapPin className="w-4 h-4 text-cyan-700" /> {business.city}, Pakistan
               </span>
               {business.phone && (
                 <span className="flex items-center gap-1.5">
-                  <Phone className="w-4 h-4 text-blue-700" /> {business.phone}
+                  <Phone className="w-4 h-4 text-cyan-700" /> {business.phone}
                 </span>
               )}
             </div>
 
             {!business.phone && (
-              <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start gap-3">
-                <Info className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+              <div className="bg-violet-50 border border-violet-200 rounded-2xl p-4 flex items-start gap-3">
+                <Info className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
                 <p className="text-sm text-slate-700 leading-relaxed">
                   No contact details are available for this listing yet. The owner can{' '}
-                  <Link href="/register" className="text-blue-700 font-semibold hover:underline">
-                    claim it free
+                  <Link href="/register" className="text-cyan-700 font-semibold hover:underline">
+                    claim it
                   </Link>{' '}
                   to add them.
                 </p>
@@ -107,7 +107,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
               <div className="flex flex-wrap gap-3 pt-2">
                 <a
                   href={telHref(business.phone)}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                 >
                   <Phone className="w-4 h-4" /> Call Now
                 </a>
@@ -116,7 +116,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
                     href={`https://wa.me/${waNumber}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                   >
                     <MessageCircle className="w-4 h-4" /> WhatsApp
                   </a>
@@ -126,7 +126,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
 
             <p className="text-xs text-slate-400 pt-1">
               Looking for more {business.category} options nearby? Browse{' '}
-              <Link href={`/city/${business.citySlug}/${business.categorySlug}`} className="text-blue-700 font-semibold hover:underline">
+              <Link href={`/city/${business.citySlug}/${business.categorySlug}`} className="text-cyan-700 font-semibold hover:underline">
                 {business.category} in {business.city}
               </Link>
               .
@@ -143,7 +143,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
                   <li key={sibling.slug} className="py-3 first:pt-0 last:pb-0">
                     <Link
                       href={`/business/${sibling.slug}`}
-                      className="inline-flex items-center gap-2 text-sm font-bold text-blue-700 hover:text-blue-800 hover:underline"
+                      className="inline-flex items-center gap-2 text-sm font-bold text-cyan-700 hover:text-cyan-800 hover:underline"
                     >
                       {sibling.name} <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -151,39 +151,38 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
                 ))}
               </ul>
               <p className="text-xs text-slate-400 pt-1">
-                <Link href={`/city/${business.citySlug}/${business.categorySlug}`} className="text-blue-700 font-semibold hover:underline">
+                <Link href={`/city/${business.citySlug}/${business.categorySlug}`} className="text-cyan-700 font-semibold hover:underline">
                   See all {business.category} in {business.city}
                 </Link>
               </p>
             </section>
           )}
 
-          <section className="bg-blue-50 rounded-3xl border border-blue-100 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <Info className="w-6 h-6 text-blue-500 shrink-0" />
+          <section className="bg-cyan-50 rounded-3xl border border-cyan-100 p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <Info className="w-6 h-6 text-cyan-500 shrink-0" />
             <div className="space-y-1">
               <h2 className="font-bold text-slate-900 text-sm">About this directory listing</h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                This listing was created by the PakPin directory team from publicly available
+                This listing was created by the PakListings directory team from publicly available
                 information so customers can find this business. It has not been claimed by the
-                business yet, so some details may be incomplete — the business can claim it for
-                free to add opening hours, services, photos and more.
+                business yet, so some details may be incomplete — the business can claim it to add opening hours, services, photos and more.
               </p>
             </div>
           </section>
 
           <section className="bg-[#0F172A] rounded-3xl p-8 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            <UserCheck className="w-8 h-8 text-blue-400 shrink-0" />
+            <UserCheck className="w-8 h-8 text-cyan-400 shrink-0" />
             <div className="space-y-1.5 flex-1">
               <h2 className="font-extrabold text-white text-lg">Is this your business? Claim this listing</h2>
               <p className="text-sm text-slate-300 leading-relaxed">
-                Create a free PakPin account to claim {business.name}, keep its contact details
+                Create a PakListings account to claim {business.name}, keep its contact details
                 accurate, add hours, services and photos, and reply to customer reviews.
               </p>
             </div>
             <Link
               href="/register"
               prefetch={false}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors shrink-0"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors shrink-0"
             >
               Claim This Listing <ArrowRight className="w-4 h-4" />
             </Link>
@@ -191,7 +190,7 @@ export default function SeedBusinessDetail({ business }: { business: SeedBusines
         </div>
       </main>
 
-      <Footer />
+      <Footer hideSitePhone />
     </div>
   )
 }

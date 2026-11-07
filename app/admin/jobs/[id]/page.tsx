@@ -6,12 +6,13 @@ import { useParams, useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { toast } from 'sonner'
+import { safeErrorMessage } from '@/lib/user-error'
 import { ArrowLeft } from 'lucide-react'
 import { CITIES } from '@/lib/data'
 import { StatusBadge } from '@/components/admin-shared'
 
 const inputClass =
-  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700'
+  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700'
 const labelClass = 'block text-xs font-bold text-slate-700 mb-1'
 const JOB_TYPES = ['Full-time', 'Part-time', 'Contract', 'Remote', 'Internship']
 
@@ -76,7 +77,7 @@ export default function AdminEditJobPage() {
       toast.success('Job updated.')
       router.push('/admin/jobs')
     } catch (err: any) {
-      toast.error(`Save failed: ${err?.message || 'Unknown error'}`)
+      toast.error(`Save failed: ${safeErrorMessage(err)}`)
     } finally {
       setSaving(false)
     }
@@ -87,7 +88,7 @@ export default function AdminEditJobPage() {
     return (
       <div className="space-y-4">
         <p className="text-sm text-slate-600">This job no longer exists.</p>
-        <Link href="/admin/jobs" className="text-sm font-bold text-blue-700 hover:underline">← Back to Jobs</Link>
+        <Link href="/admin/jobs" className="text-sm font-bold text-cyan-700 hover:underline">← Back to Jobs</Link>
       </div>
     )
   }
@@ -97,7 +98,7 @@ export default function AdminEditJobPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/admin/jobs" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:underline">
+        <Link href="/admin/jobs" className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:underline">
           <ArrowLeft className="w-4 h-4" /> Jobs
         </Link>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Edit Job</h1>
@@ -133,10 +134,10 @@ export default function AdminEditJobPage() {
           <textarea id="f-description" rows={6} className={inputClass} value={form.description} onChange={set('description')} />
         </div>
         <div className="flex gap-3 pt-2">
-          <button type="submit" disabled={saving} className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50">
+          <button type="submit" disabled={saving} className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <Link href="/admin/jobs" className="px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 font-bold text-sm rounded-xl transition-colors">
+          <Link href="/admin/jobs" className="px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 font-bold text-sm rounded-xl transition-colors">
             Cancel
           </Link>
         </div>

@@ -51,9 +51,9 @@ export const TOP_CITIES = [
 ]
 
 export const CATEGORIES = [
-  { id: 'restaurants', name: 'Restaurants & Food', icon: 'restaurant', color: '#f43f5e', desc: 'Cafes, dhabas, fine dining, bakeries and caterers near you' },
-  { id: 'real-estate', name: 'Real Estate & Property', icon: 'real-estate', color: '#3b82f6', desc: 'Agents, dealers, builders and property consultants by city' },
-  { id: 'technology', name: 'Technology & IT', icon: 'technology', color: '#3b82f6', desc: 'Software houses, app developers, IT support and digital teams' },
+  { id: 'restaurants', name: 'Restaurants & Food', icon: 'restaurant', color: '#7C3AED', desc: 'Cafes, dhabas, fine dining, bakeries and caterers near you' },
+  { id: 'real-estate', name: 'Real Estate & Property', icon: 'real-estate', color: '#0891B2', desc: 'Agents, dealers, builders and property consultants by city' },
+  { id: 'technology', name: 'Technology & IT', icon: 'technology', color: '#0891B2', desc: 'Software houses, app developers, IT support and digital teams' },
   { id: 'healthcare', name: 'Healthcare & Medical', icon: 'healthcare', color: '#ef4444', desc: 'Clinics, hospitals, labs, pharmacies and specialist doctors' },
   { id: 'education', name: 'Education & Training', icon: 'education', color: '#8b5cf6', desc: 'Schools, colleges, academies, tutors and training institutes' },
   { id: 'retail', name: 'Retail & Shopping', icon: 'retail', color: '#ec4899', desc: 'Markets, boutiques, electronics outlets and wholesale stores' },
@@ -66,7 +66,7 @@ export const CATEGORIES = [
   { id: 'home-services', name: 'Home Services & Repairs', icon: 'home-services', color: '#0284c7', desc: 'Plumbers, electricians, AC repair, painters and cleaners' },
   { id: 'legal', name: 'Legal & Law Consultants', icon: 'legal', color: '#4f46e5', desc: 'Lawyers, advocates, notaries and corporate legal firms' },
   { id: 'solar-energy', name: 'Solar & Renewable Energy', icon: 'solar-energy', color: '#eab308', desc: 'Solar installers, inverter dealers and net-metering help' },
-  { id: 'events', name: 'Event Management & Wedding', icon: 'events', color: '#f43f5e', desc: 'Wedding planners, marquees, caterers and photographers' },
+  { id: 'events', name: 'Event Management & Wedding', icon: 'events', color: '#7C3AED', desc: 'Wedding planners, marquees, caterers and photographers' },
   { id: 'manufacturing', name: 'Manufacturing & Industrial', icon: 'manufacturing', color: '#64748b', desc: 'Factories, textile mills, machinery and industrial supply' },
   { id: 'agriculture', name: 'Agriculture & Farming', icon: 'agriculture', color: '#15803d', desc: 'Seeds, fertiliser, machinery, livestock and dairy services' },
   { id: 'security', name: 'Security Services & Systems', icon: 'security', color: '#334155', desc: 'Guard agencies, CCTV installers and alarm systems' },

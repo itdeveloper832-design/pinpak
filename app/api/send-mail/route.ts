@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 /**
- * PakPin transactional mail — direct-send route (no Firebase extension).
+ * PakListings transactional mail — direct-send route (no Firebase extension).
  *
  * The client mail helpers (lib/owner-mail.ts -> lib/mail.ts) POST here with
  * { to, message: { subject, text, html } }. This route verifies who is
  * asking and then sends through the Brevo transactional API using the
  * server-only BREVO_API_KEY (Vercel env). Sender is the authenticated
- * domain address noreply@geotaggingphotos.com; replies go to admin@geotaggingphotos.com.
+ * domain address noreply@paklistings.com; replies go to admin@paklistings.com.
  *
  * Authorization mirrors the old Firestore `mail` rules:
  * - Signed-in caller (verified ID token): may mail themselves or the admin
@@ -18,7 +18,7 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 
 const BREVO_URL = 'https://api.brevo.com/v3/smtp/email'
-const ADMIN_EMAIL = 'admin@geotaggingphotos.com'
+const ADMIN_EMAIL = 'admin@paklistings.com'
 // Admin senders: the site owner's two mailboxes. The admin panel itself is
 // role-gated (users doc role === 'admin'), but this route used to accept
 // ONLY admin@ as the admin identity — while the owner's actual admin
@@ -27,8 +27,8 @@ const ADMIN_EMAIL = 'admin@geotaggingphotos.com'
 // admin-to-owner email (reject / delete / approve / payment) fail with 403,
 // while self-addressed signup/submission emails kept working. Both of these
 // inboxes belong to the site owner, so both may mail listing owners.
-const ADMIN_SENDERS = new Set([ADMIN_EMAIL, 'support@geotaggingphotos.com'])
-const SENDER = { name: 'PakPin', email: 'noreply@geotaggingphotos.com' }
+const ADMIN_SENDERS = new Set([ADMIN_EMAIL, 'support@paklistings.com'])
+const SENDER = { name: 'PakListings', email: 'noreply@paklistings.com' }
 
 async function verifyToken(idToken: string): Promise<{ email: string } | null> {
   const apiKey = process.env.NEXT_PUBLIC_FIREBASE_API_KEY

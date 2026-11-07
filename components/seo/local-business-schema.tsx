@@ -1,6 +1,6 @@
 'use client'
 
-// Deprecated shim — the canonical structured data for PakPin lives in
+// Deprecated shim — the canonical structured data for PakListings lives in
 // lib/organization-schema.ts (Organization + founder Person under one
 // canonical @id). This module previously defined a second, conflicting
 // Organization schema; it now delegates to the canonical graph so no

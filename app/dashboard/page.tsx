@@ -5,15 +5,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
-import { auth, db, storage } from '@/lib/firebase'
+import { auth, db } from '@/lib/firebase'
 import { onAuthStateChanged, signOut, User } from 'firebase/auth'
-import { collection, query, where, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { collection, query, where, orderBy, limit, getDocs, doc, getDoc, addDoc, updateDoc, serverTimestamp } from 'firebase/firestore'
+import { compressImageToDataUrl } from '@/lib/compress-image'
 import { User as UserIcon, Mail, ShieldCheck, LogOut, LayoutGrid, MapPin, HelpCircle, Building2, Factory, Briefcase, PlusCircle, ClipboardList, Crown, BadgeCheck, X, Upload, ShieldAlert, Pencil, FolderKanban, Newspaper, Wallet } from 'lucide-react'
 import { toast } from 'sonner'
 import { isReleased, releaseDateLabel } from '@/lib/release'
 import { notifyAdminNewPaymentProof, queueSubmissionEmails } from '@/lib/mail'
 import PaymentScreen from '@/components/payment-screen'
+import { safeErrorMessage } from '@/lib/user-error'
 import { tierLabel, tierPrice, formatPKR, canEditTier, projectLimitFor, blogLimitFor, LISTING_COLLECTION, isValidProject, type ListingTier, type Project } from '@/lib/tiers'
 import { EDITABLE_FIELDS, EDITABLE_FIELD_LABELS, sanitizeChanges } from '@/lib/edit-requests'
 
@@ -29,6 +30,18 @@ type ListingItem = {
   paymentStatus?: string
   projects?: Project[]
   city?: string
+  slug?: string
+}
+
+/** One payment-proof record (a tier payment or a Featured/Verified upgrade). */
+type ProofSlot = { status: string; plan: string; tier?: string }
+
+/** Public page for an approved dashboard listing, or null (pending/rejected/slug-less). */
+function publicPath(item: ListingItem): string | null {
+  if (item.status !== 'approved' || !item.slug) return null
+  if (item.type === 'Company') return `/company/${item.slug}`
+  if (item.type === 'Job') return `/job/${item.slug}`
+  return `/business/${item.slug}`
 }
 
 /** Dashboard listing type → tier-system listing type. */
@@ -58,7 +71,7 @@ export default function DashboardPage() {
   const [listings, setListings] = useState<ListingItem[]>([])
   const [listingsLoading, setListingsLoading] = useState(false)
   const [role, setRole] = useState<string>('member')
-  const [proofs, setProofs] = useState<Record<string, { status: string; plan: string; tier?: string }>>({})
+  const [proofs, setProofs] = useState<Record<string, { tier?: ProofSlot; upgrade?: ProofSlot }>>({})
   const [upgradeFor, setUpgradeFor] = useState<string | null>(null)
   const [upgradePlan, setUpgradePlan] = useState<'featured' | 'verified'>('featured')
   const [upgradeFile, setUpgradeFile] = useState<File | null>(null)
@@ -122,6 +135,7 @@ export default function DashboardPage() {
               paymentStatus: data.paymentStatus || undefined,
               projects: Array.isArray(data.projects) ? data.projects.filter(isValidProject) : [],
               city: data.city || '',
+              slug: data.slug || '',
             })
           })
         } catch {
@@ -151,15 +165,41 @@ export default function DashboardPage() {
         // Role stays 'member' — the admin link simply stays hidden.
       }
       try {
-        const snap = await getDocs(query(collection(db, 'payment_proofs'), where('ownerId', '==', user.uid)))
-        const map: Record<string, { status: string; plan: string; tier?: string; ts: number }> = {}
+        // Newest 20 only: proof docs carry ~1MB data-URL images, so
+        // the owner query must not pull every proof ever submitted.
+        // The map below keeps the newest proof per listing per slot,
+        // and the newest 20 cover that for any realistic owner.
+        // Requires the composite index in firestore.indexes.json
+        // (ownerId ASC + createdAt DESC); if the index is missing the
+        // query errors and badges stay hidden, exactly like any other
+        // load failure here.
+        const snap = await getDocs(
+          query(collection(db, 'payment_proofs'), where('ownerId', '==', user.uid), orderBy('createdAt', 'desc'), limit(20))
+        )
+        // Tier proofs (listing-tier payment) and upgrade proofs
+        // (Featured/Verified) are SEPARATE slots: a listing can hold
+        // one of each at the same time, and the newest of each wins.
+        // A single latest-proof slot used to overwrite one with the
+        // other, so a pending tier proof vanished the moment an
+        // upgrade proof was submitted (and vice versa).
+        const map: Record<string, { tier?: ProofSlot & { ts: number }; upgrade?: ProofSlot & { ts: number } }> = {}
         snap.forEach((d) => {
           const data = d.data() as any
           if (!data.listingId) return
           const ts = data.createdAt?.toMillis?.() || 0
-          if (!map[data.listingId] || ts > map[data.listingId].ts) {
-            map[data.listingId] = { status: data.status || 'pending', plan: data.plan || 'featured', tier: data.tier || undefined, ts }
+          const slot: ProofSlot & { ts: number } = {
+            status: data.status || 'pending',
+            plan: data.plan || 'featured',
+            tier: data.tier || undefined,
+            ts,
           }
+          const entry = map[data.listingId] || {}
+          if (data.tier) {
+            if (!entry.tier || ts > entry.tier.ts) entry.tier = slot
+          } else {
+            if (!entry.upgrade || ts > entry.upgrade.ts) entry.upgrade = slot
+          }
+          map[data.listingId] = entry
         })
         if (!cancelled) setProofs(map)
       } catch {
@@ -206,16 +246,15 @@ export default function DashboardPage() {
       toast.error('The proof must be an image file.')
       return
     }
-    if (upgradeFile.size > 5 * 1024 * 1024) {
-      toast.error('The image must be under 5MB.')
+    if (upgradeFile.size > 15 * 1024 * 1024) {
+      toast.error('The image is too large to process — please use a smaller screenshot.')
       return
     }
     setUploading(true)
     try {
-      const path = `payment-proofs/${user.uid}/${item.id}-${Date.now()}`
-      const storageRef = ref(storage, path)
-      await uploadBytes(storageRef, upgradeFile)
-      const proofUrl = await getDownloadURL(storageRef)
+      // No Firebase Storage on the free plan: compress in the browser and
+      // store the proof directly in Firestore as a data URL.
+      const proofUrl = await compressImageToDataUrl(upgradeFile)
       await addDoc(collection(db, 'payment_proofs'), {
         listingId: item.id,
         listingType: item.type === 'Company' ? 'company' : 'business',
@@ -227,14 +266,14 @@ export default function DashboardPage() {
         status: 'pending',
         createdAt: serverTimestamp(),
       })
-      setProofs((prev) => ({ ...prev, [item.id]: { status: 'pending', plan: upgradePlan } }))
+      setProofs((prev) => ({ ...prev, [item.id]: { ...prev[item.id], upgrade: { status: 'pending', plan: upgradePlan } } }))
       // Admin notification — queued into `mail`, fire-and-forget, never throws.
       void notifyAdminNewPaymentProof({ listingName: item.name, plan: upgradePlan })
       setUpgradeFor(null)
       setUpgradeFile(null)
       toast.success('Payment proof submitted — our admin will verify it shortly.')
     } catch (err: any) {
-      toast.error(`Upload failed: ${err?.message || 'Unknown error'}`)
+      toast.error(`Upload failed: ${safeErrorMessage(err)}`)
     } finally {
       setUploading(false)
     }
@@ -298,7 +337,7 @@ export default function DashboardPage() {
       setEditFor(null)
       toast.success('Edit request submitted — our team reviews it, then it goes live at the next weekly release.')
     } catch (err: any) {
-      toast.error(`Could not submit edit request: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not submit edit request: ${safeErrorMessage(err)}`)
     } finally {
       setEditSaving(false)
     }
@@ -331,7 +370,7 @@ export default function DashboardPage() {
       setProjectLink('')
       toast.success('Project added to your listing.')
     } catch (err: any) {
-      toast.error(`Could not add project: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not add project: ${safeErrorMessage(err)}`)
     } finally {
       setProjectSaving(false)
     }
@@ -348,7 +387,7 @@ export default function DashboardPage() {
       )
       toast.success('Project removed.')
     } catch (err: any) {
-      toast.error(`Could not remove project: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not remove project: ${safeErrorMessage(err)}`)
     } finally {
       setProjectSaving(false)
     }
@@ -403,7 +442,7 @@ export default function DashboardPage() {
       setBlogFormOpen(false)
       toast.success('Blog post submitted for review.')
     } catch (err: any) {
-      toast.error(`Could not submit blog post: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not submit blog post: ${safeErrorMessage(err)}`)
     } finally {
       setBlogSaving(false)
     }
@@ -415,8 +454,8 @@ export default function DashboardPage() {
     } catch {
       // session cleanup below also applies when Firebase is not yet configured
     }
-    sessionStorage.removeItem('pakpin_user_session')
-    localStorage.removeItem('pakpin_user_session')
+    sessionStorage.removeItem('paklistings_user_session')
+    localStorage.removeItem('paklistings_user_session')
     toast.success('You have been signed out.')
     router.push('/')
   }
@@ -429,7 +468,7 @@ export default function DashboardPage() {
         <div className="max-w-3xl mx-auto space-y-8">
           <div className="space-y-1">
             <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">My Dashboard</h1>
-            <p className="text-sm text-slate-500">Your PakPin account at a glance.</p>
+            <p className="text-sm text-slate-500">Your PakListings account at a glance.</p>
           </div>
 
           {loading ? (
@@ -444,10 +483,10 @@ export default function DashboardPage() {
                 Sign in to view your account details. Browsing the directory is always free and does not need an account.
               </p>
               <div className="flex gap-3 justify-center pt-2">
-                <Link href="/login" className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors">
+                <Link href="/login" className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors">
                   Sign In
                 </Link>
-                <Link href="/register" className="px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 font-bold text-sm rounded-xl transition-colors">
+                <Link href="/register" className="px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 font-bold text-sm rounded-xl transition-colors">
                   Create Account
                 </Link>
               </div>
@@ -456,11 +495,11 @@ export default function DashboardPage() {
             <>
               <section className="bg-white rounded-3xl border border-slate-200 p-8 space-y-5" aria-label="Account details">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-blue-700 text-white flex items-center justify-center font-extrabold text-xl">
+                  <div className="w-14 h-14 rounded-2xl bg-cyan-700 text-white flex items-center justify-center font-extrabold text-xl">
                     {(user.displayName || user.email || 'U').charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <h2 className="font-extrabold text-slate-900 text-lg">{user.displayName || 'PakPin Member'}</h2>
+                    <h2 className="font-extrabold text-slate-900 text-lg">{user.displayName || 'PakListings Member'}</h2>
                     <p className="text-xs text-slate-500 flex items-center gap-1.5">
                       <Mail className="w-3.5 h-3.5" />
                       {user.email}
@@ -471,7 +510,7 @@ export default function DashboardPage() {
                   <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4">
                     <dt className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Email status</dt>
                     <dd className="font-semibold text-slate-800 mt-1 flex items-center gap-1.5">
-                      <ShieldCheck className="w-4 h-4 text-blue-700" />
+                      <ShieldCheck className="w-4 h-4 text-cyan-700" />
                       {user.emailVerified ? 'Verified' : 'Not verified yet'}
                     </dd>
                   </div>
@@ -484,7 +523,7 @@ export default function DashboardPage() {
                   {role === 'admin' && (
                     <Link
                       href="/admin"
-                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors"
                     >
                       <ShieldAlert className="w-4 h-4" />
                       Admin Panel
@@ -502,51 +541,51 @@ export default function DashboardPage() {
               </section>
 
               <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Quick links">
-                <Link href="/categories" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-500 transition-colors space-y-2">
-                  <LayoutGrid className="w-6 h-6 text-blue-700" />
+                <Link href="/categories" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-cyan-500 transition-colors space-y-2">
+                  <LayoutGrid className="w-6 h-6 text-cyan-700" />
                   <h3 className="font-bold text-slate-900 text-sm">Browse Categories</h3>
                   <p className="text-xs text-slate-500">Explore all 24 business categories.</p>
                 </Link>
-                <Link href="/cities" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-500 transition-colors space-y-2">
-                  <MapPin className="w-6 h-6 text-blue-700" />
+                <Link href="/cities" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-cyan-500 transition-colors space-y-2">
+                  <MapPin className="w-6 h-6 text-cyan-700" />
                   <h3 className="font-bold text-slate-900 text-sm">Explore Cities</h3>
                   <p className="text-xs text-slate-500">City guides from across Pakistan.</p>
                 </Link>
-                <Link href="/help-center" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-500 transition-colors space-y-2">
-                  <HelpCircle className="w-6 h-6 text-rose-600" />
+                <Link href="/help-center" className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-cyan-500 transition-colors space-y-2">
+                  <HelpCircle className="w-6 h-6 text-violet-600" />
                   <h3 className="font-bold text-slate-900 text-sm">Help Center</h3>
                   <p className="text-xs text-slate-500">Answers and support options.</p>
                 </Link>
               </section>
 
               <section className="grid grid-cols-1 sm:grid-cols-3 gap-4" aria-label="Add a listing">
-                <Link href="/add-business" className="bg-white rounded-3xl border-2 border-blue-100 p-6 hover:border-blue-500 hover:shadow-lg transition-all space-y-3 group">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-700 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Link href="/add-business" className="bg-white rounded-3xl border-2 border-cyan-100 p-6 hover:border-cyan-500 hover:shadow-lg transition-all space-y-3 group">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-700 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Building2 className="w-6 h-6" />
                   </div>
                   <h3 className="font-extrabold text-slate-900">Add Business</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">Free listing — appear in search and get customer calls directly.</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700">
+                  <p className="text-xs text-slate-500 leading-relaxed">Listing from PKR 99 — appear in search and get customer calls directly.</p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700">
                     <PlusCircle className="w-4 h-4" /> Add now
                   </span>
                 </Link>
-                <Link href="/add-company" className="bg-white rounded-3xl border-2 border-blue-100 p-6 hover:border-blue-500 hover:shadow-lg transition-all space-y-3 group">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-700 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Link href="/add-company" className="bg-white rounded-3xl border-2 border-cyan-100 p-6 hover:border-cyan-500 hover:shadow-lg transition-all space-y-3 group">
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-700 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Factory className="w-6 h-6" />
                   </div>
                   <h3 className="font-extrabold text-slate-900">Add Company</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">Free company profile — appear in search and build trust with buyers.</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700">
+                  <p className="text-xs text-slate-500 leading-relaxed">Company profile from PKR 99 — appear in search and build trust with buyers.</p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-700">
                     <PlusCircle className="w-4 h-4" /> Add now
                   </span>
                 </Link>
-                <Link href="/add-job" className="bg-white rounded-3xl border-2 border-rose-100 p-6 hover:border-rose-500 hover:shadow-lg transition-all space-y-3 group">
-                  <div className="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
+                <Link href="/add-job" className="bg-white rounded-3xl border-2 border-violet-100 p-6 hover:border-violet-500 hover:shadow-lg transition-all space-y-3 group">
+                  <div className="w-12 h-12 rounded-2xl bg-violet-500 text-white flex items-center justify-center group-hover:scale-105 transition-transform">
                     <Briefcase className="w-6 h-6" />
                   </div>
                   <h3 className="font-extrabold text-slate-900">Post a Job</h3>
-                  <p className="text-xs text-slate-500 leading-relaxed">Free job post — reach candidates and get applications on your phone.</p>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600">
+                  <p className="text-xs text-slate-500 leading-relaxed">Job post from PKR 99 — reach candidates and get applications on your phone.</p>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-violet-600">
                     <PlusCircle className="w-4 h-4" /> Post now
                   </span>
                 </Link>
@@ -554,7 +593,7 @@ export default function DashboardPage() {
 
               <section className="bg-white rounded-3xl border border-slate-200 p-8 space-y-5" aria-label="My listings">
                 <h2 className="font-extrabold text-slate-900 text-lg flex items-center gap-2">
-                  <ClipboardList className="w-5 h-5 text-blue-700" />
+                  <ClipboardList className="w-5 h-5 text-cyan-700" />
                   My Listings
                 </h2>
                 {listingsLoading ? (
@@ -562,15 +601,17 @@ export default function DashboardPage() {
                 ) : listings.length === 0 ? (
                   <div className="text-center py-6 space-y-3">
                     <p className="text-sm text-slate-500">No listings yet — add your first business</p>
-                    <Link href="/add-business" className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors">
+                    <Link href="/add-business" className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors">
                       <PlusCircle className="w-4 h-4" /> Add Business
                     </Link>
                   </div>
                 ) : (
                   <ul className="divide-y divide-slate-100">
                     {listings.map((item) => {
-                      const proof = proofs[item.id]
-                      const upgradeable = item.type === 'Business' || item.type === 'Company'
+                      const tierProof = proofs[item.id]?.tier
+                      const upgradeProof = proofs[item.id]?.upgrade
+                      const upgradeable =
+                        (item.type === 'Business' || item.type === 'Company') && item.status === 'approved'
                       const panelOpen = upgradeFor === item.id
                       // Businesses publish in a weekly batch (lib/release.ts):
                       // an approved business whose release is still pending
@@ -581,10 +622,21 @@ export default function DashboardPage() {
                       // owner already paid and is waiting on verification —
                       // no second upload panel. Otherwise an unpaid or
                       // rejected-proof listing gets the Pay panel.
-                      const tierProofPending = !!proof?.tier && proof.status === 'pending'
+                      const tierProofPending = !!tierProof && tierProof.status === 'pending'
+                      // Rejected tier listings also get the panel: a business
+                      // rejected by admin (status 'rejected') with a paid tier
+                      // previously had NO proof option at all — only "create
+                      // a new listing" — even though a fresh proof for the
+                      // SAME listing is exactly what admin needs to approve
+                      // it. The owner still only creates a payment_proofs
+                      // doc (Firestore rules forbid owners changing a
+                      // listing's status/paymentStatus/tier); admin approval
+                      // of that proof is what re-approves the listing.
+                      const rejectedTierResubmit = item.status === 'rejected' && !!item.tier && !tierProofPending
                       const needsPayment =
-                        (item.paymentStatus === 'awaiting_payment' || item.paymentStatus === 'payment_rejected') &&
-                        !tierProofPending
+                        ((item.paymentStatus === 'awaiting_payment' || item.paymentStatus === 'payment_rejected') &&
+                          !tierProofPending) ||
+                        rejectedTierResubmit
                       const canEdit = item.status === 'approved' && canEditTier(item.tier)
                       const projectLimit = projectLimitFor(item.tier)
                       const showProjects = item.status === 'approved' && projectLimit > 0
@@ -599,19 +651,30 @@ export default function DashboardPage() {
                               <p className="text-[11px] text-slate-400 font-semibold uppercase tracking-wider">{item.type}</p>
                             </div>
                             <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
-                              {proof && (
+                              {tierProof && (
                                 <span
                                   className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
-                                    proof.status === 'approved'
-                                      ? 'bg-blue-50 text-blue-800 border-blue-200'
-                                      : proof.status === 'rejected'
+                                    tierProof.status === 'approved'
+                                      ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                                      : tierProof.status === 'rejected'
                                         ? 'bg-red-50 text-red-700 border-red-200'
                                         : 'bg-slate-100 text-slate-600 border-slate-200'
                                   }`}
                                 >
-                                  {proof.tier
-                                    ? `${tierLabel(proof.tier)} payment: ${proof.status === 'approved' ? 'Verified' : proof.status === 'rejected' ? 'Rejected' : 'Under review'}`
-                                    : `${proof.plan === 'verified' ? 'Verified' : 'Featured'} proof: ${proof.status === 'approved' ? 'Approved' : proof.status === 'rejected' ? 'Rejected' : 'Pending review'}`}
+                                  {`${tierLabel(tierProof.tier)} payment: ${tierProof.status === 'approved' ? 'Verified' : tierProof.status === 'rejected' ? 'Rejected' : 'Under review'}`}
+                                </span>
+                              )}
+                              {upgradeProof && (
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
+                                    upgradeProof.status === 'approved'
+                                      ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
+                                      : upgradeProof.status === 'rejected'
+                                        ? 'bg-red-50 text-red-700 border-red-200'
+                                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                                  }`}
+                                >
+                                  {`${upgradeProof.plan === 'verified' ? 'Verified' : 'Featured'} proof: ${upgradeProof.status === 'approved' ? 'Approved' : upgradeProof.status === 'rejected' ? 'Rejected' : 'Pending review'}`}
                                 </span>
                               )}
                               {item.tier && (
@@ -622,10 +685,10 @@ export default function DashboardPage() {
                               <span
                                 className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
                                   item.status === 'approved'
-                                    ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                    ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
                                     : item.status === 'rejected'
                                       ? 'bg-red-50 text-red-700 border-red-200'
-                                      : 'bg-rose-50 text-rose-700 border-rose-200'
+                                      : 'bg-violet-50 text-violet-700 border-violet-200'
                                 }`}
                               >
                                 {item.status === 'approved' ? 'Approved' : item.status === 'rejected' ? 'Rejected' : 'Pending review'}
@@ -635,9 +698,9 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => openPayPanel(item)}
                                   aria-expanded={payFor === item.id}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-[11px] rounded-full transition-colors cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-[11px] rounded-full transition-colors cursor-pointer"
                                 >
-                                  <Wallet className="w-3.5 h-3.5" /> {item.paymentStatus === 'payment_rejected' ? 'Re-upload Proof' : 'Pay Now'}
+                                  <Wallet className="w-3.5 h-3.5" /> {item.paymentStatus === 'payment_rejected' ? 'Re-upload Proof' : item.status === 'rejected' ? 'Upload New Proof' : 'Pay Now'}
                                 </button>
                               )}
                               {canEdit && (
@@ -645,7 +708,7 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => void openEditPanel(item)}
                                   aria-expanded={editFor === item.id}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-blue-500 text-slate-700 font-bold text-[11px] rounded-full transition-colors cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-cyan-500 text-slate-700 font-bold text-[11px] rounded-full transition-colors cursor-pointer"
                                 >
                                   <Pencil className="w-3.5 h-3.5" /> Request Edit
                                 </button>
@@ -655,7 +718,7 @@ export default function DashboardPage() {
                                   type="button"
                                   onClick={() => setProjectsFor(projectsFor === item.id ? null : item.id)}
                                   aria-expanded={projectsFor === item.id}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-blue-500 text-slate-700 font-bold text-[11px] rounded-full transition-colors cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-cyan-500 text-slate-700 font-bold text-[11px] rounded-full transition-colors cursor-pointer"
                                 >
                                   <FolderKanban className="w-3.5 h-3.5" /> Projects ({(item.projects || []).length}/{projectLimit})
                                 </button>
@@ -668,25 +731,40 @@ export default function DashboardPage() {
                                     setUpgradeFile(null)
                                   }}
                                   aria-expanded={panelOpen}
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white font-bold text-[11px] rounded-full transition-colors cursor-pointer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-500 hover:bg-violet-600 text-white font-bold text-[11px] rounded-full transition-colors cursor-pointer"
                                 >
                                   <Crown className="w-3.5 h-3.5" /> Upgrade
                                 </button>
+                              )}
+                              {/* Approved businesses publish in the
+                                  weekly batch: hide "View listing" until
+                                  the release date — the public page 404s
+                                  before then (see awaitingRelease above). */}
+                              {publicPath(item) && !awaitingRelease && (
+                                <Link
+                                  href={publicPath(item)!}
+                                  prefetch={false}
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white border border-slate-300 hover:border-cyan-500 text-slate-700 font-bold text-[11px] rounded-full transition-colors"
+                                >
+                                  View listing
+                                </Link>
                               )}
                             </div>
                           </div>
 
                           {awaitingRelease && (
-                            <p className="text-[11px] font-semibold text-blue-800 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2">
-                              Approved — goes live on PakPin on {releaseDateLabel(Date.now())}
+                            <p className="text-[11px] font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 rounded-xl px-3 py-2">
+                              Approved — goes live on PakListings on {releaseDateLabel(Date.now())}
                             </p>
                           )}
 
                           {needsPayment && (
                             <p className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
-                              {item.paymentStatus === 'payment_rejected'
-                                ? 'Your payment proof was not verified — upload a new screenshot below.'
-                                : `Payment pending — your ${tierLabel(item.tier)} listing (${formatPKR(tierPrice(item.tier))}) waits for its payment proof below.`}
+                              {item.status === 'rejected' && item.paymentStatus !== 'payment_rejected'
+                                ? 'This listing was rejected — upload a new payment screenshot for this same listing below. Admin verifies it against this listing, and approving it approves this listing (no need to create a new one).'
+                                : item.paymentStatus === 'payment_rejected'
+                                  ? 'Your payment proof was not verified — upload a new screenshot below.'
+                                  : `Payment pending — your ${tierLabel(item.tier)} listing (${formatPKR(tierPrice(item.tier))}) waits for its payment proof below.`}
                             </p>
                           )}
 
@@ -703,7 +781,7 @@ export default function DashboardPage() {
                           )}
 
                           {editReq && editReq.status === 'approved' && (
-                            <p className="text-[11px] font-semibold text-blue-800 bg-blue-50 border border-blue-200 rounded-xl px-3 py-2">
+                            <p className="text-[11px] font-semibold text-cyan-800 bg-cyan-50 border border-cyan-200 rounded-xl px-3 py-2">
                               {editEffMs > Date.now()
                                 ? `Edit approved — goes live on ${formatShortDate(editEffMs)}.`
                                 : 'Your latest approved edit is live on this listing.'}
@@ -731,9 +809,22 @@ export default function DashboardPage() {
                               {item.rejectionNote && (
                                 <p className="text-xs text-red-700">Reviewer note: {item.rejectionNote}</p>
                               )}
-                              <p className="text-xs text-red-700">
-                                Fix these issues and create a new listing — this one cannot be re-approved as it stands.
-                              </p>
+                              {tierProofPending ? (
+                                <p className="text-xs text-red-700">
+                                  A new payment proof for this listing is already under review — admin verifies it
+                                  against this listing, and approving it approves this listing.
+                                </p>
+                              ) : item.tier ? (
+                                <p className="text-xs text-red-700">
+                                  You can upload a new payment proof for this same listing with the “Upload New Proof”
+                                  button above — approving it approves this listing. Creating a new listing is only
+                                  needed if you want to start over.
+                                </p>
+                              ) : (
+                                <p className="text-xs text-red-700">
+                                  Fix these issues and create a new listing — this one cannot be re-approved as it stands.
+                                </p>
+                              )}
                               <Link
                                 href={item.type === 'Company' ? '/add-company' : item.type === 'Job' ? '/add-job' : '/add-business'}
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold text-[11px] rounded-lg transition-colors"
@@ -756,7 +847,7 @@ export default function DashboardPage() {
                                   const hadPriorTierProof = !!proofs[item.id]?.tier
                                   setProofs((prev) => ({
                                     ...prev,
-                                    [item.id]: { status: 'pending', plan: 'featured', tier: item.tier },
+                                    [item.id]: { ...prev[item.id], tier: { status: 'pending', plan: 'featured', tier: item.tier } },
                                   }))
                                   setPayFor(null)
                                   // First-ever tier proof: the submission
@@ -783,7 +874,7 @@ export default function DashboardPage() {
                             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
                               <div className="flex items-start justify-between gap-3">
                                 <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                                  <Pencil className="w-4 h-4 text-blue-700" />
+                                  <Pencil className="w-4 h-4 text-cyan-700" />
                                   Request an edit for “{item.name}”
                                 </h3>
                                 <button
@@ -815,7 +906,7 @@ export default function DashboardPage() {
                                             rows={3}
                                             value={editFields[key] || ''}
                                             onChange={(e) => setEditFields((prev) => ({ ...prev, [key]: e.target.value }))}
-                                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                           />
                                         ) : (
                                           <input
@@ -823,7 +914,7 @@ export default function DashboardPage() {
                                             type={key === 'phone' || key === 'whatsapp' ? 'tel' : 'text'}
                                             value={editFields[key] || ''}
                                             onChange={(e) => setEditFields((prev) => ({ ...prev, [key]: e.target.value }))}
-                                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                           />
                                         )}
                                       </div>
@@ -833,7 +924,7 @@ export default function DashboardPage() {
                                     type="button"
                                     disabled={editSaving}
                                     onClick={() => void handleEditSubmit(item)}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                                   >
                                     <Pencil className="w-4 h-4" />
                                     {editSaving ? 'Submitting...' : 'Submit Edit Request'}
@@ -847,7 +938,7 @@ export default function DashboardPage() {
                             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
                               <div className="flex items-start justify-between gap-3">
                                 <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                                  <FolderKanban className="w-4 h-4 text-blue-700" />
+                                  <FolderKanban className="w-4 h-4 text-cyan-700" />
                                   Projects ({(item.projects || []).length}/{projectLimit})
                                 </h3>
                                 <button
@@ -867,7 +958,7 @@ export default function DashboardPage() {
                                         <p className="font-bold text-slate-900 text-xs">{project.title}</p>
                                         <p className="text-xs text-slate-500 leading-relaxed mt-0.5">{project.description}</p>
                                         {project.link && (
-                                          <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-blue-700 hover:underline break-all">
+                                          <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-cyan-700 hover:underline break-all">
                                             {project.link}
                                           </a>
                                         )}
@@ -897,7 +988,7 @@ export default function DashboardPage() {
                                       value={projectTitle}
                                       onChange={(e) => setProjectTitle(e.target.value)}
                                       placeholder="E.g. DHA Phase 9 villa renovation"
-                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                     />
                                   </div>
                                   <div>
@@ -908,7 +999,7 @@ export default function DashboardPage() {
                                       value={projectDesc}
                                       onChange={(e) => setProjectDesc(e.target.value)}
                                       placeholder="What did you build, for whom, and what was the outcome?"
-                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                     />
                                   </div>
                                   <div>
@@ -919,14 +1010,14 @@ export default function DashboardPage() {
                                       value={projectLink}
                                       onChange={(e) => setProjectLink(e.target.value)}
                                       placeholder="https://example.com/project"
-                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                     />
                                   </div>
                                   <button
                                     type="button"
                                     disabled={projectSaving}
                                     onClick={() => void handleProjectAdd(item)}
-                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                    className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                                   >
                                     <PlusCircle className="w-4 h-4" />
                                     {projectSaving ? 'Adding...' : 'Add Project'}
@@ -944,7 +1035,7 @@ export default function DashboardPage() {
                             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
                               <div className="flex items-start justify-between gap-3">
                                 <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                                  <BadgeCheck className="w-4 h-4 text-blue-700" />
+                                  <BadgeCheck className="w-4 h-4 text-cyan-700" />
                                   Upgrade “{item.name}”
                                 </h3>
                                 <button
@@ -964,7 +1055,7 @@ export default function DashboardPage() {
                                   id={`plan-${item.id}`}
                                   value={upgradePlan}
                                   onChange={(e) => setUpgradePlan(e.target.value as 'featured' | 'verified')}
-                                  className="w-full sm:w-64 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                                  className="w-full sm:w-64 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                                 >
                                   <option value="featured">Featured Listing</option>
                                   <option value="verified">Verified Badge</option>
@@ -972,14 +1063,14 @@ export default function DashboardPage() {
                               </div>
                               <p className="text-xs text-slate-500 leading-relaxed">
                                 Pay via the details shared by our team on the{' '}
-                                <Link href="/advertise-with-us" className="text-blue-700 font-semibold hover:underline">Advertise page</Link>{' '}
+                                <Link href="/advertise-with-us" className="text-cyan-700 font-semibold hover:underline">Advertise page</Link>{' '}
                                 or by contacting us, then upload your payment screenshot here — our admin will verify it.
                                 Featured placement and the Verified Badge are rolling out, so an approved upgrade is
                                 recorded on your listing now and displayed as each feature goes live.
                               </p>
                               <div>
                                 <label htmlFor={`proof-${item.id}`} className="block text-xs font-bold text-slate-700 mb-1">
-                                  Payment screenshot (image, max 5MB)
+                                  Payment screenshot (image, compressed automatically)
                                 </label>
                                 <input
                                   id={`proof-${item.id}`}
@@ -994,7 +1085,7 @@ export default function DashboardPage() {
                                 type="button"
                                 disabled={uploading || !upgradeFile}
                                 onClick={() => handleUpgradeSubmit(item)}
-                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                               >
                                 <Upload className="w-4 h-4" />
                                 {uploading ? 'Uploading...' : 'Submit Payment Proof'}
@@ -1016,14 +1107,14 @@ export default function DashboardPage() {
                 return (
                   <section className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-5">
                     <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center shrink-0">
-                        <Newspaper className="w-5 h-5 text-blue-700" />
+                      <div className="w-10 h-10 rounded-2xl bg-cyan-50 border border-cyan-100 flex items-center justify-center shrink-0">
+                        <Newspaper className="w-5 h-5 text-cyan-700" />
                       </div>
                       <div>
                         <h2 className="font-extrabold text-slate-900 text-lg">My Blog Posts</h2>
                         <p className="text-xs text-slate-500 leading-relaxed">
                           Your Featured listing “{featuredListing.name}” includes up to 2 blog posts. You have used {used} of 2
-                          {remaining > 0 ? ` — ${remaining} left.` : '.'} Approved posts appear on the public PakPin blog.
+                          {remaining > 0 ? ` — ${remaining} left.` : '.'} Approved posts appear on the public PakListings blog.
                         </p>
                       </div>
                     </div>
@@ -1038,7 +1129,7 @@ export default function DashboardPage() {
                             <span
                               className={`px-2.5 py-1 rounded-full text-[11px] font-bold border shrink-0 ${
                                 post.data.status === 'approved'
-                                  ? 'bg-blue-50 text-blue-800 border-blue-200'
+                                  ? 'bg-cyan-50 text-cyan-800 border-cyan-200'
                                   : post.data.status === 'rejected'
                                     ? 'bg-red-50 text-red-700 border-red-200'
                                     : 'bg-amber-50 text-amber-700 border-amber-200'
@@ -1054,7 +1145,7 @@ export default function DashboardPage() {
                       <button
                         type="button"
                         onClick={() => setBlogFormOpen(true)}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
+                        className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer"
                       >
                         <PlusCircle className="w-4 h-4" /> Write a Blog Post
                       </button>
@@ -1080,7 +1171,7 @@ export default function DashboardPage() {
                             value={blogTitle}
                             onChange={(e) => setBlogTitle(e.target.value)}
                             placeholder="E.g. How to choose the right solar installer in Lahore"
-                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                           />
                         </div>
                         <div>
@@ -1091,7 +1182,7 @@ export default function DashboardPage() {
                             value={blogExcerpt}
                             onChange={(e) => setBlogExcerpt(e.target.value)}
                             placeholder="One line that makes readers click"
-                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                           />
                         </div>
                         <div>
@@ -1102,14 +1193,17 @@ export default function DashboardPage() {
                             value={blogContent}
                             onChange={(e) => setBlogContent(e.target.value)}
                             placeholder="Write your post here — useful, honest advice for readers, not a sales pitch."
-                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                            className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                           />
+                          <p className={`text-[11px] mt-1 font-medium ${blogContent.trim().length >= 100 ? 'text-cyan-700' : 'text-slate-400'}`}>
+                            {blogContent.trim().length}/100 characters minimum
+                          </p>
                         </div>
                         <button
                           type="button"
                           disabled={blogSaving}
                           onClick={() => void handleBlogSubmit()}
-                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                         >
                           <Newspaper className="w-4 h-4" />
                           {blogSaving ? 'Submitting...' : 'Submit for Review'}

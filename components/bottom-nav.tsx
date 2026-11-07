@@ -42,7 +42,7 @@ export default function BottomNav() {
                 id={navId}
                 href={item.href}
                 aria-label="Browse Categories"
-                className="relative -top-4 flex items-center justify-center w-14 h-14 bg-blue-500 hover:bg-blue-700 rounded-full text-white border-4 border-[#09090b] shadow-lg hover:scale-105 transition-all duration-200"
+                className="relative -top-4 flex items-center justify-center w-14 h-14 bg-cyan-500 hover:bg-cyan-700 rounded-full text-white border-4 border-[#09090b] shadow-lg hover:scale-105 transition-all duration-200"
                 title="Browse Categories"
               >
                 <LayoutGrid className="w-8 h-8" />
@@ -57,7 +57,7 @@ export default function BottomNav() {
               href={item.href}
               aria-label={item.label}
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-colors duration-200 ${
-                item.active ? 'text-blue-400' : 'text-slate-300 hover:text-white'
+                item.active ? 'text-cyan-400' : 'text-slate-300 hover:text-white'
               }`}
             >
               <div

@@ -1,5 +1,5 @@
 // ============================================================
-// PakPin — SERVER-SIDE public listings (ANTI-SCRAPE, Round 3)
+// PakListings — SERVER-SIDE public listings (ANTI-SCRAPE, Round 3)
 // ------------------------------------------------------------
 // SERVER ONLY — import this module from server components
 // (app router pages), never from a 'use client' file. It reads
@@ -19,6 +19,8 @@
 import { db, isDummyFirebase } from '@/lib/firebase'
 import { collection, query, where, limit, getDocs } from 'firebase/firestore'
 import { SEED_BUSINESSES } from '@/lib/seed-businesses'
+import { CATEGORIES } from '@/lib/data'
+import { CITY_INFO } from '@/lib/seo-content'
 import { isReleased } from '@/lib/release'
 import { applyPendingEdit } from '@/lib/edit-requests'
 
@@ -30,6 +32,8 @@ export type PublicBusinessCard = {
   city: string
   phone: string
   description: string
+  /** Featured tier (admin-set). Public cards render a "Featured" badge and sort first. */
+  featured: boolean
 }
 
 /** Static seed listings as listing cards (build-time data, zero reads). */
@@ -41,6 +45,7 @@ export const SEED_CARDS: PublicBusinessCard[] = SEED_BUSINESSES.map((seed) => ({
   city: seed.city,
   phone: seed.phone || '',
   description: seed.description,
+  featured: false,
 }))
 
 /** Deep-convert Firestore Timestamps to epoch millis so results are plain serializable data. */
@@ -91,11 +96,71 @@ export async function fetchApprovedCompanies(): Promise<ListingDoc[]> {
   }
 }
 
+/** All approved job documents (serialized). Jobs have no release cycle — approved is public. */
+export async function fetchApprovedJobs(): Promise<ListingDoc[]> {
+  if (isDummyFirebase) return []
+  try {
+    const snap = await getDocs(query(collection(db, 'jobs'), where('status', '==', 'approved')))
+    const rows: ListingDoc[] = []
+    snap.forEach((d) => rows.push({ id: d.id, data: serializeValue(d.data()) }))
+    return rows
+  } catch {
+    return []
+  }
+}
+
+/** One job document by slug (public single-document read), or null. */
+export async function fetchJobBySlug(slug: string): Promise<ListingDoc | null> {
+  if (isDummyFirebase) return null
+  try {
+    const snap = await getDocs(query(collection(db, 'jobs'), where('slug', '==', slug), where('status', '==', 'approved'), limit(1)))
+    if (snap.empty) return null
+    const d = snap.docs[0]
+    return { id: d.id, data: serializeValue(d.data()) }
+  } catch {
+    return null
+  }
+}
+
+export type PublicJobCard = {
+  id: string
+  title: string
+  slug: string
+  companyName: string
+  city: string
+  jobType: string
+  salaryRange: string
+  description: string
+  /** Featured tier (admin-set). Public cards render a "Featured" badge and sort first. */
+  featured: boolean
+}
+export async function getApprovedJobCards(): Promise<PublicJobCard[]> {
+  const rows = await fetchApprovedJobs()
+  return sortFeaturedFirst(rows.map((row) => {
+    const d = row.data || {}
+    return {
+      id: row.id,
+      title: d.title || '',
+      slug: d.slug || '',
+      companyName: d.companyName || '',
+      city: d.city || '',
+      jobType: d.jobType || '',
+      salaryRange: d.salaryRange || '',
+      description: d.description || '',
+      featured: d.featured === true,
+    }
+  }))
+}
+
 /** One business document by slug (public single-document read), or null. */
 export async function fetchBusinessBySlug(slug: string): Promise<ListingDoc | null> {
   if (isDummyFirebase) return null
   try {
-    const snap = await getDocs(query(collection(db, 'businesses'), where('slug', '==', slug), limit(1)))
+    // The public read rule allows a business document only when
+    // status == 'approved', so the slug query must carry the approved
+    // clause too — a slug-only query is denied as a whole and the
+    // approved detail page would 404.
+    const snap = await getDocs(query(collection(db, 'businesses'), where('slug', '==', slug), where('status', '==', 'approved'), limit(1)))
     if (snap.empty) return null
     const d = snap.docs[0]
     return { id: d.id, data: applyPendingEdit(serializeValue(d.data()), 'business', Date.now()) }
@@ -108,7 +173,10 @@ export async function fetchBusinessBySlug(slug: string): Promise<ListingDoc | nu
 export async function fetchCompanyBySlug(slug: string): Promise<ListingDoc | null> {
   if (isDummyFirebase) return null
   try {
-    const snap = await getDocs(query(collection(db, 'companies'), where('slug', '==', slug), limit(1)))
+    // Same approved-clause rule as fetchBusinessBySlug above: the
+    // public read rule allows a company document only when
+    // status == 'approved'.
+    const snap = await getDocs(query(collection(db, 'companies'), where('slug', '==', slug), where('status', '==', 'approved'), limit(1)))
     if (snap.empty) return null
     const d = snap.docs[0]
     return { id: d.id, data: applyPendingEdit(serializeValue(d.data()), 'company', Date.now()) }
@@ -125,6 +193,8 @@ export type PublicCompanyCard = {
   city: string
   phone: string
   description: string
+  /** Featured tier (admin-set). Public cards render a "Featured" badge and sort first. */
+  featured: boolean
 }
 
 /** Map a company document to the public listing-card shape (same mapping the old client page used). */
@@ -138,6 +208,7 @@ export function toCompanyCard(doc: ListingDoc): PublicCompanyCard {
     city: data.city || '',
     phone: data.phone || '',
     description: data.description || '',
+    featured: data.featured === true,
   }
 }
 
@@ -149,7 +220,7 @@ export function toCompanyCard(doc: ListingDoc): PublicCompanyCard {
  */
 export async function getApprovedCompanyCards(): Promise<PublicCompanyCard[]> {
   const rows = await fetchApprovedCompanies()
-  return rows.map(toCompanyCard)
+  return sortFeaturedFirst(rows.map(toCompanyCard))
 }
 
 /** Map a business document to the public listing-card shape. */
@@ -163,7 +234,18 @@ export function toBusinessCard(doc: ListingDoc): PublicBusinessCard {
     city: data.city || '',
     phone: data.phone || '',
     description: data.description || '',
+    featured: data.featured === true,
   }
+}
+
+/**
+ * Featured listings first (stable — the relative order of everything
+ * else is unchanged). The Featured tier buys the featured placement
+ * the blog promises: the badge (components/featured-badge.tsx) plus
+ * top placement on the public listing grids.
+ */
+export function sortFeaturedFirst<T extends { featured?: boolean }>(cards: T[]): T[] {
+  return [...cards].sort((a, b) => Number(b.featured === true) - Number(a.featured === true))
 }
 
 /**
@@ -202,7 +284,7 @@ export async function getMergedBusinessCards(): Promise<PublicBusinessCard[]> {
     // public at the next 7-day cycle boundary, not immediately.
     .filter((r) => isReleased(r.data.approvedAt, now))
     .map(toBusinessCard)
-  return mergeSeedAndFirestore(SEED_CARDS, cards)
+  return sortFeaturedFirst(mergeSeedAndFirestore(SEED_CARDS, cards))
 }
 
 function slugify(value: string): string {
@@ -236,6 +318,7 @@ export async function getCityCategoryCards(args: {
     city: s.city,
     phone: s.phone || '',
     description: s.description,
+    featured: false,
   }))
 
   const rows = await fetchApprovedBusinesses()
@@ -260,9 +343,10 @@ export async function getCityCategoryCards(args: {
       city: docCity,
       phone: data.phone || '',
       description: data.description || '',
+      featured: data.featured === true,
     })
   }
-  return mergeSeedAndFirestore(seeds, cards)
+  return sortFeaturedFirst(mergeSeedAndFirestore(seeds, cards))
 }
 
 /**
@@ -288,6 +372,7 @@ export async function getCityCards(
     city: s.city,
     phone: s.phone || '',
     description: s.description,
+    featured: false,
   }))
 
   const rows = await fetchApprovedBusinesses()
@@ -300,7 +385,7 @@ export async function getCityCards(
     if (slugify(docCity) !== citySlug && docCity !== city) continue
     cards.push(toBusinessCard(r))
   }
-  return mergeSeedAndFirestore(seeds, cards)
+  return sortFeaturedFirst(mergeSeedAndFirestore(seeds, cards))
 }
 
 /**
@@ -323,6 +408,7 @@ export async function getCategoryCards(
     city: s.city,
     phone: s.phone || '',
     description: s.description,
+    featured: false,
   }))
 
   const rows = await fetchApprovedBusinesses()
@@ -339,7 +425,7 @@ export async function getCategoryCards(
     if (!categoryMatches) continue
     cards.push(toBusinessCard(r))
   }
-  return mergeSeedAndFirestore(seeds, cards)
+  return sortFeaturedFirst(mergeSeedAndFirestore(seeds, cards))
 }
 
 export type UserBlogPost = {
@@ -402,4 +488,204 @@ export async function getApprovedUserBlogPosts(): Promise<UserBlogPost[]> {
   } catch {
     return []
   }
+}
+
+/* ============================================================
+   Keyword-gap surfaces (ported 2026-11-06)
+   ------------------------------------------------------------
+   All helpers below are server-only, fail-soft (empty result on
+   any Firestore denial), and invent nothing: ratings come only
+   from approved reviews, area matches only from a listing's own
+   area/address fields, and sitemap combos only from listings
+   that actually exist.
+   ============================================================ */
+
+/** Average rating + review count per business, from APPROVED reviews only. */
+export type ReviewAverage = { avg: number; count: number }
+
+/**
+ * Approved reviews aggregated by businessId. The Firestore rule for
+ * /reviews allows read when status == 'approved', so this approved-
+ * only query is rules-allowed server-side — no rules change needed.
+ * Returns an empty map when Firestore is unreachable or denies the read.
+ */
+export async function getApprovedReviewAverages(): Promise<Map<string, ReviewAverage>> {
+  const out = new Map<string, ReviewAverage>()
+  if (isDummyFirebase) return out
+  try {
+    const snap = await getDocs(query(collection(db, 'reviews'), where('status', '==', 'approved')))
+    const sums = new Map<string, { sum: number; count: number }>()
+    snap.forEach((d) => {
+      const data = d.data() as any
+      const businessId = typeof data.businessId === 'string' ? data.businessId : ''
+      const rating = Number(data.rating)
+      if (!businessId || !(rating >= 1 && rating <= 5)) return
+      const cur = sums.get(businessId) || { sum: 0, count: 0 }
+      cur.sum += rating
+      cur.count += 1
+      sums.set(businessId, cur)
+    })
+    sums.forEach((v, k) => out.set(k, { avg: v.sum / v.count, count: v.count }))
+    return out
+  } catch {
+    return out
+  }
+}
+
+export type RatedBusinessCard = PublicBusinessCard & { avgRating: number; reviewCount: number }
+
+/**
+ * Join listing cards with REAL review averages. Seed cards carry no
+ * reviews (their ids never match a review businessId), so a seed
+ * listing can never appear here — no rating is ever invented.
+ * Sorted by average rating, then review count, then name.
+ */
+export function getTopRatedCards(
+  cards: PublicBusinessCard[],
+  averages: Map<string, ReviewAverage>,
+  limit = 6
+): RatedBusinessCard[] {
+  const rated: RatedBusinessCard[] = []
+  for (const card of cards) {
+    const r = averages.get(card.id)
+    if (r) rated.push({ ...card, avgRating: r.avg, reviewCount: r.count })
+  }
+  rated.sort((a, b) => b.avgRating - a.avgRating || b.reviewCount - a.reviewCount || a.name.localeCompare(b.name))
+  return rated.slice(0, limit)
+}
+
+/** Normalize free text for area matching: lowercase, punctuation → spaces. */
+function normalizeAreaText(value: string): string {
+  return (value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+/**
+ * AREA MATCHING METHOD — documented here because it decides
+ * which listings an area page shows:
+ * A listing matches a district when the district name appears as a
+ * whole word (or word sequence) inside the listing's own `area`
+ * field (collected on the add-business form, e.g. "Gulberg, DHA,
+ * Clifton...") OR inside its street `address` (e.g. an address of
+ * "Shop 12, Main Boulevard, Gulberg III" matches district "Gulberg",
+ * and "DHA Phase 5" matches "DHA"). Matching is token-based, not
+ * raw substring, so "DHA" never matches inside an unrelated word.
+ * Static seed listings carry neither an area nor an address field,
+ * so they can NEVER match an area — an area page stays empty (and
+ * therefore noindex) until an owner listing with a real area/address
+ * appears there. Nothing is inferred from city alone.
+ */
+export function matchesArea(docArea: string, docAddress: string, areaName: string): boolean {
+  const areaNorm = normalizeAreaText(areaName)
+  if (!areaNorm) return false
+  const needle = ` ${areaNorm} `
+  return [normalizeAreaText(docArea), normalizeAreaText(docAddress)].some(
+    (h) => h.length > 0 && ` ${h} `.includes(needle)
+  )
+}
+
+/** Approved + released businesses in one city matching one district (see matchesArea). */
+export async function getCityAreaCards(args: {
+  city: string
+  citySlug: string
+  areaName: string
+}): Promise<PublicBusinessCard[]> {
+  const { city, citySlug, areaName } = args
+  const rows = await fetchApprovedBusinesses()
+  const now = Date.now()
+  const cards: PublicBusinessCard[] = []
+  for (const r of rows) {
+    const data = applyPendingEdit(r.data, 'business', now)
+    if (!isReleased(data.approvedAt, now)) continue
+    const docCity = data.city || ''
+    if (slugify(docCity) !== citySlug && docCity !== city) continue
+    if (!matchesArea(data.area || '', data.address || '', areaName)) continue
+    cards.push(toBusinessCard(r))
+  }
+  cards.sort(
+    (a, b) => Number(b.featured === true) - Number(a.featured === true) || a.name.localeCompare(b.name)
+  )
+  return cards
+}
+
+/** Slug for a district name, identical to the area-page route segment. */
+export function areaToSlug(areaName: string): string {
+  return slugify(areaName)
+}
+
+export type SitemapGapData = {
+  /** Listing-backed city×category combos (seed + released owner listings). */
+  listingBackedCombos: Array<{ citySlug: string; categoryId: string }>
+  /** Released approved owner-business slugs (seed slugs excluded — sitemap.ts adds those itself). */
+  ownerBusinessSlugs: string[]
+  /** Approved owner-company slugs (companies have no release cycle). */
+  ownerCompanySlugs: string[]
+  /** Area pages that have at least one matching listing. */
+  areaPages: Array<{ citySlug: string; areaSlug: string; areaName: string; city: string }>
+}
+
+/**
+ * Data for the sitemap extensions. Uses only data the
+ * server side already reads: static seeds + the approved-status
+ * business query (rules-allowed, same as the detail pages) filtered
+ * through the SAME weekly release check the public pages use, so an
+ * unreleased listing never leaks into the sitemap early. Fail-soft:
+ * if the Firestore read fails, only seed-backed combos are returned
+ * and no owner slugs or area pages are added.
+ */
+export async function getSitemapGapData(): Promise<SitemapGapData> {
+  const comboSet = new Set<string>()
+  for (const s of SEED_BUSINESSES) comboSet.add(`${s.citySlug}/${s.categorySlug}`)
+
+  const ownerBusinessSlugs: string[] = []
+  const rows = await fetchApprovedBusinesses()
+  const now = Date.now()
+  const releasedRows: ListingDoc[] = []
+  for (const r of rows) {
+    const data = applyPendingEdit(r.data, 'business', now)
+    if (!isReleased(data.approvedAt, now)) continue
+    releasedRows.push(r)
+    if (typeof data.slug === 'string' && data.slug) ownerBusinessSlugs.push(data.slug)
+    const docCity = data.city || ''
+    const citySlug = slugify(docCity)
+    const docCategory = data.category || data.mainCategory || ''
+    const cat = CATEGORIES.find(
+      (c) => c.id === docCategory || c.name === docCategory || slugify(c.name) === slugify(docCategory)
+    )
+    if (citySlug && cat) comboSet.add(`${citySlug}/${cat.id}`)
+  }
+
+  // Approved owner companies (no release cycle for companies).
+  const ownerCompanySlugs: string[] = []
+  const companyRows = await fetchApprovedCompanies()
+  for (const r of companyRows) {
+    const data = applyPendingEdit(r.data, 'company', now)
+    if (typeof data.slug === 'string' && data.slug) ownerCompanySlugs.push(data.slug)
+  }
+
+  const areaPages: SitemapGapData['areaPages'] = []
+  for (const [city, info] of Object.entries(CITY_INFO)) {
+    if (!info.districts) continue
+    const citySlug = slugify(city)
+    for (const district of info.districts) {
+      const hasListing = releasedRows.some((r) => {
+        const data = applyPendingEdit(r.data, 'business', now)
+        const docCity = data.city || ''
+        if (slugify(docCity) !== citySlug && docCity !== city) return false
+        return matchesArea(data.area || '', data.address || '', district)
+      })
+      if (hasListing) {
+        areaPages.push({ citySlug, areaSlug: slugify(district), areaName: district, city })
+      }
+    }
+  }
+
+  const listingBackedCombos = [...comboSet].map((key) => {
+    const [citySlug, categoryId] = key.split('/')
+    return { citySlug, categoryId }
+  })
+  return { listingBackedCombos, ownerBusinessSlugs, ownerCompanySlugs, areaPages }
 }

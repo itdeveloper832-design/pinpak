@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { db } from '@/lib/firebase'
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { toast } from 'sonner'
-import { Pencil } from 'lucide-react'
+import { Pencil, Eye } from 'lucide-react'
 import { StatusBadge, AdminLoading, AdminEmpty, formatDate, approveBtn, rejectBtn, neutralBtn, dangerBtn } from '@/components/admin-shared'
 import { RejectPanel, DeletePanel, moderateReject, moderateDelete } from '@/components/admin-moderation'
 import { resolveOwnerEmails } from '@/lib/owner-contact'
@@ -114,7 +114,7 @@ export default function AdminJobsPage() {
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
             className={`px-4 py-2 rounded-full text-xs font-bold border capitalize cursor-pointer transition-colors ${
-              tab === t ? 'bg-blue-700 border-blue-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-500'
+              tab === t ? 'bg-cyan-700 border-cyan-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-cyan-500'
             }`}
           >
             {t} ({t === 'all' ? items.length : items.filter((it) => (it.data.status || 'pending') === t).length})
@@ -154,6 +154,11 @@ export default function AdminJobsPage() {
                     {data.description && <p className="text-xs text-slate-500 line-clamp-2 pt-1">{data.description}</p>}
                   </div>
                   <div className="flex flex-wrap gap-2 shrink-0">
+                    {data.slug && (
+                      <Link href={`/job/${data.slug}`} target="_blank" className={`${neutralBtn} inline-flex items-center gap-1`}>
+                        <Eye className="w-3.5 h-3.5" /> View
+                      </Link>
+                    )}
                     <Link href={`/admin/jobs/${id}`} className={`${neutralBtn} inline-flex items-center gap-1`}>
                       <Pencil className="w-3.5 h-3.5" /> Edit
                     </Link>

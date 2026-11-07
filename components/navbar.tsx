@@ -9,6 +9,7 @@ import { Menu, X, Plus, Building2, Search, Briefcase, MapPin, Newspaper } from '
 const navLinks = [
   { href: '/categories', label: 'Categories', icon: Building2 },
   { href: '/cities', label: 'Cities', icon: MapPin },
+  { href: '/jobs', label: 'Jobs', icon: Briefcase },
   { href: '/blog', label: 'Blog', icon: Newspaper },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
@@ -24,10 +25,10 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           
           {/* Brand Logo */}
-          <Link href="/" aria-label="PakPin Home Page" className="flex items-center group py-1">
+          <Link href="/" aria-label="PakListings Home Page" className="flex items-center group py-1">
             <Image
               src="/logo.svg"
-              alt="PakPin - Pakistan Business Directory"
+              alt="PakListings - Pakistan Business Directory"
               width={160}
               height={48}
               priority
@@ -45,7 +46,7 @@ export default function Navbar() {
                   href={link.href}
                   className={`text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 px-3 py-2 rounded-lg ${
                     isActive
-                      ? 'text-blue-400 bg-zinc-850/80'
+                      ? 'text-cyan-400 bg-zinc-850/80'
                       : 'text-zinc-300 hover:text-white hover:bg-zinc-800/40'
                   }`}
                 >
@@ -74,13 +75,13 @@ export default function Navbar() {
               className="px-3.5 py-2 rounded-xl text-zinc-300 hover:text-white hover:bg-zinc-800/70 transition-colors flex items-center gap-1.5 text-sm font-medium"
               title="Business & Profile Dashboard"
             >
-              <Building2 className="w-4 h-4 text-blue-400" />
+              <Building2 className="w-4 h-4 text-cyan-400" />
               <span>Dashboard</span>
             </Link>
 
             <Link
               href="/register" prefetch={false}
-              className="px-4 py-2.5 rounded-xl bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold shadow-md shadow-blue-700/25 transition-all duration-200 inline-flex items-center gap-2"
+              className="px-4 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-bold shadow-md shadow-cyan-700/25 transition-all duration-200 inline-flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               <span>Get Started</span>
@@ -119,12 +120,12 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className={`text-sm font-semibold py-3 px-4 rounded-xl transition-colors flex items-center justify-between ${
                   isActive
-                    ? 'bg-zinc-800 text-blue-400'
+                    ? 'bg-zinc-800 text-cyan-400'
                     : 'text-zinc-300 hover:bg-zinc-800 hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  {link.icon && <link.icon className="w-4 h-4 text-blue-400" />}
+                  {link.icon && <link.icon className="w-4 h-4 text-cyan-400" />}
                   <span>{link.label}</span>
                 </div>
               </Link>
@@ -136,7 +137,7 @@ export default function Navbar() {
             onClick={() => setOpen(false)}
             className="text-sm font-semibold py-3 px-4 rounded-xl text-zinc-300 hover:bg-zinc-800 flex items-center gap-3"
           >
-            <Search className="w-4 h-4 text-blue-400" />
+            <Search className="w-4 h-4 text-cyan-400" />
             <span>Search</span>
           </Link>
           <div className="pt-3 border-t border-zinc-800 flex flex-col gap-2">
@@ -145,7 +146,7 @@ export default function Navbar() {
               onClick={() => setOpen(false)}
               className="text-sm font-semibold py-3 px-4 rounded-xl text-zinc-300 hover:bg-zinc-800 flex items-center gap-3"
             >
-              <Building2 className="w-4 h-4 text-blue-400" />
+              <Building2 className="w-4 h-4 text-cyan-400" />
               <span>Business Dashboard</span>
             </Link>
 
@@ -153,10 +154,10 @@ export default function Navbar() {
             <Link
               href="/register" prefetch={false}
               onClick={() => setOpen(false)}
-              className="mt-2 px-4 py-3 rounded-xl bg-blue-700 text-white text-sm font-bold text-center shadow-md shadow-blue-700/30 flex items-center justify-center gap-2"
+              className="mt-2 px-4 py-3 rounded-xl bg-cyan-700 text-white text-sm font-bold text-center shadow-md shadow-cyan-700/30 flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" />
-              <span>Get Started Free</span>
+              <span>Get Started</span>
             </Link>
           </div>
         </nav>

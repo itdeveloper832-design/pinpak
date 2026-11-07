@@ -1,6 +1,6 @@
 rules_version = '2';
 
-// PakPin Firebase Storage rules
+// PakListings Firebase Storage rules
 // - Payment proof screenshots live under payment-proofs/{ownerId}/{file}.
 // - Owners can upload and read their own proofs; admins (users/{uid}.role
 //   == 'admin' in Firestore) can read any proof to verify payments.

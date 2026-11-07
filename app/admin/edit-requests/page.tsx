@@ -97,13 +97,13 @@ export default function AdminEditRequestsPage() {
             '',
             `Good news: your requested edit for '${data.listingName}' has been approved.`,
             '',
-            `PakPin publishes approved edits in a weekly batch, so the changes will go live on ${dateLabel}. There is nothing else you need to do.`,
+            `PakListings publishes approved edits in a weekly batch, so the changes will go live on ${dateLabel}. There is nothing else you need to do.`,
             '',
-            'Manage your listing any time from your dashboard: https://www.geotaggingphotos.com/dashboard',
+            'Manage your listing any time from your dashboard: https://www.paklistings.com/dashboard',
             '',
-            '— The PakPin Team',
+            '— The PakListings Team',
           ].join('\n'),
-          `<p>Hello,</p><p>Good news: your requested edit for <strong>${esc(data.listingName)}</strong> has been approved.</p><p>PakPin publishes approved edits in a weekly batch, so the changes will go live on <strong>${esc(dateLabel)}</strong>. There is nothing else you need to do.</p><p>Manage your listing any time from <a href="https://www.geotaggingphotos.com/dashboard">your dashboard</a>.</p><p>— The PakPin Team</p>`
+          `<p>Hello,</p><p>Good news: your requested edit for <strong>${esc(data.listingName)}</strong> has been approved.</p><p>PakListings publishes approved edits in a weekly batch, so the changes will go live on <strong>${esc(dateLabel)}</strong>. There is nothing else you need to do.</p><p>Manage your listing any time from <a href="https://www.paklistings.com/dashboard">your dashboard</a>.</p><p>— The PakListings Team</p>`
         )
       }
       toast.success(`Edit approved — goes live on ${dateLabel}.`)
@@ -139,9 +139,9 @@ export default function AdminEditRequestsPage() {
             '',
             'Your live listing is unchanged. You can submit a new edit request from your dashboard.',
             '',
-            '— The PakPin Team',
+            '— The PakListings Team',
           ].join('\n'),
-          `<p>Hello,</p><p>Your requested edit for <strong>${esc(data.listingName)}</strong> was not approved by our review team.</p>${note ? `<p><strong>Reason:</strong> ${esc(note)}</p>` : ''}<p>Your live listing is unchanged. You can submit a new edit request from your dashboard.</p><p>— The PakPin Team</p>`
+          `<p>Hello,</p><p>Your requested edit for <strong>${esc(data.listingName)}</strong> was not approved by our review team.</p>${note ? `<p><strong>Reason:</strong> ${esc(note)}</p>` : ''}<p>Your live listing is unchanged. You can submit a new edit request from your dashboard.</p><p>— The PakListings Team</p>`
         )
       }
       toast.success('Edit rejected — owner email queued.')
@@ -172,7 +172,7 @@ export default function AdminEditRequestsPage() {
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
             className={`px-4 py-2 rounded-full text-xs font-bold border capitalize cursor-pointer transition-colors ${
-              tab === t ? 'bg-blue-700 border-blue-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-500'
+              tab === t ? 'bg-cyan-700 border-cyan-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-cyan-500'
             }`}
           >
             {t} ({t === 'all' ? items.length : items.filter((it) => (it.data.status || 'pending') === t).length})

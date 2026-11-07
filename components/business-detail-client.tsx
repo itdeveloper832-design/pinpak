@@ -58,7 +58,7 @@ function Stars({ value, className = 'w-4 h-4' }: { value: number; className?: st
       {[1, 2, 3, 4, 5].map((i) => (
         <Star
           key={i}
-          className={`${className} ${i <= Math.round(value) ? 'fill-rose-400 text-rose-400' : 'text-slate-300'}`}
+          className={`${className} ${i <= Math.round(value) ? 'fill-violet-400 text-violet-400' : 'text-slate-300'}`}
         />
       ))}
     </span>
@@ -120,7 +120,7 @@ export default function BusinessDetailPage({
       '@context': 'https://schema.org',
       '@type': 'LocalBusiness',
       name: business.name,
-      url: `https://www.geotaggingphotos.com/business/${business.slug || slug}`,
+      url: `https://www.paklistings.com/business/${business.slug || slug}`,
     }
     if (business.description) jsonLd.description = business.description
     if (business.phone) jsonLd.telephone = business.phone
@@ -259,7 +259,7 @@ export default function BusinessDetailPage({
       <Navbar />
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex-1 w-full">
-        <Link href="/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:text-blue-800 mb-6">
+        <Link href="/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:text-cyan-800 mb-6">
           <ArrowLeft className="w-4 h-4" /> Back to Businesses
         </Link>
 
@@ -269,10 +269,10 @@ export default function BusinessDetailPage({
               This business listing goes live on {unreleased.releaseLabel}
             </h1>
             <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              {unreleased.name} has been approved — PakPin publishes newly approved listings together
+              {unreleased.name} has been approved — PakListings publishes newly approved listings together
               in a weekly release, so its full profile will appear here on {unreleased.releaseLabel}.
             </p>
-            <Link href="/businesses" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors">
+            <Link href="/businesses" className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors">
               <ArrowLeft className="w-4 h-4" /> Browse Businesses
             </Link>
           </div>
@@ -282,7 +282,7 @@ export default function BusinessDetailPage({
             <p className="text-sm text-slate-500 max-w-sm mx-auto">
               This business may have been removed, or the link is incorrect.
             </p>
-            <Link href="/businesses" className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors">
+            <Link href="/businesses" className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors">
               <ArrowLeft className="w-4 h-4" /> Browse Businesses
             </Link>
           </div>
@@ -291,7 +291,7 @@ export default function BusinessDetailPage({
             <section className="bg-white rounded-3xl border border-slate-200 p-8 space-y-5">
               <div className="flex flex-wrap items-center gap-2">
                 {business.category && (
-                  <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-800 border border-blue-100 text-[11px] font-bold">
+                  <span className="px-3 py-1 rounded-full bg-cyan-50 text-cyan-800 border border-cyan-100 text-[11px] font-bold">
                     {business.category}
                   </span>
                 )}
@@ -305,13 +305,13 @@ export default function BusinessDetailPage({
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-slate-500 font-medium">
                 {business.city && (
                   <span className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4 text-blue-700" /> {business.city}
+                    <MapPin className="w-4 h-4 text-cyan-700" /> {business.city}
                     {business.area ? ` — ${business.area}` : ''}
                   </span>
                 )}
                 {business.phone && (
                   <span className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4 text-blue-700" /> {business.phone}
+                    <Phone className="w-4 h-4 text-cyan-700" /> {business.phone}
                   </span>
                 )}
                 {business.email && (
@@ -331,7 +331,7 @@ export default function BusinessDetailPage({
                   {business.mapsUrl && (
                     <>
                       {' · '}
-                      <a href={business.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-blue-700 font-semibold hover:underline">
+                      <a href={business.mapsUrl} target="_blank" rel="noopener noreferrer" className="text-cyan-700 font-semibold hover:underline">
                         View on Google Maps
                       </a>
                     </>
@@ -353,7 +353,7 @@ export default function BusinessDetailPage({
                 {business.phone && (
                   <a
                     href={`tel:${business.phone}`}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                   >
                     <Phone className="w-4 h-4" /> Call Now
                   </a>
@@ -363,7 +363,7 @@ export default function BusinessDetailPage({
                     href={`https://wa.me/${waNumber}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
                   >
                     <MessageCircle className="w-4 h-4" /> WhatsApp
                   </a>
@@ -373,7 +373,7 @@ export default function BusinessDetailPage({
                     href={business.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 text-slate-700 font-bold text-sm rounded-xl transition-colors"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 text-slate-700 font-bold text-sm rounded-xl transition-colors"
                   >
                     <Globe className="w-4 h-4" /> Visit Website
                   </a>
@@ -384,7 +384,7 @@ export default function BusinessDetailPage({
             {hasHours && (
               <section className="bg-white rounded-3xl border border-slate-200 p-8 space-y-4">
                 <h2 className="font-extrabold text-slate-900 text-lg flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-blue-700" /> Business Hours
+                  <Clock className="w-5 h-5 text-cyan-700" /> Business Hours
                 </h2>
                 <table className="w-full text-sm">
                   <tbody className="divide-y divide-slate-100">
@@ -414,7 +414,7 @@ export default function BusinessDetailPage({
                 <h2 className="font-extrabold text-slate-900 text-lg">Services</h2>
                 <div className="flex flex-wrap gap-2">
                   {services.map((service) => (
-                    <span key={service} className="px-3.5 py-2 bg-blue-50 text-blue-800 border border-blue-100 rounded-full text-xs font-semibold">
+                    <span key={service} className="px-3.5 py-2 bg-cyan-50 text-cyan-800 border border-cyan-100 rounded-full text-xs font-semibold">
                       {service}
                     </span>
                   ))}
@@ -429,7 +429,7 @@ export default function BusinessDetailPage({
                   {products.map((product, i) => (
                     <li key={`${product.name}-${i}`} className="py-3 flex items-center justify-between gap-3">
                       <span className="font-medium text-slate-700 text-sm">{product.name}</span>
-                      {product.price && <span className="text-sm font-bold text-blue-700">{product.price}</span>}
+                      {product.price && <span className="text-sm font-bold text-cyan-700">{product.price}</span>}
                     </li>
                   ))}
                 </ul>
@@ -446,9 +446,9 @@ export default function BusinessDetailPage({
                       href={href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-blue-500 rounded-xl text-sm font-bold text-slate-700 transition-colors"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-50 border border-slate-200 hover:border-cyan-500 rounded-xl text-sm font-bold text-slate-700 transition-colors"
                     >
-                      <Icon className="w-4 h-4 text-blue-700" /> {label}
+                      <Icon className="w-4 h-4 text-cyan-700" /> {label}
                     </a>
                   ))}
                 </div>
@@ -499,7 +499,7 @@ export default function BusinessDetailPage({
                       value={reviewForm.name}
                       onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
                       placeholder="Your full name"
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                     />
                   </div>
                   <div>
@@ -515,7 +515,7 @@ export default function BusinessDetailPage({
                           onClick={() => setReviewForm({ ...reviewForm, rating: n })}
                           className="p-0.5 cursor-pointer"
                         >
-                          <Star className={`w-6 h-6 ${n <= reviewForm.rating ? 'fill-rose-400 text-rose-400' : 'text-slate-300'}`} />
+                          <Star className={`w-6 h-6 ${n <= reviewForm.rating ? 'fill-violet-400 text-violet-400' : 'text-slate-300'}`} />
                         </button>
                       ))}
                     </div>
@@ -530,13 +530,13 @@ export default function BusinessDetailPage({
                     value={reviewForm.text}
                     onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
                     placeholder="How was the service? What should other customers know?"
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-xs rounded-xl transition-colors cursor-pointer disabled:opacity-50"
                 >
                   <Send className="w-3.5 h-3.5" />
                   {submittingReview ? 'Submitting...' : 'Submit Review'}
@@ -556,7 +556,7 @@ export default function BusinessDetailPage({
               </div>
               <Link
                 href="/contact"
-                className="px-5 py-2.5 bg-white border border-slate-200 hover:border-blue-500 text-slate-700 font-bold text-xs rounded-xl transition-colors shrink-0"
+                className="px-5 py-2.5 bg-white border border-slate-200 hover:border-cyan-500 text-slate-700 font-bold text-xs rounded-xl transition-colors shrink-0"
               >
                 Claim This Listing
               </Link>
@@ -565,7 +565,7 @@ export default function BusinessDetailPage({
         )}
       </main>
 
-      <Footer />
+      <Footer hideSitePhone />
     </div>
   )
 }

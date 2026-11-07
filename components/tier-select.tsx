@@ -31,15 +31,15 @@ export default function TierSelect({
               onClick={() => onChange(tier)}
               className={`text-left rounded-2xl border-2 p-4 transition-all cursor-pointer ${
                 selected
-                  ? 'border-blue-700 bg-blue-50 shadow-md'
-                  : 'border-slate-200 bg-white hover:border-blue-300'
+                  ? 'border-cyan-700 bg-cyan-50 shadow-md'
+                  : 'border-slate-200 bg-white hover:border-cyan-300'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="font-extrabold text-slate-900 text-sm">{def.label}</span>
-                {selected && <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0" />}
+                {selected && <CheckCircle2 className="w-4 h-4 text-cyan-700 shrink-0" />}
               </div>
-              <p className="font-extrabold text-blue-800 text-base mt-1">{formatPKR(def.price)}</p>
+              <p className="font-extrabold text-cyan-800 text-base mt-1">{formatPKR(def.price)}</p>
               <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{def.tagline}</p>
               <ul className="mt-2 space-y-1">
                 {def.features.map((f) => (

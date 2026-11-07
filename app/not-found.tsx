@@ -12,12 +12,12 @@ export default function NotFound() {
       <main className="bg-[#f8fafc] min-h-[70vh] flex items-center justify-center py-16 px-4">
         <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-[0_20px_50px_rgba(15,43,61,0.08)] border border-slate-100 max-w-lg w-full text-center flex flex-col items-center relative overflow-hidden">
           {/* Decorative Glow Background */}
-          <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-blue-500/5 blur-3xl" />
-          <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-blue-500/5 blur-3xl" />
+          <div className="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-cyan-500/5 blur-3xl" />
+          <div className="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-cyan-500/5 blur-3xl" />
 
           {/* Animated 404 Illustration */}
-          <div className="w-24 h-24 rounded-2xl bg-blue-50/80 flex items-center justify-center mb-8 relative animate-bounce" style={{ animationDuration: '3s' }}>
-            <FileQuestion className="w-12 h-12 text-[#60A5FA]" />
+          <div className="w-24 h-24 rounded-2xl bg-cyan-50/80 flex items-center justify-center mb-8 relative animate-bounce" style={{ animationDuration: '3s' }}>
+            <FileQuestion className="w-12 h-12 text-[#22D3EE]" />
           </div>
 
           {/* Heading */}
@@ -53,16 +53,16 @@ export default function NotFound() {
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
               Or Explore Our Directories
             </p>
-            <div className="flex justify-center gap-6 text-sm font-semibold text-[#60A5FA]">
-              <Link href="/categories/" className="hover:text-blue-500 transition-colors">
+            <div className="flex justify-center gap-6 text-sm font-semibold text-[#22D3EE]">
+              <Link href="/categories/" className="hover:text-cyan-500 transition-colors">
                 Categories
               </Link>
               <span className="text-slate-200">•</span>
-              <Link href="/cities/" className="hover:text-blue-500 transition-colors">
+              <Link href="/cities/" className="hover:text-cyan-500 transition-colors">
                 Cities
               </Link>
               <span className="text-slate-200">•</span>
-              <Link href="/featured-businesses/" className="hover:text-blue-500 transition-colors">
+              <Link href="/featured-businesses/" className="hover:text-cyan-500 transition-colors">
                 Featured
               </Link>
             </div>

@@ -64,17 +64,17 @@ export default function AdminBlogPostsPage() {
       if (data.authorEmail) {
         await queueOwnerEmail(
           data.authorEmail,
-          `Your blog post '${data.title}' is now live on PakPin`,
+          `Your blog post '${data.title}' is now live on PakListings`,
           [
             'Hello,',
             '',
-            `Great news: your blog post '${data.title}' has been approved and is now live on the PakPin blog.`,
+            `Great news: your blog post '${data.title}' has been approved and is now live on the PakListings blog.`,
             '',
-            `See it here: https://www.geotaggingphotos.com/blog/${data.slug}`,
+            `See it here: https://www.paklistings.com/blog/${data.slug}`,
             '',
-            '— The PakPin Team',
+            '— The PakListings Team',
           ].join('\n'),
-          `<p>Hello,</p><p>Great news: your blog post <strong>${esc(data.title)}</strong> has been approved and is now live on the PakPin blog.</p><p><a href="https://www.geotaggingphotos.com/blog/${esc(data.slug)}">Read your post</a></p><p>— The PakPin Team</p>`
+          `<p>Hello,</p><p>Great news: your blog post <strong>${esc(data.title)}</strong> has been approved and is now live on the PakListings blog.</p><p><a href="https://www.paklistings.com/blog/${esc(data.slug)}">Read your post</a></p><p>— The PakListings Team</p>`
         )
       }
       toast.success('Blog post approved — now live.')
@@ -110,9 +110,9 @@ export default function AdminBlogPostsPage() {
             '',
             'You can revise it and submit a new post from your dashboard.',
             '',
-            '— The PakPin Team',
+            '— The PakListings Team',
           ].join('\n'),
-          `<p>Hello,</p><p>Your blog post <strong>${esc(data.title)}</strong> was not approved by our review team.</p>${note ? `<p><strong>Reason:</strong> ${esc(note)}</p>` : ''}<p>You can revise it and submit a new post from your dashboard.</p><p>— The PakPin Team</p>`
+          `<p>Hello,</p><p>Your blog post <strong>${esc(data.title)}</strong> was not approved by our review team.</p>${note ? `<p><strong>Reason:</strong> ${esc(note)}</p>` : ''}<p>You can revise it and submit a new post from your dashboard.</p><p>— The PakListings Team</p>`
         )
       }
       toast.success('Blog post rejected — author email queued.')
@@ -142,7 +142,7 @@ export default function AdminBlogPostsPage() {
             onClick={() => setTab(t)}
             aria-pressed={tab === t}
             className={`px-4 py-2 rounded-full text-xs font-bold border capitalize cursor-pointer transition-colors ${
-              tab === t ? 'bg-blue-700 border-blue-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-blue-500'
+              tab === t ? 'bg-cyan-700 border-cyan-700 text-white' : 'bg-white border-slate-200 text-slate-600 hover:border-cyan-500'
             }`}
           >
             {t} ({t === 'all' ? items.length : items.filter((it) => (it.data.status || 'pending') === t).length})

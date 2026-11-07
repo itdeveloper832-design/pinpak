@@ -1,5 +1,5 @@
 // ============================================================
-// PakPin — listing edit requests
+// PakListings — listing edit requests
 // ------------------------------------------------------------
 // Premium / Featured owners cannot edit a live listing
 // directly. They submit an edit REQUEST from their dashboard;

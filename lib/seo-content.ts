@@ -230,6 +230,287 @@ const CATEGORY_INFO: Record<string, { label: string; description: string; exampl
   },
 }
 
+// ============================================================
+// Meta-description + title helpers (shared by the directory
+// templates). Every formula is verified computationally over
+// the full dataset it serves: titles 50-60 chars, descriptions
+// 150-160 chars. See the Group C report for the distributions.
+// ============================================================
+
+/** Word-boundary truncate to at most `max` chars, keeping whole words. */
+export function truncateWords(text: string, max: number): string {
+  if (text.length <= max) return text
+  const cut = text.slice(0, max)
+  const lastSpace = cut.lastIndexOf(' ')
+  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()
+}
+
+/** First candidate whose length lands in [min, max]; the first candidate as fallback. */
+export function pickTitleInRange(candidates: string[], min = 50, max = 60): string {
+  for (const c of candidates) {
+    if (c.length >= min && c.length <= max) return c
+  }
+  return candidates[0]
+}
+
+/**
+ * Fit a meta description into [min, max] (default 150-160).
+ * Long text is word-boundary truncated; in-range text is kept;
+ * short text is extended with the given tails — a single tail
+ * first, then a pair, then greedy append + truncate — so the
+ * result always lands in range when the tails allow it. Tails
+ * must be real content (what the page shows), never filler.
+ */
+export function fitMetaDescription(text: string, tails: string[], min = 150, max = 160): string {
+  const clean = text.replace(/\s+/g, ' ').trim()
+  if (clean.length > max) {
+    const cut = truncateWords(clean, max)
+    return cut.length >= min ? cut : clean.slice(0, max)
+  }
+  if (clean.length >= min) return clean
+  for (const tail of tails) {
+    if (clean.length + tail.length >= min && clean.length + tail.length <= max) return clean + tail
+  }
+  for (let i = 0; i < tails.length; i++) {
+    for (let j = i + 1; j < tails.length; j++) {
+      const len = clean.length + tails[i].length + tails[j].length
+      if (len >= min && len <= max) return clean + tails[i] + tails[j]
+    }
+  }
+  let out = clean
+  for (const tail of tails) {
+    if (out.length >= min) break
+    out += tail
+  }
+  if (out.length > max) {
+    const cut = truncateWords(out, max)
+    return cut.length >= min ? cut : out.slice(0, max)
+  }
+  return out
+}
+
+/**
+ * Description tails for city and area pages: the same eight
+ * lengths (86-124) cover every city/area prefix in the dataset.
+ * Each tail states what the page offers — categories, areas,
+ * phone numbers, hours, addresses, direct contact.
+ */
+export const CONTACT_DESCRIPTION_TAILS = [
+  ' — compare options by category and area, check phone numbers, hours and addresses, then call or WhatsApp providers directly.',
+  ' — compare providers by category and area, check phone numbers, hours and addresses, then call or WhatsApp directly.',
+  ' — compare options by category, check phone numbers, hours and addresses, then call or WhatsApp providers directly.',
+  ' — compare options by category and area, check phone numbers and hours, then call or WhatsApp directly.',
+  ' — compare providers by category and area, check phone numbers and hours, then call or WhatsApp directly.',
+  ' — compare providers by category, check phone numbers and hours, then call or WhatsApp directly.',
+  ' — compare options by category, check phone numbers and hours, then call or WhatsApp directly.',
+  ' — check phone numbers, hours and addresses, then call or WhatsApp providers directly.',
+]
+
+/** Short label for a category id (the guide heading form), e.g. 'pets' -> 'Pets & Animals'. */
+export function categoryLabel(categorySlug: string): string {
+  return CATEGORY_INFO[categorySlug]?.label || (categorySlug ? categorySlug.replace(/-/g, ' ') : 'Category')
+}
+
+// ============================================================
+// Detail-page title guard (business / company / job)
+// ------------------------------------------------------------
+// Target 50-60 chars, hard cap 60. The full form is used when
+// it fits; otherwise the label is dropped, then short honest
+// extenders are tried; only when the name itself is too long
+// is the NAME truncated — at a word boundary with an ellipsis,
+// never dropping the city. Phone-less listings never get a
+// phone-implying extender (their extenders say Address/Hours).
+// ============================================================
+
+function truncateNameForTitle(name: string, cityLabel: string): string {
+  const suffixes = [` in ${cityLabel} | PakListings`, ` in ${cityLabel}, Pakistan | PakListings`]
+  for (const suffix of suffixes) {
+    const budget = 60 - (suffix.length + 1)
+    const truncated = truncateWords(name, budget)
+    const titled = `${truncated}${truncated.length < name.length ? '…' : ''}${suffix}`
+    if (titled.length >= 50 && titled.length <= 60) return titled
+  }
+  // Last resort: hard-extend the word-boundary prefix to exactly 50.
+  const suffix = suffixes[0]
+  const budget = 60 - (suffix.length + 1)
+  const core = truncateWords(name, budget).replace(/…$/, '')
+  const need = 50 - (core.length + 1 + suffix.length)
+  const extended = (core + name.slice(core.length, core.length + Math.max(0, need))).trimEnd() + '…'
+  return `${extended}${suffix}`
+}
+
+/**
+ * Guarded detail title: "{name} — {label} in {city} | PakListings"
+ * when it fits, with honest fallbacks. `hasPhone` selects the
+ * extender family (phone variants only when a number exists).
+ */
+export function detailTitle(name: string, label: string | undefined, city: string | undefined, hasPhone: boolean): string {
+  const cityLabel = city || 'Pakistan'
+  const dropped = `${name} in ${cityLabel} | PakListings`
+  const candidates: string[] = []
+  if (label) {
+    candidates.push(`${name} — ${label} in ${cityLabel} | PakListings`)
+    const extender = /services$/i.test(label) ? 'Providers' : 'Services'
+    candidates.push(`${name} — ${label} ${extender} in ${cityLabel} | PakListings`)
+    candidates.push(`${name} — ${label} in ${cityLabel}, Pakistan | PakListings`)
+  }
+  candidates.push(dropped)
+  candidates.push(`${name} in ${cityLabel}, Pakistan | PakListings`)
+  if (hasPhone) {
+    candidates.push(`${name} in ${cityLabel}: Phone & Address | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Phone, Address & Hours | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Phone, Address, Hours & More | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Phone Number, Address & Opening Hours | PakListings`)
+  } else {
+    candidates.push(`${name} in ${cityLabel}: Address & Hours | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Address, Hours & Services | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Address, Hours, Services & More | PakListings`)
+    candidates.push(`${name} in ${cityLabel}: Address, Opening Hours & Services | PakListings`)
+  }
+  const picked = pickTitleInRange(candidates)
+  if (picked.length >= 50 && picked.length <= 60) return picked
+  if (dropped.length > 60) return truncateNameForTitle(name, cityLabel)
+  return picked
+}
+
+/** Truncated-name title for a long job title (company dropped, city kept). */
+export function truncateTitleName(name: string, city: string | undefined): string {
+  return truncateNameForTitle(name, city || 'Pakistan')
+}
+
+// ============================================================
+// Category families — the guide checklists, questions, price
+// notes and warning signs vary by family instead of one
+// identical checklist with token swaps on every page.
+// ============================================================
+
+type CategoryFamily = 'trades' | 'food' | 'professional' | 'care' | 'retail'
+
+const CATEGORY_FAMILY: Record<string, CategoryFamily> = {
+  'home-services': 'trades',
+  construction: 'trades',
+  automotive: 'trades',
+  'solar-energy': 'trades',
+  security: 'trades',
+  printing: 'trades',
+  furniture: 'trades',
+  agriculture: 'trades',
+  manufacturing: 'trades',
+  logistics: 'trades',
+  restaurants: 'food',
+  travel: 'food',
+  events: 'food',
+  legal: 'professional',
+  finance: 'professional',
+  'real-estate': 'professional',
+  technology: 'professional',
+  media: 'professional',
+  education: 'professional',
+  healthcare: 'care',
+  beauty: 'care',
+  sports: 'care',
+  pets: 'care',
+  retail: 'retail',
+}
+
+const FAMILY_CONTENT: Record<CategoryFamily, { angle: string; questions: string[]; priceNote: string; redFlags: string[] }> = {
+  trades: {
+    angle:
+      'Trade work in Pakistan is bought on trust and finished on site: the provider comes to you, or you hand over something valuable for repair. That is why the details on a profile matter more than the pitch — a stated service area, a reachable number, and a list of the actual jobs done. Most trade providers quote per job rather than per hour, and most are happy to discuss the work on WhatsApp with a photo of the problem before anyone travels.',
+    questions: [
+      'Is the visit charge separate from the repair, and what does the visit include?',
+      'Are parts and materials included in the quote, and are they new?',
+      'How long is the work guaranteed for, and what does the guarantee cover?',
+      'Do you charge a fixed quote, or by the hour — and what happens if the job takes longer?',
+    ],
+    priceNote:
+      'Get the quote in writing on WhatsApp before anyone lifts a tool — labour, parts, visit charges and any tax, each on its own line. A fixed quote beats an open-ended hourly rate for a defined job; for exploratory repairs, agree an inspection fee and a ceiling before work starts, and pay larger jobs in stages against finished work.',
+    redFlags: [
+      'will not put a price in writing',
+      'demands the full amount in advance in cash with no receipt',
+      'has no reachable phone number or stated service area',
+      'offers no warranty on the work',
+      'pressures you to decide on the spot',
+    ],
+  },
+  food: {
+    angle:
+      'Food and hospitality run on reputation and repeat visits: a restaurant lives or dies by its last month of customers, a caterer by its last wedding, a travel agent by the last group that came home happy. Prices move with the season and the menu, so the rate list on a profile — or a menu sent on WhatsApp — is worth more than any headline price.',
+    questions: [
+      'Is the menu or rate list on your profile current?',
+      'Do you deliver or cater in my area, and what is the delivery charge?',
+      'For bookings: what is the per-head rate, what does it include, and what are the cancellation terms?',
+      'Can you share recent photos of the venue, the food or a recent event — not stock images?',
+    ],
+    priceNote:
+      'Compare per-head or per-item prices, not headline totals, and check delivery charges, minimum orders and cancellation terms before booking. For events, get the full package in writing — venue, food, decor and photography are often quoted separately and add up fast.',
+    redFlags: [
+      'has no menu or rate list and will not share one',
+      'takes an advance with no receipt or written booking',
+      'shows only stock photos with nothing real of its own food or venue',
+      'will not confirm delivery to your area before you pay',
+    ],
+  },
+  professional: {
+    angle:
+      'Professional services are bought on credentials and clarity: who will handle the work, what it costs, and what happens if it goes wrong. The best providers state all three up front. Fees vary widely with the size of the firm and the complexity of the matter, so a short written scope — what is included, what is billed separately, when payment falls due — is the single most useful document in this category.',
+    questions: [
+      'Who exactly will handle my matter — you, or someone in your team?',
+      'What is the fee structure: fixed, hourly, or success-based?',
+      'What documents do you need from me, and what is the realistic timeline?',
+      'Can you share a sample of similar work, or a client I can speak to?',
+    ],
+    priceNote:
+      'Ask for the fee in writing with the scope: what is included, what is billed separately, and when each payment falls due. A short written engagement note beats a verbal promise, and a provider who will not put a fee in writing is telling you something.',
+    redFlags: [
+      'guarantees an outcome no honest provider can guarantee',
+      'changes the fee mid-matter',
+      'will not put the scope and fee in writing',
+      'has no reachable office or verifiable registration',
+    ],
+  },
+  care: {
+    angle:
+      'Health, beauty and fitness services are personal: you are trusting someone with your body, your appearance or your child\u2019s training. Qualifications and registration matter here more than in any other category, and so does a clear first-visit price — what a consultation or session costs, and what follow-ups cost after it.',
+    questions: [
+      'What are your qualifications, and where are you registered?',
+      'What does a first visit or consultation cost, and what does it include?',
+      'What are your timings, and do I need an appointment?',
+      'What is the follow-up or aftercare policy, and what does it cost?',
+    ],
+    priceNote:
+      'Ask for the consultation or session fee up front, plus what follow-ups cost. For treatment plans, get the full course and its cost in writing before the first session — and be wary of anyone who insists on the whole course paid in advance on visit one.',
+    redFlags: [
+      'cannot show a qualification or registration',
+      'pressures you to book and pay for a full course on the first visit',
+      'will not state a fee in writing',
+      'has no appointment system or published timings',
+    ],
+  },
+  retail: {
+    angle:
+      'Retail is the most price-transparent category on this directory: the same item usually has a visible price in two or three shops, so comparison is fast. What separates shops is not the price alone — it is whether the item is actually in stock, whether delivery and fitting are included, and whether you get a proper bill, which is your warranty.',
+    questions: [
+      'Is this the current price, and does it include delivery?',
+      'What is the return or exchange policy?',
+      'Is the item in stock in my size or model, or does it need to be ordered in?',
+      'Do you offer installation, fitting or after-sales support?',
+    ],
+    priceNote:
+      'Compare the same item across two or three shops, and check whether delivery, fitting or installation is inside the price. Ask for a proper bill — it is your warranty — and confirm the return window before you pay.',
+    redFlags: [
+      'gives no bill and no return policy',
+      'changes the price between the call and the visit',
+      'shows only stock photos of items it does not hold',
+      'cannot say whether the item is in stock',
+    ],
+  },
+}
+
+function familyFor(categorySlug: string): CategoryFamily {
+  return CATEGORY_FAMILY[categorySlug] || 'trades'
+}
+
 export function generateCityContent(city: string): string {
   const info = CITY_INFO[city] || {
     province: 'Pakistan',
@@ -238,66 +519,68 @@ export function generateCityContent(city: string): string {
   }
 
   const districtsText = info.districts
-    ? `The trade concentrates in areas like ${info.districts.join(', ')} — start your search there if you want someone nearby.`
-    : `Trade here runs through busy bazaars, markets and commercial centres spread across the city, so filtering by area saves real time.`
+    ? `The city's commercial life clusters in areas like ${info.districts.join(', ')} — if you want someone nearby, start your search there.`
+    : `Trade here runs through bazaars, markets and commercial centres spread across the city, so starting from your own area saves real time.`
 
-  return `## Businesses in ${city}: Find the Number, Make the Call
+  return `## Businesses in ${city}: Numbers, Hours and Addresses in One Place
 
-${city}, in ${info.province}, is ${info.description}. This page exists for one practical reason: to put you in direct touch with the businesses operating here, without accounts, paywalls or middlemen. Every approved profile leads with what you actually need — a working phone number, a WhatsApp button, an address or service area, and opening hours — so the distance between searching and speaking to the business is one tap.
+${city}, in ${info.province}, is ${info.description}. Think of this page as the ${city} yellow pages: every approved listing leads with the details you actually need — a phone number, a WhatsApp button, an address or service area, and opening hours. Browsing and calling are free; there is no account to create and no commission on any enquiry.
 
-### How a PakPin City Page Works
+### Start With the Trade, Not the Name
 
-It works in three moves. First, pick the trade you need from the categories on this page — restaurants, healthcare, home services, technology and the rest. That opens the dedicated ${city} page for that trade, with its own local guide and the approved businesses in it so far. Second, open a profile and read what the owner wrote: services, hours, area covered. Third, call the number shown or send a WhatsApp message straight from the profile. Nobody at PakPin takes a cut of your enquiry, and you never have to create an account to contact anyone.
-
-### The Trades That Keep ${city} Running
-
-${city}'s economy leans hardest on ${info.industries.slice(0, 3).join(', ')}, with plenty of activity beyond those three as well. A large local customer base and a strong position in the region keep drawing new businesses in, and established firms keep expanding alongside them — which is good news if you are comparing options, because choice keeps prices honest and service levels up.
-
-Support from the ${info.province} government for commerce and infrastructure has added to that momentum, and the city now hosts everything from single-person home businesses to national companies running major operations here.
-
-### Where to Look First in ${city}
+If you already know the business name, search for it directly. If you only know what you need — a plumber, a restaurant, a clinic — pick the category first and let the city do the filtering. Every category on this page opens its own ${city} guide with the approved businesses in that trade so far, and each profile shows the services the owner listed, the areas covered and the hours kept.
 
 ${districtsText}
 
-Profiles carry their area and address, so you can deliberately favour a provider close to your home or workplace rather than one across town — and you can compare two or three nearby options side by side instead of settling for the first name you find.
+### What ${city} Is Known For
 
-### Five Quick Checks Before You Hire Anyone in ${city}
+The local economy leans hardest on ${info.industries.slice(0, 3).join(', ')}, with plenty beyond those three. That mix decides the depth of choice in each trade: where the city has real strength, you will find several providers worth comparing instead of one name to take or leave.
 
-A few minutes of checking prevents most bad experiences, whatever the trade:
+### Call First, Then Visit
 
-1. Call the number yourself. If nobody answers twice, or the number is dead, move on — responsiveness before the job predicts responsiveness during it.
-2. Confirm where they actually operate. A real address, or a clearly stated service area, beats a vague "all over the city" every time.
-3. Ask for photos or examples of recent work, especially for repairs, construction, beauty and event services.
-4. Get the price in writing on WhatsApp — what is included, what costs extra, and when it will be done.
-5. For bigger jobs, pay in stages against finished work and ask for a proper invoice or receipt.
+Pakistani businesses run on the phone, and this directory is built for that. Before you travel anywhere, call the number on the profile or send a WhatsApp message and confirm four things: the timings today, whether the service or item you want is available, the price or a written estimate, and the exact location or landmark. A provider that answers clearly on all four is usually a safe pair of hands; one that will not answer, or will not put a price in writing, is a reason to try the next listing.
 
-Registration adds confidence where it applies: an FBR NTN for tax-registered firms, Securities and Exchange Commission of Pakistan incorporation for registered companies, or membership of a chamber such as the Karachi Chamber of Commerce and Industry or the Lahore Chamber of Commerce and Industry.
+### Two Messages to a Fair Price
 
-### Put Your ${city} Business on PakPin — Free
+There is no single going rate for most local work — it moves with the job, the materials and the provider's workload. The fastest fair-price check is two messages: ask two or three providers for the same job in writing on WhatsApp, then compare what is inside each quote — labour, materials, delivery, visit charges and after-service. Agree the schedule before work starts, pay larger jobs in stages against finished work, and always take a proper bill or receipt.
 
-If you run a business in ${city}, a PakPin listing costs nothing and carries no subscription. Open a free account and work through the Add Business form — contact details, category, location, opening hours, services and products. Our team checks every submission, and once yours is approved it goes live immediately, appearing on this city page, on your category page and in search results, with your call and WhatsApp buttons live for customers.
+### Read the Profile Like a Local Would
 
-### What ${city} Residents Usually Search For
+Five quick reads that prevent most bad experiences, whatever the trade:
 
-Demand here follows the calendar of local life. Summer brings a rush for AC technicians and electricians; wedding season fills the diaries of caterers, decorators, photographers and banquet halls; admissions season sends parents comparing schools, academies and tuition centres; and year-round, people look for family restaurants and home delivery, clinics and pharmacies, and reliable plumbers, carpenters and painters when something breaks. Whatever the occasion, starting from the right category on this page beats scrolling through scattered social-media posts.
+1. Match the services list. Make sure the exact service you need is in the profile's services, not just implied by the category.
+2. Match the area. Check the address or service area on the profile — a provider nearby usually means a faster visit and a lower travel charge.
+3. Check the hours. A profile that lists opening hours tells you whether it is open now; one with no hours at all is a weaker bet.
+4. Read the reviews where they exist. Approved customer reviews on a profile are the closest thing to asking a neighbour.
+5. Call before you visit. One call confirms the timings, the price and the location — and tells you how responsive the business is before you spend anything.
+
+Where it applies, registration adds confidence: an FBR NTN for tax-registered firms, Securities and Exchange Commission of Pakistan incorporation for registered companies, or membership of a chamber of commerce.
+
+### List Your ${city} Business on PakListings
+
+If you run a business in ${city}, a listing costs a one-time fee from PKR 99 — browsing the directory and contacting businesses is free, but listing is a paid, one-time step. Create an account and complete the Add Business form with contact details, category, location, opening hours, services and products. Our team reviews every submission, and approved listings appear at the next weekly release — on this city page, on your category page and in search — with your call and WhatsApp buttons live for customers.
 
 ### Frequently Asked Questions About Businesses in ${city}
 
 ### Do I need an account to call a business in ${city}?
 
-No. Phone numbers and WhatsApp buttons on approved profiles are public. Open the profile and contact the business directly — no sign-up, no fee, no intermediary.
+No. Phone numbers and WhatsApp buttons on approved profiles are public. Open the profile and contact the business directly — no sign-up and no fee for customers.
 
-### How quickly does a new listing appear in ${city}?
+### What does it cost to list a business in ${city}?
 
-Listings are reviewed by our team first, then published immediately once approved. Once live, the profile appears on this city page, on its category page and in search.
+Listing costs a one-time fee from PKR 99. There is no subscription and no commission on enquiries — customers contact you directly.
+
+### How soon does an approved listing appear?
+
+Approved listings go live at the next weekly release, not instantly. Once released, the profile appears on this city page, on its category page and in search.
 
 ### What if a phone number or address on a listing is wrong?
 
 Tell us through the contact page and our team will check it. Listings are owner-submitted, so the business itself supplies the details — but accuracy is the whole point of the directory, and corrections are applied once verified.
 
-### Does PakPin charge for enquiries or bookings?
+### Does PakListings charge for enquiries or bookings?
 
-No. Searching, calling and messaging through PakPin are free for customers, and listing is free for businesses. PakPin never takes a commission on an enquiry.`
+No. Searching, calling and messaging are free for customers, and PakListings never takes a commission on an enquiry.`
 }
 
 export function generateCategoryContent(categorySlug: string): string {
@@ -307,35 +590,39 @@ export function generateCategoryContent(categorySlug: string): string {
     examples: ['independent service providers', 'local firms', 'shops', 'specialist agencies'],
   }
 
-  return `## ${info.label} in Pakistan: Compare Before You Commit
+  const family = FAMILY_CONTENT[familyFor(categorySlug)]
 
-The ${info.label.toLowerCase()} sector in Pakistan is wide and crowded — providers in every major city, from national firms to one-person operations. This directory exists to make that crowd navigable: ${info.description}, organised by city, with each profile showing the facts you need to judge it — phone and WhatsApp, address, hours, and links to the business's own website or social pages where it has them.
+  return `## ${info.label} in Pakistan: What to Check Before You Call
 
-### What This Category Actually Covers
+${info.label} in Pakistan covers ${info.description} — from ${info.examples.slice(0, 3).join(', ')} to ${info.examples.slice(3, 5).join(' and ')}. This page gathers them by city, with each profile showing the facts you need to judge it: phone and WhatsApp, address, hours, and the business's own website or social pages where it has them.
 
-Inside ${info.label.toLowerCase()} you will find ${info.examples.slice(0, 5).join(', ')} — and more besides. The specialisms within it include:
+### How This Trade Works in Pakistan
 
-${info.examples.map(e => `- ${e.charAt(0).toUpperCase() + e.slice(1)}`).join('\n')}
+${family.angle}
 
-Most providers specialise in one or two of these rather than all of them. The services list on a profile is written by the owner, so it is the most honest signal of what a business really does day to day. If your requirement is unusual, message the business on WhatsApp and ask outright before you travel anywhere.
+### The Questions That Separate Good Providers
 
-### Comparing Providers Without Wasting a Day
+Before you commit, ask every shortlisted provider the same questions — the comparison is only fair if everyone answers the same thing:
 
-Pick your city below, then shortlist three profiles and ask each one the same four questions: what exactly is included in the price, how long will it take, what happens if something goes wrong afterwards, and can you put it in writing? The provider that answers all four calmly is usually the safe pair of hands — and the comparison takes one afternoon of messages, not a week of visits.
+${family.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-Watch for the same green flags across trades: a prompt reply on phone or WhatsApp, prices or estimates in writing before work starts, a real premises or a stated service area, published opening hours, and — for regulated work — registration or credentials such as an FBR NTN, SECP incorporation, a medical or engineering licence, or chamber membership, as the trade requires. Add a warranty, return policy or after-service support stated up front, and you have a provider worth hiring.
+The provider that answers all four calmly, in writing, is usually the safe pair of hands. The comparison takes one afternoon of messages, not a week of visits.
 
-### Prices: What to Expect
+### Reading a Quote
 
-There is no single going rate for ${info.label.toLowerCase()} work — it moves with the job, the materials and the provider's workload. Anyone quoting a firm price without asking what you actually need deserves a second look. Collect two or three written estimates, check whether materials, delivery and after-service are inside the quote, agree the schedule before work starts, and for larger jobs pay in stages against completed work. A written invoice or receipt protects both sides.
+${family.priceNote}
 
-### Warning Signs Worth Heeding
+### When to Walk Away
 
-Step back from any ${info.label.toLowerCase()} provider that will not put a price in writing, demands the full amount in advance in cash with no receipt, has no reachable phone number or stated address, pressures you to decide on the spot, cannot say what happens if the work or product is faulty, or shows only stock photos with nothing real of its own work. Honest businesses expect these questions and answer them without fuss.
+Step back from any ${info.label.toLowerCase()} provider that:
 
-### List Your ${info.label} Business — Free
+${family.redFlags.map(f => `- ${f.charAt(0).toUpperCase() + f.slice(1)}.`).join('\n')}
 
-Run a ${info.label.toLowerCase()} business anywhere in Pakistan? Create a free account and complete the Add Business form — contact, category, location, hours, services and products. After our team reviews and approves it, the listing goes live immediately and shows up in this category, on your city page and in search. No charge, no card details, no subscription.
+Honest businesses expect these questions and answer them without fuss.
+
+### List Your ${info.label} Business on PakListings
+
+Run a ${info.label.toLowerCase()} business anywhere in Pakistan? Listing costs a one-time fee from PKR 99 — there is no subscription and no commission on enquiries. Create an account and complete the Add Business form — contact, category, location, hours, services and products. After our team reviews and approves it, the listing appears at the next weekly release in this category, on your city page and in search.
 
 ### Frequently Asked Questions About ${info.label} in Pakistan
 
@@ -343,13 +630,13 @@ Run a ${info.label.toLowerCase()} business anywhere in Pakistan? Create a free a
 
 Yes, if it genuinely serves customers. Choose the closest matching category, give the city and area you serve, and use your working phone or WhatsApp number — freelancers, tutors, home bakers and repair technicians list exactly this way.
 
-### How does PakPin check listings before they appear?
+### How does PakListings check listings before they appear?
 
 Every submission is reviewed by our team before publication. We check that the business name, phone number and category look genuine and consistent. Details come from the business itself, so confirm anything critical when you make contact — and report errors through the contact page so we can check them.
 
-### Is contacting a business through PakPin free?
+### What does it cost to list, and when does it appear?
 
-Yes, for both sides. Customers search, call and message free, and owners list free. PakPin takes no commission on enquiries.
+Listing costs a one-time fee from PKR 99. Approved listings appear at the next weekly release, not instantly. Searching, calling and messaging are free for customers.
 
 ### What if a listing in this category is out of date?
 
@@ -372,42 +659,44 @@ export function generateCityCategoryContent(city: string, categorySlug: string):
     examples: ['local providers', 'firms', 'shops'],
   }
 
-  return `## ${catInfo.label} in ${city}: Local Options, Direct Numbers
+  const family = FAMILY_CONTENT[familyFor(categorySlug)]
+  const districtsText = cityInfo.districts
+    ? `Start with the commercial areas — ${cityInfo.districts.slice(0, 4).join(', ')} — where providers cluster.`
+    : `Check the area on each profile before you call; a provider nearby usually means a faster visit and a lower travel charge.`
 
-Looking for ${catInfo.label.toLowerCase()} in ${city}? This page gathers ${catInfo.description} operating in ${city}, ${cityInfo.province} — a short local guide plus the businesses submitted and approved in this trade so far, each with a phone number and WhatsApp button you can use immediately.
+  return `## ${catInfo.label} in ${city}: Who to Call First
 
-### Why ${city} Has Depth in This Trade
+Looking for ${catInfo.label.toLowerCase()} in ${city}? Approved providers in ${city} — phone numbers, addresses and opening hours on every profile.
 
-${city} is ${cityInfo.description}, and that has produced a deep bench of ${catInfo.label.toLowerCase()} providers serving local customers and the wider region alike. The city keeps growing, and its providers have grown with it in number and quality, so customers today have more real choice than ever before — and choice is what keeps pricing fair and standards up.
+### How ${catInfo.label} Works in ${city}
 
-### Services You Will Typically Find
+${city} is ${cityInfo.description}. That gives the local ${catInfo.label.toLowerCase()} trade real depth: enough providers to compare, and enough competition to keep pricing honest. ${districtsText}
 
-The ${catInfo.label.toLowerCase()} trade in ${city} spans ${catInfo.examples.slice(0, 4).join(', ')}. One-off jobs and long-term arrangements are both easy to set up, with price points and service levels for nearly every budget. Many providers now take bookings online, consult over WhatsApp and deliver at home or on site, which makes them easier to reach than they used to be — and when a business is listed here, its profile shows phone, WhatsApp and full address, so getting in touch takes seconds.
+### Three Questions for the First Call
 
-### Shortlist in Ten Minutes
+Before you commit to a ${catInfo.label.toLowerCase()} business in ${city}, ask the same three questions of every shortlist:
 
-Before committing to a ${catInfo.label.toLowerCase()} business in ${city}, run four fast checks:
+${family.questions.slice(0, 3).map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
-1. Near you — favour a provider based close by in ${city}; shorter distances mean faster visits and lower travel costs.
-2. Reachable — pick businesses you can contact several ways: phone, WhatsApp and email.
-3. Real — an active website and social profiles usually signal a transparent, accountable operation.
-4. Right fit — read the description closely and confirm the exact service you need is actually offered, not just implied.
+The provider that answers all three calmly, in writing, is usually the safe pair of hands.
 
-For extra confidence, look for published registration: many businesses share their FBR NTN or cite Securities and Exchange Commission of Pakistan registration, and chamber membership — the Lahore Chamber of Commerce and Industry or the Karachi Chamber of Commerce and Industry, for example — is another good sign.
+### What a Fair Quote Looks Like Here
 
-### Money and Timing for ${catInfo.label} Work in ${city}
+${family.priceNote}
 
-Prices and timelines move with the job, the materials and the provider's workload, so there is no single going rate. Get two or three written estimates, confirm whether materials, delivery and after-service are included, and agree the schedule before work starts. Paying in stages against completed work is normal for larger jobs, and a proper invoice or receipt protects both sides.
+### If Something Goes Wrong
+
+Keep the bill or receipt, and keep the written quote on WhatsApp — together they are your record if the work, the food or the item is not what was promised. Pay larger jobs in stages against finished work rather than everything up front. And if a profile's details are wrong — a dead number, a moved shop — report it through the contact page so the directory stays accurate for the next person.
 
 ### Frequently Asked Questions About ${catInfo.label} in ${city}
 
 ### How do I contact a ${catInfo.label.toLowerCase()} business in ${city}?
 
-Open its profile from the listings on this page and use the call or WhatsApp button. You speak to the business directly, and PakPin never charges you or takes a commission on the enquiry.
+Open its profile from the listings on this page and use the call or WhatsApp button. You speak to the business directly, and PakListings never charges you or takes a commission on the enquiry.
 
 ### How much does ${catInfo.label.toLowerCase()} cost in ${city}?
 
-It depends on the exact service, scale and materials — see "Money and Timing" above for how to compare written quotes rather than guessing.
+It depends on the exact service, scale and materials — see "What a Fair Quote Looks Like Here" above for how to compare written quotes rather than guessing.
 
 ### Are the businesses on this page checked before listing?
 
@@ -415,9 +704,9 @@ Yes. Owners submit their own listings and our team reviews each one before it ap
 
 ### I run a ${catInfo.label.toLowerCase()} business in ${city}. How do I get listed here?
 
-Create a free account and complete the Add Business form. Once approved, it goes live immediately, then appears on this page, on the ${city} page and in search — free, with your call and WhatsApp buttons live.
+Create an account and complete the Add Business form. Listing costs a one-time fee from PKR 99; once approved, it appears at the next weekly release on this page, on the ${city} page and in search — with your call and WhatsApp buttons live.
 
-### Own a ${catInfo.label} Business in ${city}? List It Free
+### Own a ${catInfo.label} Business in ${city}? List It Here
 
-Run a ${catInfo.label.toLowerCase()} business in ${city}? A PakPin listing is completely free — see "How do I get listed here?" above for the steps.`
+Run a ${catInfo.label.toLowerCase()} business in ${city}? A PakListings listing costs a one-time fee from PKR 99, with no subscription and no commission on enquiries. Create an account, complete the Add Business form, and once approved your profile appears at the next weekly release.`
 }

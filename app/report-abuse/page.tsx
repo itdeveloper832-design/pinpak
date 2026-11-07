@@ -5,10 +5,10 @@ import Footer from '@/components/footer'
 import { ShieldAlert } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Report Abuse | PakPin Safety & Compliance',
-  description: 'Report spam, harassment, counterfeit listings, copyright violations, or abusive behavior on PakPin.',
+  title: 'Report Abuse on PakListings | Spam, Scams & Fake Listings',
+  description: 'Report a fake listing, spam, harassment, copyright infringement or scam on PakListings: what to include, where it goes, and what happens after you report it.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/report-abuse/',
+    canonical: 'https://www.paklistings.com/report-abuse/',
   },
 }
 
@@ -39,8 +39,8 @@ export default function ReportAbusePage() {
                 <p className="mt-1">DMCA notices regarding unauthorized brand logos, photos, or text assets.</p>
               </div>
 
-              <div className="p-4 bg-rose-50/50 rounded-xl border border-rose-100">
-                <h3 className="font-bold text-rose-900">Spam & Automated Harassment</h3>
+              <div className="p-4 bg-violet-50/50 rounded-xl border border-violet-100">
+                <h3 className="font-bold text-violet-900">Spam & Automated Harassment</h3>
                 <p className="mt-1">Deceptive messaging, phishing links, or artificial bot listings.</p>
               </div>
             </div>

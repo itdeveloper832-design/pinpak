@@ -1,5 +1,5 @@
 /**
- * PakPin Input Sanitization & Security Helper
+ * PakListings Input Sanitization & Security Helper
  * Guards user-submitted content (businesses, jobs, professionals, contacts)
  * against XSS, script injection, and protocol manipulation.
  */

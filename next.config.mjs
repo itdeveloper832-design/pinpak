@@ -126,6 +126,11 @@ const nextConfig = {
       { source: '/blog/free-job-posting-pakistan-hire-employees/', destination: '/blog/how-to-find-jobs-in-pakistan-2026/', permanent: true },
       { source: '/blog/how-to-find-trusted-professionals-pakistan', destination: '/blog/local-services-pakistan-by-city/', permanent: true },
       { source: '/blog/how-to-find-trusted-professionals-pakistan/', destination: '/blog/local-services-pakistan-by-city/', permanent: true },
+      // Blog slugs renamed 2026-11-06 ("free" removed — listings cost from PKR 99, so the old URLs misled readers)
+      { source: '/blog/how-to-list-business-free-paklistings-guide', destination: '/blog/how-to-list-business-paklistings-guide/', permanent: true },
+      { source: '/blog/how-to-list-business-free-paklistings-guide/', destination: '/blog/how-to-list-business-paklistings-guide/', permanent: true },
+      { source: '/blog/free-business-listing-checklist-pakistan', destination: '/blog/business-listing-checklist-pakistan/', permanent: true },
+      { source: '/blog/free-business-listing-checklist-pakistan/', destination: '/blog/business-listing-checklist-pakistan/', permanent: true },
     ]
   },
 

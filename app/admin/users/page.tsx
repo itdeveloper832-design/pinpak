@@ -85,9 +85,9 @@ export default function AdminUsersPage() {
                     <span
                       className={`px-2.5 py-1 rounded-full text-[11px] font-bold border ${
                         isAdmin
-                          ? 'bg-blue-700 text-white border-blue-700'
+                          ? 'bg-cyan-700 text-white border-cyan-700'
                           : isTester
-                            ? 'bg-rose-100 text-rose-800 border-rose-300'
+                            ? 'bg-violet-100 text-violet-800 border-violet-300'
                             : 'bg-slate-50 text-slate-600 border-slate-200'
                       }`}
                     >
@@ -99,7 +99,7 @@ export default function AdminUsersPage() {
                     {data.email || '—'} · {data.phone || 'no phone'} · Joined {formatDate(data.createdAt)}
                   </p>
                   {isTester && (
-                    <p className="text-[11px] text-rose-700">Tester — can add businesses and edit/delete only their own listings.</p>
+                    <p className="text-[11px] text-violet-700">Tester — can add businesses and edit/delete only their own listings.</p>
                   )}
                 </div>
                 <div className="shrink-0">

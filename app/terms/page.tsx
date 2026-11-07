@@ -4,10 +4,10 @@ import { Metadata } from 'next'
 import React from 'react'
 
 export const metadata: Metadata = {
-  title: 'Terms of Service | PakPin Pakistan Business Directory',
-  description: 'Read the PakPin terms of service. Learn the rules and guidelines for listing and searching businesses on our free Pakistan directory.',
+  title: 'Terms of Service | PakListings Pakistan Business Directory',
+  description: 'PakListings terms: rules for searching and listing businesses, companies, jobs and professionals in Pakistan, and what a directory can and cannot promise.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/terms/',
+    canonical: 'https://www.paklistings.com/terms/',
   },
   robots: { index: true, follow: true },
 }
@@ -23,7 +23,7 @@ export default function TermsPage() {
           
           <h2 className="text-xl font-bold text-[#0F172A] mt-8 mb-4">1. Agreement to Terms</h2>
           <p className="mb-4">
-            These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and <strong>PakPin</strong> (“we,” “us” or “our”), concerning your access to and use of the <a href="https://www.geotaggingphotos.com/" className="text-blue-700 hover:underline">geotaggingphotos.com</a> website as well as any other media form, media channel, mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the “Site”).
+            These Terms of Service constitute a legally binding agreement made between you, whether personally or on behalf of an entity (“you”) and <strong>PakListings</strong> (“we,” “us” or “our”), concerning your access to and use of the <a href="https://www.paklistings.com/" className="text-cyan-700 hover:underline">paklistings.com</a> website as well as any other media form, media channel, mobile website or mobile application related, linked, or otherwise connected thereto (collectively, the “Site”).
           </p>
           <p className="mb-4">
             You agree that by accessing the Site, you have read, understood, and agree to be bound by all of these Terms of Service. If you do not agree with all of these Terms of Service, then you are expressly prohibited from using the Site and you must discontinue use immediately.
@@ -48,7 +48,7 @@ export default function TermsPage() {
 
           <h2 className="text-xl font-bold text-[#0F172A] mt-8 mb-4">4. Business Listings & Submissions</h2>
           <p className="mb-4">
-            Users who add business listings represent that the information provided is accurate and that they have the right to publish it. PakPin reserves the right to review, edit, or remove any listing at its sole discretion if it violates our quality standards or community guidelines.
+            Users who add business listings represent that the information provided is accurate and that they have the right to publish it. PakListings reserves the right to review, edit, or remove any listing at its sole discretion if it violates our quality standards or community guidelines.
           </p>
 
           <h2 className="text-xl font-bold text-[#0F172A] mt-8 mb-4">5. Prohibited Activities</h2>
@@ -58,7 +58,7 @@ export default function TermsPage() {
 
           <h2 className="text-[#0F172A] font-bold text-xl mt-8 mb-4">6. Limitation of Liability</h2>
           <p className="mb-4">
-            PakPin is a directory service. We do not guarantee the quality, safety, or legality of services provided by the businesses listed on our platform. In no event will we be liable to you or any third party for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages arising from your use of the Site.
+            PakListings is a directory service. We do not guarantee the quality, safety, or legality of services provided by the businesses listed on our platform. In no event will we be liable to you or any third party for any direct, indirect, consequential, exemplary, incidental, special, or punitive damages arising from your use of the Site.
           </p>
 
           <h2 className="text-xl font-bold text-[#0F172A] mt-8 mb-4">7. Governing Law</h2>
@@ -71,8 +71,8 @@ export default function TermsPage() {
             In order to resolve a complaint regarding the Site or to receive further information regarding use of the Site, please contact us at:
           </p>
           <p className="font-medium text-gray-900">
-            PakPin Support<br />
-            Email: admin@geotaggingphotos.com<br />
+            PakListings Support<br />
+            Email: admin@paklistings.com<br />
             Address: Evacuee Trust Complex, F-5/1, Islamabad, Pakistan
           </p>
         </div>

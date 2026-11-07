@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
-import { db, storage } from '@/lib/firebase'
+import { useState, useEffect } from 'react'
+import { db } from '@/lib/firebase'
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { Copy, Check, Upload, ShieldCheck, Wallet } from 'lucide-react'
+import { compressImageToDataUrl } from '@/lib/compress-image'
+import { Copy, Check, Upload, ShieldCheck, Wallet, ImagePlus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { TIERS, formatPKR, type ListingTier, type ListingType } from '@/lib/tiers'
 import { PAYMENT_METHODS, type PaymentMethodId } from '@/lib/payment-methods'
 import { notifyAdminNewPaymentProof } from '@/lib/mail'
+import { safeErrorMessage } from '@/lib/user-error'
 
 /**
  * Shared listing payment screen.
@@ -41,9 +42,21 @@ export default function PaymentScreen({
   const [file, setFile] = useState<File | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
   const def = TIERS[tier]
   const selected = PAYMENT_METHODS.find((m) => m.id === method) || PAYMENT_METHODS[0]
+
+  // Live preview of the chosen screenshot, so the user can SEE what they picked.
+  useEffect(() => {
+    if (!file) {
+      setPreviewUrl(null)
+      return
+    }
+    const url = URL.createObjectURL(file)
+    setPreviewUrl(url)
+    return () => URL.revokeObjectURL(url)
+  }, [file])
 
   const copyNumber = async (num: string) => {
     try {
@@ -73,16 +86,15 @@ export default function PaymentScreen({
       toast.error('The proof must be an image file.')
       return
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('The image must be under 5MB.')
+    if (file.size > 15 * 1024 * 1024) {
+      toast.error('The image is too large to process — please use a smaller screenshot.')
       return
     }
     setUploading(true)
     try {
-      const path = `payment-proofs/${ownerId}/${listingId}-${Date.now()}`
-      const storageRef = ref(storage, path)
-      await uploadBytes(storageRef, file)
-      const proofUrl = await getDownloadURL(storageRef)
+      // No Firebase Storage on the free plan: compress in the browser and
+      // store the proof directly in Firestore as a data URL.
+      const proofUrl = await compressImageToDataUrl(file)
       await addDoc(collection(db, 'payment_proofs'), {
         listingId,
         listingType,
@@ -107,7 +119,7 @@ export default function PaymentScreen({
       toast.success('Payment proof submitted — we will email you once it is verified.')
       await onSubmitted()
     } catch (err: any) {
-      toast.error(`Upload failed: ${err?.message || 'Unknown error'}`)
+      toast.error(`Upload failed: ${safeErrorMessage(err)}`)
     } finally {
       setUploading(false)
     }
@@ -116,7 +128,7 @@ export default function PaymentScreen({
   return (
     <div className="space-y-6">
       <div className="text-center space-y-1">
-        <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-700">
+        <div className="inline-flex p-3 rounded-2xl bg-cyan-50 text-cyan-700">
           <Wallet className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-extrabold text-slate-900">Complete Your Payment</h2>
@@ -126,12 +138,12 @@ export default function PaymentScreen({
         </p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between gap-3">
+      <div className="bg-cyan-50 border border-cyan-100 rounded-2xl p-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-wider text-blue-800">{def.label} listing</p>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-800">{def.label} listing</p>
           <p className="text-xs text-slate-600 mt-0.5">{def.tagline}</p>
         </div>
-        <p className="font-extrabold text-blue-800 text-lg whitespace-nowrap">{formatPKR(def.price)}</p>
+        <p className="font-extrabold text-cyan-800 text-lg whitespace-nowrap">{formatPKR(def.price)}</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -148,7 +160,7 @@ export default function PaymentScreen({
                   aria-checked={active}
                   onClick={() => setMethod(m.id)}
                   className={`text-left rounded-2xl border-2 p-4 transition-all cursor-pointer ${
-                    active ? 'border-blue-700 bg-blue-50' : 'border-slate-200 bg-white hover:border-blue-300'
+                    active ? 'border-cyan-700 bg-cyan-50' : 'border-slate-200 bg-white hover:border-cyan-300'
                   }`}
                 >
                   <span className="font-extrabold text-slate-900 text-sm">{m.label}</span>
@@ -170,7 +182,7 @@ export default function PaymentScreen({
                           void copyNumber(m.accountNumber)
                         }
                       }}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-bold text-blue-800 hover:border-blue-400 cursor-pointer"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-bold text-cyan-800 hover:border-cyan-400 cursor-pointer"
                     >
                       {copied === m.accountNumber ? (
                         <>
@@ -190,23 +202,71 @@ export default function PaymentScreen({
           <p className="text-xs text-slate-500 leading-relaxed">{selected.hint}</p>
         </div>
 
-        <div>
-          <label htmlFor="tier-payment-proof" className="block text-xs font-bold text-slate-700 mb-1">
-            Upload payment proof screenshot (image, max 5MB) *
-          </label>
+        <div className="rounded-2xl border-2 border-cyan-700 bg-cyan-50/60 p-4 space-y-3">
+          <p className="text-base font-extrabold text-slate-900">
+            Upload payment proof screenshot *
+          </p>
+          <p className="text-sm font-bold text-slate-700 -mt-2">
+            Image only — your screenshot is compressed automatically before saving.
+          </p>
           <input
             id="tier-payment-proof"
             type="file"
             accept="image/*"
             required
             onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="block w-full text-sm text-slate-600 file:mr-3 file:px-4 file:py-2 file:bg-white file:border file:border-slate-200 file:rounded-xl file:font-bold file:text-xs file:cursor-pointer"
+            className="sr-only"
           />
-          {file && <p className="text-[11px] text-slate-400 mt-1">{file.name}</p>}
+          {!file ? (
+            <label
+              htmlFor="tier-payment-proof"
+              className="flex flex-col items-center justify-center gap-2 w-full min-h-[120px] rounded-xl border-2 border-dashed border-cyan-500 bg-white px-4 py-6 text-center cursor-pointer hover:border-cyan-700 hover:bg-cyan-50 transition-colors"
+            >
+              <ImagePlus className="w-10 h-10 text-cyan-700" />
+              <span className="text-base font-extrabold text-cyan-800">Tap to choose your screenshot</span>
+              <span className="text-xs font-bold text-slate-500">JPG, PNG or any image — compressed automatically</span>
+            </label>
+          ) : (
+            <div className="rounded-xl border-2 border-cyan-700 bg-white p-3 space-y-3">
+              <div className="flex items-start gap-3">
+                {previewUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={previewUrl}
+                    alt="Selected payment screenshot preview"
+                    className="w-28 h-28 rounded-lg object-cover border border-slate-200 shrink-0"
+                  />
+                ) : null}
+                <div className="min-w-0 flex-1">
+                  <p className="flex items-center gap-1.5 text-sm font-extrabold text-cyan-800">
+                    <Check className="w-4 h-4 shrink-0" /> Screenshot selected
+                  </p>
+                  <p className="text-base font-extrabold text-slate-900 break-all mt-1">{file.name}</p>
+                  <p className="text-xs font-bold text-slate-500 mt-0.5">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFile(null)}
+                  aria-label="Remove selected screenshot"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-slate-200 text-xs font-bold text-slate-600 hover:border-red-300 hover:text-red-600 cursor-pointer shrink-0"
+                >
+                  <X className="w-3.5 h-3.5" /> Change
+                </button>
+              </div>
+              <label
+                htmlFor="tier-payment-proof"
+                className="block text-center text-sm font-extrabold text-cyan-800 underline underline-offset-2 cursor-pointer"
+              >
+                Tap here to pick a different screenshot
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2.5 p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
-          <ShieldCheck className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
+          <ShieldCheck className="w-4 h-4 text-cyan-700 shrink-0 mt-0.5" />
           <span>
             Send exactly {formatPKR(def.price)} via {selected.label}, then upload the screenshot. Our team verifies
             every payment by hand — once approved, your listing goes live immediately.
@@ -217,7 +277,7 @@ export default function PaymentScreen({
         <button
           type="submit"
           disabled={uploading || !file}
-          className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
         >
           <Upload className="w-4 h-4" />
           <span>{uploading ? 'Uploading...' : 'Submit Payment Proof'}</span>

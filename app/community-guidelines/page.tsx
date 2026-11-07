@@ -3,10 +3,10 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Community Guidelines | PakPin - Pakistan Business Hub',
-  description: 'Standards of conduct for business owners, job seekers, employers, and consumers engaging on PakPin.',
+  title: 'Community Guidelines | PakListings - Pakistan Business Hub',
+  description: 'PakListings community standards: genuine reviews only, no spam or harassment, honest listings — and how to report a listing, review or message that breaks them.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/community-guidelines/',
+    canonical: 'https://www.paklistings.com/community-guidelines/',
   },
 }
 
@@ -20,12 +20,12 @@ export default function CommunityGuidelinesPage() {
             Community Guidelines
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Enterprise Ecosystem
+            Last Updated: August 2026 • PakListings Enterprise Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             <p>
-              PakPin is dedicated to fostering a safe, professional, and respectful ecosystem for businesses, job seekers, and consumers across Pakistan.
+              PakListings is dedicated to fostering a safe, professional, and respectful ecosystem for businesses, job seekers, and consumers across Pakistan.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Authentic Reviews & Feedback</h2>
@@ -40,7 +40,7 @@ export default function CommunityGuidelinesPage() {
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">3. Reporting Violations</h2>
             <p>
-              To report suspicious behavior or policy violations, please use our <a href="/report-abuse" className="text-blue-700 underline">Report Abuse Portal</a>.
+              To report suspicious behavior or policy violations, please use our <a href="/report-abuse" className="text-cyan-700 underline">Report Abuse Portal</a>.
             </p>
           </div>
         </div>

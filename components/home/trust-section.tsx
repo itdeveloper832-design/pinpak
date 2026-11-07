@@ -4,12 +4,12 @@ const features = [
   {
     title: "Verified Listings",
     description: "Nothing goes public unchecked — our team reviews each submission's contact details and address before it appears.",
-    icon: <CheckCircle2 className="w-8 h-8 text-blue-500" />
+    icon: <CheckCircle2 className="w-8 h-8 text-cyan-500" />
   },
   {
     title: "Nationwide Reach",
     description: "Businesses, professionals and jobs from 150+ Pakistani cities, all in one searchable place.",
-    icon: <Users className="w-8 h-8 text-blue-500" />
+    icon: <Users className="w-8 h-8 text-cyan-500" />
   },
   {
     title: "Direct Contact",
@@ -19,7 +19,7 @@ const features = [
   {
     title: "Fast & Mobile First",
     description: "Built mobile-first, so finding a nearby business takes seconds even on a slow connection.",
-    icon: <Zap className="w-8 h-8 text-rose-500" />
+    icon: <Zap className="w-8 h-8 text-violet-500" />
   }
 ]
 
@@ -28,9 +28,9 @@ export default function TrustSection() {
     <section className="py-20 bg-[#f8fafc]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-[#0F172A] mb-4">Why Trust PakPin?</h2>
+          <h2 className="text-3xl font-bold text-[#0F172A] mb-4">Why Trust PakListings?</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            An open directory only works if people believe what they read on it — so every PakPin
+            An open directory only works if people believe what they read on it — so every PakListings
             profile is reviewed, every number is shown in the open, and nothing sits behind a paywall.
           </p>
         </div>
@@ -54,7 +54,7 @@ export default function TrustSection() {
 
         <div className="mt-16 flex flex-wrap justify-center items-center gap-8 opacity-70 transition-all duration-500">
           <div className="flex items-center gap-2 font-bold text-gray-500 text-sm">
-            <span className="text-xl">✅</span> 100% Free Listing
+            <span className="text-xl">✅</span> Listings from PKR 99
           </div>
           <div className="flex items-center gap-2 font-bold text-gray-500 text-sm">
             <span className="text-xl">🛡️</span> Verified Contact Details

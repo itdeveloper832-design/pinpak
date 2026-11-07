@@ -14,6 +14,7 @@ import { CATEGORIES, CITIES } from '@/lib/data'
 import CityCombobox from '@/components/city-combobox'
 import { isValidPakistaniPhone, normalizePakistaniPhone, sanitizePhoneInput, isValidPrice } from '@/lib/validation'
 import { writeOwnerContact } from '@/lib/owner-contact'
+import { safeErrorMessage } from '@/lib/user-error'
 import { queueSubmissionEmails } from '@/lib/mail'
 import TierSelect from '@/components/tier-select'
 import PaymentScreen from '@/components/payment-screen'
@@ -99,6 +100,8 @@ const initialForm: FormState = {
   tags: '',
 }
 
+const DRAFT_KEY = 'paklistings_add_business_draft'
+
 const STEP_TITLES = [
   'Basic Info',
   'Categories',
@@ -111,7 +114,7 @@ const STEP_TITLES = [
 ]
 
 const inputClass =
-  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700'
+  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700'
 const labelClass = 'block text-xs font-bold text-slate-700 mb-1'
 
 function isValidEmail(value: string): boolean {
@@ -121,7 +124,11 @@ function isValidEmail(value: string): boolean {
 export default function AddBusinessPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  // True once Firebase has reported the first auth state. The form
+  // renders before that (and for signed-out visitors) so Googlebot
+  // and first-time visitors see the real page; only the submit is
+  // gated behind sign-in.
+  const [authChecked, setAuthChecked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [step, setStep] = useState(1)
   const [stepError, setStepError] = useState('')
@@ -134,17 +141,37 @@ export default function AddBusinessPage() {
   const [productName, setProductName] = useState('')
   const [productPrice, setProductPrice] = useState('')
 
+  // Draft restore: a signed-out visitor who filled the form, was sent
+  // to sign in on submit, and came back via /login?next= lands here
+  // with their entries intact (same tab, sessionStorage).
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const draft = JSON.parse(raw) as { form?: FormState; tier?: ListingTier; step?: number }
+        if (draft.form && typeof draft.form.name === 'string') {
+          setForm({ ...initialForm, ...draft.form })
+          if (draft.tier) setTier(draft.tier)
+          if (typeof draft.step === 'number') setStep(Math.min(8, Math.max(1, draft.step)))
+        }
+      }
+    } catch {
+      // Corrupt draft — ignore it and start with a blank form.
+    }
+    try {
+      sessionStorage.removeItem(DRAFT_KEY)
+    } catch {
+      // Storage unavailable — nothing to clean up.
+    }
+  }, [])
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
-      if (!u) {
-        router.push('/login')
-        return
-      }
       setUser(u)
-      setAuthLoading(false)
+      setAuthChecked(true)
     })
     return () => unsub()
-  }, [router])
+  }, [])
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((f) => ({ ...f, [key]: value }))
@@ -257,7 +284,18 @@ export default function AddBusinessPage() {
       setStepError(err)
       return
     }
-    if (!user) return
+    if (!user) {
+      // Save the completed form so the sign-in round-trip does not
+      // wipe it; /login?next= brings the user straight back here.
+      try {
+        sessionStorage.setItem(DRAFT_KEY, JSON.stringify({ form, tier, step }))
+      } catch {
+        // Storage unavailable — continue to sign-in anyway.
+      }
+      toast.info('Please sign in to submit your business — you will come straight back here.')
+      router.push('/login?next=/add-business')
+      return
+    }
     setIsSubmitting(true)
     try {
       const tags = form.tags
@@ -296,30 +334,24 @@ export default function AddBusinessPage() {
       })
       // Owner contact (login email) is private: it goes to the
       // owner/admin-only subcollection, never into the main document
-      // (see lib/owner-contact.ts).
-      await writeOwnerContact('businesses', ref.id, user.uid, user.email || '')
+      // (see lib/owner-contact.ts). The write is non-fatal, but a
+      // failure is surfaced: without it, admin reject/delete emails
+      // silently fall back to the listing's public email field, which
+      // may not be the owner's login email.
+      const contactSaved = await writeOwnerContact('businesses', ref.id, user.uid, user.email || '')
+      if (!contactSaved) {
+        toast.warning('Business saved, but your contact email could not be stored — admin messages about this listing may not reach you. Please contact support.')
+      }
       // The listing is SAVED now; the payment screen below collects the
       // tier payment. Submission emails go out only after the proof is
       // submitted (see onSubmitted on the PaymentScreen).
       setSaved({ id: ref.id, name: form.name.trim() })
       toast.success('Business saved — complete your payment below.')
     } catch (err: any) {
-      toast.error(`Could not submit your business: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not submit your business: ${safeErrorMessage(err)}`)
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (authLoading) {
-    return (
-      <>
-        <Navbar />
-        <main className="bg-[#F8FAFC] min-h-screen py-16 px-4 flex items-center justify-center">
-          <p className="text-sm text-slate-400">Loading...</p>
-        </main>
-        <Footer />
-      </>
-    )
   }
 
   // Payment step: the listing is saved; collect the tier payment here.
@@ -364,26 +396,47 @@ export default function AddBusinessPage() {
     <>
       <Navbar />
       <main className="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen py-16 px-4">
+        {authChecked && !user && (
+          <div className="max-w-2xl mx-auto mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium flex items-center gap-2">
+            <Info className="w-4 h-4 text-amber-600 shrink-0" />
+            <span>
+              You can fill in the form now — you will be asked to sign in when you submit.{' '}
+              <Link href="/login?next=/add-business" className="text-cyan-700 font-bold hover:underline">
+                Sign in
+              </Link>
+              {' '}or{' '}
+              <Link href="/register?next=/add-business" className="text-cyan-700 font-bold hover:underline">
+                create an account
+              </Link>
+              .
+            </span>
+          </div>
+        )}
         <div className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
           <div className="text-center mb-6">
-            <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-700 mb-3">
+            <div className="inline-flex p-3 rounded-2xl bg-cyan-50 text-cyan-700 mb-3">
               <Building2 className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Add Your Business</h1>
-            <p className="text-xs text-slate-500 mt-1">Affordable one-time listing — reach customers across Pakistan</p>
+            <p className="text-xs text-slate-500 mt-1">One-time listing from PKR 99 — reach customers across Pakistan</p>
+            <p className="text-sm text-slate-600 mt-3 max-w-lg mx-auto">
+              Give customers the details they actually ring you for: an exact address with the area,
+              hours for every day, the services you offer and prices for your main products. Our team
+              checks every listing before it goes public.
+            </p>
           </div>
 
           {/* Progress */}
           <div className="mb-8">
             <div className="flex items-center justify-between text-xs font-bold mb-2">
               <span className="text-slate-700">
-                Step {step} of 8 — <span className="text-blue-700">{STEP_TITLES[step - 1]}</span>
+                Step {step} of 8 — <span className="text-cyan-700">{STEP_TITLES[step - 1]}</span>
               </span>
               <span className="text-slate-400">{Math.round(progressPct)}%</span>
             </div>
             <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
               <div
-                className="h-full bg-blue-700 rounded-full transition-all duration-300"
+                className="h-full bg-cyan-700 rounded-full transition-all duration-300"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -391,7 +444,7 @@ export default function AddBusinessPage() {
               {STEP_TITLES.map((title, i) => (
                 <span
                   key={title}
-                  className={`text-[10px] font-semibold ${i + 1 === step ? 'text-blue-700' : i + 1 < step ? 'text-blue-700' : 'text-slate-300'}`}
+                  className={`text-[10px] font-semibold ${i + 1 === step ? 'text-cyan-700' : i + 1 < step ? 'text-cyan-700' : 'text-slate-300'}`}
                 >
                   {title}
                 </span>
@@ -480,7 +533,7 @@ export default function AddBusinessPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <p className="text-xs text-slate-500">Set opening hours for each day, or mark a day closed.</p>
-                  <button type="button" onClick={applyMondayToWeek} className="text-xs font-bold text-blue-700 hover:underline cursor-pointer whitespace-nowrap ml-3">
+                  <button type="button" onClick={applyMondayToWeek} className="text-xs font-bold text-cyan-700 hover:underline cursor-pointer whitespace-nowrap ml-3">
                     Same hours all week
                   </button>
                 </div>
@@ -522,7 +575,7 @@ export default function AddBusinessPage() {
             {step === 5 && (
               <div className="space-y-4">
                 <p className="text-xs text-slate-500">
-                  Add the services you offer so customers can find you faster — for example <em>Home Delivery</em>, <em>Free Installation</em>, or <em>24/7 Emergency Service</em>. This step is optional, but listings with services get more calls.
+                  Services are the words customers search for. Add each one on its own line — <em>Home Delivery</em>, <em>AC Repair</em>, <em>Bridal Makeup</em> — so your profile turns up when someone searches that service in your city. This step is optional.
                 </p>
                 <div className="flex gap-2">
                   <input
@@ -538,19 +591,19 @@ export default function AddBusinessPage() {
                     placeholder="e.g. Home Delivery"
                     className={inputClass}
                   />
-                  <button type="button" onClick={addService} className="shrink-0 px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl flex items-center gap-1.5 cursor-pointer">
+                  <button type="button" onClick={addService} className="shrink-0 px-4 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl flex items-center gap-1.5 cursor-pointer">
                     <Plus className="w-4 h-4" /> Add
                   </button>
                 </div>
                 {form.services.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {form.services.map((service) => (
-                      <span key={service} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 text-blue-800 border border-blue-100 rounded-full text-xs font-semibold">
+                      <span key={service} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 text-cyan-800 border border-cyan-100 rounded-full text-xs font-semibold">
                         {service}
                         <button
                           type="button"
                           onClick={() => set('services', form.services.filter((s) => s !== service))}
-                          className="text-blue-400 hover:text-red-500 cursor-pointer"
+                          className="text-cyan-400 hover:text-red-500 cursor-pointer"
                           aria-label={`Remove ${service}`}
                         >
                           <X className="w-3.5 h-3.5" />
@@ -567,12 +620,12 @@ export default function AddBusinessPage() {
             {step === 6 && (
               <div className="space-y-4">
                 <p className="text-xs text-slate-500">
-                  List your main products with prices (price is optional) — for example <em>Chicken Biryani — Rs 350</em>. This step is optional.
+                  Prices answer the first question most callers ask. Add your best-selling products or standard charges with a rupee price — for example <em>Chicken Biryani — Rs 350</em>. Leave the price blank if it varies; this step is optional.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} placeholder="Product name" className={inputClass} />
-                  <input type="text" inputMode="decimal" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} placeholder="Price in Rs (numbers only, e.g. 350)" className="w-full sm:w-44 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700" />
-                  <button type="button" onClick={addProduct} className="shrink-0 px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
+                  <input type="text" inputMode="decimal" value={productPrice} onChange={(e) => setProductPrice(e.target.value)} placeholder="Price in Rs (numbers only, e.g. 350)" className="w-full sm:w-44 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700" />
+                  <button type="button" onClick={addProduct} className="shrink-0 px-4 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl flex items-center justify-center gap-1.5 cursor-pointer">
                     <Plus className="w-4 h-4" /> Add
                   </button>
                 </div>
@@ -582,7 +635,7 @@ export default function AddBusinessPage() {
                       <li key={`${product.name}-${i}`} className="flex items-center justify-between px-4 py-2.5 bg-slate-50 text-sm">
                         <span className="font-medium text-slate-700">{product.name}</span>
                         <span className="flex items-center gap-3">
-                          {product.price && <span className="text-xs font-bold text-blue-700">{product.price}</span>}
+                          {product.price && <span className="text-xs font-bold text-cyan-700">{product.price}</span>}
                           <button
                             type="button"
                             onClick={() => set('products', form.products.filter((_, idx) => idx !== i))}
@@ -634,7 +687,7 @@ export default function AddBusinessPage() {
                     placeholder="Tell customers what your business offers, your experience, and why they should choose you (at least 30 characters)."
                     className={inputClass}
                   />
-                  <p className={`text-[11px] mt-1 font-medium ${form.description.trim().length >= 30 ? 'text-blue-700' : 'text-slate-400'}`}>
+                  <p className={`text-[11px] mt-1 font-medium ${form.description.trim().length >= 30 ? 'text-cyan-700' : 'text-slate-400'}`}>
                     {form.description.trim().length}/30 characters minimum
                   </p>
                 </div>
@@ -651,7 +704,7 @@ export default function AddBusinessPage() {
 
                 <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4 text-xs text-slate-600">
                   <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-blue-700" /> Review your business
+                    <CheckCircle2 className="w-4 h-4 text-cyan-700" /> Review your business
                   </h3>
                   <div>
                     <p className="font-bold text-slate-800 mb-1">Basic Info</p>
@@ -700,9 +753,9 @@ export default function AddBusinessPage() {
                   )}
                 </div>
 
-                <div className="flex gap-2.5 p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-slate-600">
-                  <Info className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
-                  <span>Your listing goes through a quick review; once approved, it goes live immediately.</span>
+                <div className="flex gap-2.5 p-3.5 bg-cyan-50 border border-cyan-100 rounded-xl text-xs text-slate-600">
+                  <Info className="w-4 h-4 text-cyan-700 shrink-0 mt-0.5" />
+                  <span>After you submit: pay for your plan and upload the payment screenshot. We verify the payment and review the listing — once approved, it goes live at the next weekly release.</span>
                 </div>
 
                 <TierSelect value={tier} onChange={setTier} />
@@ -715,7 +768,7 @@ export default function AddBusinessPage() {
                 <button
                   type="button"
                   onClick={goBack}
-                  className="px-5 py-2.5 bg-white border border-slate-200 hover:border-blue-500 text-slate-700 font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
+                  className="px-5 py-2.5 bg-white border border-slate-200 hover:border-cyan-500 text-slate-700 font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" /> Back
                 </button>
@@ -727,7 +780,7 @@ export default function AddBusinessPage() {
                 <button
                   type="button"
                   onClick={goNext}
-                  className="px-6 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors shadow-md"
+                  className="px-6 py-2.5 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors shadow-md"
                 >
                   Next <ArrowRight className="w-4 h-4" />
                 </button>
@@ -735,7 +788,7 @@ export default function AddBusinessPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors shadow-md disabled:opacity-50"
+                  className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl flex items-center gap-2 cursor-pointer transition-colors shadow-md disabled:opacity-50"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Business for Review'}
                   <ArrowRight className="w-4 h-4" />
@@ -744,10 +797,56 @@ export default function AddBusinessPage() {
             </div>
 
             <p className="text-center text-[11px] text-slate-400">
-              Need help? See the <Link href="/business-listing-guidelines" className="text-blue-700 font-semibold hover:underline">listing guidelines</Link>.
+              Need help? See the <Link href="/business-listing-guidelines" className="text-cyan-700 font-semibold hover:underline">listing guidelines</Link>.
             </p>
           </form>
         </div>
+
+        <section className="max-w-2xl mx-auto mt-8" aria-label="Frequently asked questions">
+          <h2 className="text-lg font-extrabold text-slate-900 mb-4">Frequently asked questions</h2>
+          <div className="space-y-3">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="font-bold text-slate-900 text-sm">What do I need before I start?</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Your business name, email, phone number, category, city and complete address. Hours,
+                services, products, website and social links are optional — but a profile with hours
+                and prices filled in gets found and trusted more easily. The description needs at
+                least 30 characters.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="font-bold text-slate-900 text-sm">What happens after I submit?</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Your listing is saved, then you pay for your plan and upload a payment screenshot. We
+                verify the payment and review the listing; once approved, it goes live at the next
+                weekly release, and we email you when it is public.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="font-bold text-slate-900 text-sm">How much does a listing cost?</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                A one-time payment, not a monthly subscription: Basic PKR 99, Premium PKR 199 or
+                Featured PKR 299. Premium and Featured let you request edits to your listing later;
+                Basic does not. Browsing the directory and calling a business costs nothing.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="font-bold text-slate-900 text-sm">Do I need an account to add a business?</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Yes. You can fill in the form first, and when you submit you will be asked to sign in
+                or create an account — you come straight back to this page afterwards, with your
+                entries intact.
+              </p>
+            </div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-5">
+              <h3 className="font-bold text-slate-900 text-sm">Can I update my listing later?</h3>
+              <p className="text-sm text-slate-600 mt-1">
+                Yes, if your plan allows edits. Sign in to your dashboard to manage your listings and
+                request changes — updates go through review before they appear publicly.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
       <Footer />
     </>

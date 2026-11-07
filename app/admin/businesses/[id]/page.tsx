@@ -6,12 +6,13 @@ import { useParams, useRouter } from 'next/navigation'
 import { db } from '@/lib/firebase'
 import { doc, getDoc, updateDoc } from 'firebase/firestore'
 import { toast } from 'sonner'
+import { safeErrorMessage } from '@/lib/user-error'
 import { ArrowLeft, X, Plus } from 'lucide-react'
 import { CITIES, CATEGORIES } from '@/lib/data'
 import { StatusBadge } from '@/components/admin-shared'
 
 const inputClass =
-  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700'
+  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700'
 const labelClass = 'block text-xs font-bold text-slate-700 mb-1'
 
 export default function AdminEditBusinessPage() {
@@ -106,7 +107,7 @@ export default function AdminEditBusinessPage() {
       toast.success('Business updated.')
       router.push('/admin/businesses')
     } catch (err: any) {
-      toast.error(`Save failed: ${err?.message || 'Unknown error'}`)
+      toast.error(`Save failed: ${safeErrorMessage(err)}`)
     } finally {
       setSaving(false)
     }
@@ -117,7 +118,7 @@ export default function AdminEditBusinessPage() {
     return (
       <div className="space-y-4">
         <p className="text-sm text-slate-600">This business no longer exists.</p>
-        <Link href="/admin/businesses" className="text-sm font-bold text-blue-700 hover:underline">← Back to Businesses</Link>
+        <Link href="/admin/businesses" className="text-sm font-bold text-cyan-700 hover:underline">← Back to Businesses</Link>
       </div>
     )
   }
@@ -127,13 +128,13 @@ export default function AdminEditBusinessPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
-        <Link href="/admin/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-blue-700 hover:underline">
+        <Link href="/admin/businesses" className="inline-flex items-center gap-1.5 text-sm font-bold text-cyan-700 hover:underline">
           <ArrowLeft className="w-4 h-4" /> Businesses
         </Link>
         <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Edit Business</h1>
         <StatusBadge status={status} />
         {slug && (
-          <Link href={`/business/${slug}`} target="_blank" className="text-xs font-semibold text-blue-700 hover:underline">
+          <Link href={`/business/${slug}`} target="_blank" className="text-xs font-semibold text-cyan-700 hover:underline">
             View public page
           </Link>
         )}
@@ -186,7 +187,7 @@ export default function AdminEditBusinessPage() {
           <span className={labelClass}>Services</span>
           <div className="flex flex-wrap gap-2 mb-2">
             {services.map((s) => (
-              <span key={s} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+              <span key={s} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 border border-cyan-100 text-cyan-800 rounded-full text-xs font-semibold">
                 {s}
                 <button type="button" onClick={() => setServices((prev) => prev.filter((x) => x !== s))} aria-label={`Remove ${s}`} className="cursor-pointer">
                   <X className="w-3 h-3" />
@@ -216,10 +217,10 @@ export default function AdminEditBusinessPage() {
         </div>
 
         <div className="flex gap-3 pt-2">
-          <button type="submit" disabled={saving} className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50">
+          <button type="submit" disabled={saving} className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors cursor-pointer disabled:opacity-50">
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
-          <Link href="/admin/businesses" className="px-6 py-3 bg-white border border-slate-200 hover:border-blue-500 font-bold text-sm rounded-xl transition-colors">
+          <Link href="/admin/businesses" className="px-6 py-3 bg-white border border-slate-200 hover:border-cyan-500 font-bold text-sm rounded-xl transition-colors">
             Cancel
           </Link>
         </div>

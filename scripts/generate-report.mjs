@@ -35,5 +35,5 @@ notRejected.forEach((b, i) => {
   md += `| ${i + 1} | ${name} | \`${email}\` | ${phone} | ${city} | ${status} |\n`;
 });
 
-fs.writeFileSync('d:/pakpin/branches/scripts/108-businesses-report.md', md);
+fs.writeFileSync('d:/paklistings/branches/scripts/108-businesses-report.md', md);
 console.log('Report written to scripts/108-businesses-report.md');

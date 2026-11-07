@@ -1,7 +1,7 @@
-# PakPin — Pakistan Business Directory
+# PakListings — Pakistan Business Directory
 
-PakPin is Pakistan's business directory: find and list businesses across
-183 cities and 24 categories. Live domain: https://www.geotaggingphotos.com
+PakListings is Pakistan's business directory: find and list businesses across
+183 cities and 24 categories. Live domain: https://www.paklistings.com
 
 ## Stack
 
@@ -16,7 +16,7 @@ Storage).
    (`users/{uid}.role === 'admin'`); create the owner's admin doc in the
    Firebase Console.
 2. Deploy (Vercel): import this repo, set the same env vars, deploy `main`.
-3. Point DNS for geotaggingphotos.com at the deployment.
+3. Point DNS for paklistings.com at the deployment.
 
 ## Services: wiring present, accounts NOT carried over
 
@@ -42,6 +42,4 @@ changes needed.
 
 ## Brand
 
-PakPin — royal blue #1D4ED8, dark navy #172554, tint #EFF6FF, accent coral
-#F43F5E. Fonts: Sora (headings) + Inter (body). Logo: blue-gradient pin +
-coral dot (`public/logo.svg`).
+PakListings — deep teal #0E7490 (primary), dark cyan #155E75, tint #ECFEFF, accent violet #7C3AED. Fonts: Fraunces (headings) + Inter (body). Logo: teal-gradient pin + violet dot (`public/logo.svg`).

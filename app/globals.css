@@ -6,9 +6,8 @@
 :root {
   --brand-navy: #09090b;
   --brand-black: #09090b;
-  --brand-blue: #3b82f6;
-  --brand-coral: #f43f5e;
-  --brand-orange: #ea580c;
+  --brand-cyan: #0891b2;
+  --brand-violet: #7c3aed;
 
   --background: #fafafa;
   --foreground: #09090b;
@@ -16,7 +15,7 @@
   --card: #ffffff;
   --card-foreground: #09090b;
 
-  --primary: #1D4ED8;
+  --primary: #0E7490;
   --primary-foreground: #ffffff;
 
   --secondary: #09090b;
@@ -25,16 +24,16 @@
   --muted: #f4f4f5;
   --muted-foreground: #71717a;
 
-  --accent: #EFF6FF;
-  --accent-foreground: #1E40AF;
+  --accent: #ECFEFF;
+  --accent-foreground: #155E75;
 
   --border: #e4e4e7;
   --input: #e4e4e7;
-  --ring: #1D4ED8;
+  --ring: #0E7490;
 
   --radius: 0.75rem;
 
-  --font-heading: var(--font-sora), 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: var(--font-display), 'Fraunces', Georgia, serif;
   --font-sans: var(--font-inter), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -80,7 +79,7 @@
     color: var(--foreground);
   }
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading), var(--font-sans), 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: var(--font-heading), Georgia, serif;
     letter-spacing: -0.025em;
   }
   img {
@@ -152,7 +151,7 @@
   transform: translateX(-50%) !important;
 }
 
-.pakpin-popup-toast {
+.paklistings-popup-toast {
   border-radius: 1.25rem !important;
   padding: 1rem 1.25rem !important;
   box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;

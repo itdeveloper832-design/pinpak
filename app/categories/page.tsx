@@ -17,13 +17,13 @@ function slugify(value: string): string {
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Business Categories in Pakistan | PakPin Directory Hub',
+  title: 'Business Categories in Pakistan | PakListings Directory Hub',
   description: 'Business categories in Pakistan — restaurants, technology, healthcare, real estate, construction, education, retail and local services, all browsable.',
-  alternates: { canonical: 'https://www.geotaggingphotos.com/categories/' },
+  alternates: { canonical: 'https://www.paklistings.com/categories/' },
   openGraph: {
-    title: 'Business Categories in Pakistan | PakPin Directory Hub',
+    title: 'Business Categories in Pakistan | PakListings Directory Hub',
     description: 'Business categories in Pakistan — restaurants, technology, healthcare, real estate, construction, education, retail and local services, all browsable.',
-    url: 'https://www.geotaggingphotos.com/categories/',
+    url: 'https://www.paklistings.com/categories/',
     type: 'website',
   },
 }
@@ -42,7 +42,7 @@ export default async function CategoriesIndexPage() {
 
       <section className="bg-[#0F172A] text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-slate-800 text-center">
         <div className="max-w-3xl mx-auto space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold border border-cyan-500/30">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Category Taxonomy Hub</span>
           </span>
@@ -65,7 +65,7 @@ export default async function CategoriesIndexPage() {
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center group-hover:bg-blue-700 group-hover:text-white transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-50 text-cyan-700 flex items-center justify-center group-hover:bg-cyan-700 group-hover:text-white transition-colors">
                       <Building2 className="w-6 h-6" />
                     </div>
                     <span className="text-xs font-extrabold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
@@ -73,18 +73,18 @@ export default async function CategoriesIndexPage() {
                     </span>
                   </div>
 
-                  <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-blue-700 transition-colors">
+                  <h3 className="font-extrabold text-slate-900 text-lg group-hover:text-cyan-700 transition-colors">
                     {cat.name}
                   </h3>
                   <p className="text-xs text-slate-500 leading-relaxed">
                     {cat.desc}
                   </p>
-                  <p className="text-xs font-bold text-blue-700">
+                  <p className="text-xs font-bold text-cyan-700">
                     {count === 0 ? 'No listings yet' : `${count} ${count === 1 ? 'listing' : 'listings'}`}
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-blue-700">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-cyan-700">
                   <span>Explore Category</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>

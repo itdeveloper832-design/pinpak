@@ -5,12 +5,14 @@ import Link from 'next/link'
 import { BookOpen, Clock, ArrowRight, Sparkles, TrendingUp, ShieldCheck, Briefcase, FileText, CheckCircle2 } from 'lucide-react'
 import { getApprovedUserBlogPosts } from '@/lib/public-listings'
 
+export const revalidate = 86400
+
 export const metadata: Metadata = {
-  title: 'PakPin Blog: Free Listing Tips & Pakistan Business Guides',
-  description: 'Practical guides for Pakistani businesses: free listing tips, local SEO, job posting and company research — plus news for Karachi, Lahore and Islamabad.',
-  keywords: 'PakPin blog, free business listing tips, local SEO Pakistan, business directory guide, job posting tips Pakistan, Pakistan business news, online business marketing',
+  title: 'PakListings Blog: Business Listing Tips & SEO Guides',
+  description: 'Practical guides for Pakistani businesses: listing tips from PKR 99, local SEO, job posting and company research — plus news for Karachi, Lahore and Islamabad.',
+  keywords: 'PakListings blog, business listing tips, local SEO Pakistan, business directory guide, job posting tips Pakistan, Pakistan business news, online business marketing',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/blog/',
+    canonical: 'https://www.paklistings.com/blog/',
   },
 }
 
@@ -61,18 +63,18 @@ const FEATURED_POSTS = [
     icon: Sparkles
   },
   {
-    slug: 'how-to-list-business-free-pakpin-guide',
-    title: 'How to List Your Business Free on PakPin – Complete Step-by-Step Guide 2026',
-    excerpt: 'Learn exactly how to create your free business listing on PakPin in 5 minutes. This comprehensive guide covers everything from account creation to optimization tips for maximum visibility on Google.',
-    category: 'Free Business Listing Guide',
+    slug: 'how-to-list-business-paklistings-guide',
+    title: 'List Your Business on PakListings: The 2026 Walkthrough',
+    excerpt: 'List your business on PakListings from PKR 99 one-time: account setup, the eight-step form, the payment proof, and the approval and weekly-release timeline.',
+    category: 'Business Listing Guide',
     date: 'August 1, 2026',
-    readTime: '8 min read',
+    readTime: '7 min read',
     icon: Sparkles
   },
   {
     slug: 'local-seo-pakistan-businesses-google-ranking',
     title: 'Local SEO for Pakistani Businesses: Win Visibility in Your City',
-    excerpt: 'Discover proven local SEO strategies to rank your business on page 1 of Google for searches like "best restaurant in Lahore" or "plumber in Karachi". Includes free listing optimization tips.',
+    excerpt: 'Discover proven local SEO strategies to rank your business on page 1 of Google for searches like "best restaurant in Lahore" or "plumber in Karachi". Includes listing optimization tips.',
     category: 'Local SEO Pakistan',
     date: 'July 28, 2026',
     readTime: '12 min read',
@@ -98,12 +100,12 @@ const RECENT_POSTS = [
     readTime: '6 min read',
   },
   {
-    slug: 'free-business-listing-checklist-pakistan',
-    title: 'Free Business Listing Checklist for Pakistan: What to Prepare First',
-    excerpt: 'The details to gather, the category and city choices to make, and the upkeep habits that keep a free listing earning its place.',
-    category: 'Free Business Listing Guide',
+    slug: 'business-listing-checklist-pakistan',
+    title: 'Before You Publish: A Business Listing Checklist for Pakistan',
+    excerpt: 'The details to gather, the tier choice, the category and city choices to make, and the upkeep habits that keep a listing earning its place.',
+    category: 'Business Listing Guide',
     date: 'October 23, 2026',
-    readTime: '3 min read',
+    readTime: '8 min read',
   },
   {
     slug: 'how-to-build-a-professional-profile-pakistan',
@@ -111,7 +113,7 @@ const RECENT_POSTS = [
     excerpt: 'Structure, biography, credentials and privacy — how to build a professional profile that answers who you are and why to get in touch.',
     category: 'Professional Discovery',
     date: 'October 23, 2026',
-    readTime: '3 min read',
+    readTime: '6 min read',
   },
   {
     slug: 'best-software-houses-pakistan-2026',
@@ -180,9 +182,9 @@ const RECENT_POSTS = [
 ]
 
 const CATEGORIES = [
-  { name: 'Free Business Listing Tips', count: 'Explore guides' },
+  { name: 'Business Listing Tips', count: 'Explore guides' },
   { name: 'Local SEO Pakistan', count: 'Explore guides' },
-  { name: 'Free Job Posting Guide', count: 'Explore guides' },
+  { name: 'Job Posting Guide', count: 'Explore guides' },
   { name: 'Pakistan Business News', count: 'Explore guides' },
   { name: 'Digital Marketing Pakistan', count: 'Explore guides' },
   { name: 'Success Stories', count: 'Explore guides' },
@@ -193,9 +195,9 @@ export default async function BlogPage() {
   const blogSchema = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: 'PakPin Blog – Free Business Listing Tips & Pakistan Business News',
-    url: 'https://www.geotaggingphotos.com/blog/',
-    description: 'Expert guides on free business listing, local SEO, job posting, and growing your business in Pakistan',
+    name: 'PakListings Blog – Business Listing Tips & Pakistan Business News',
+    url: 'https://www.paklistings.com/blog/',
+    description: 'Expert guides on business listing, local SEO, job posting, and growing your business in Pakistan',
   }
 
   return (
@@ -210,17 +212,17 @@ export default async function BlogPage() {
         {/* HERO SECTION */}
         <section className="bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-[#0F172A] text-white py-16 sm:py-24 border-b border-slate-800 text-center">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-400 text-xs sm:text-sm font-semibold mb-6">
-              <BookOpen className="w-4 h-4 text-blue-400" />
-              <span>PakPin Knowledge Base & Business Guides</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-500/15 border border-cyan-500/30 text-cyan-400 text-xs sm:text-sm font-semibold mb-6">
+              <BookOpen className="w-4 h-4 text-cyan-400" />
+              <span>PakListings Knowledge Base & Business Guides</span>
             </div>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-              PakPin Blog – Business Listing Tips, SEO Guides & News
+              PakListings Blog – Business Listing Tips, SEO Guides & News
             </h1>
 
             <p className="mt-6 text-base sm:text-xl text-slate-300 leading-relaxed font-normal">
-              Your go-to resource for free business listing tips, local SEO strategies, job posting guides, and the latest Pakistan business growth news. Expert advice for businesses across Karachi, Lahore, Islamabad, and all cities.
+              Your go-to resource for business listing tips, local SEO strategies, job posting guides, and the latest Pakistan business growth news. Expert advice for businesses across Karachi, Lahore, Islamabad, and all cities.
             </p>
           </div>
         </section>
@@ -231,20 +233,20 @@ export default async function BlogPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-extrabold text-[#0F172A]">From Our Community</h2>
-                <p className="mt-3 text-slate-600 max-w-2xl mx-auto">Posts by Featured listing owners — practical notes from businesses listed on PakPin.</p>
+                <p className="mt-3 text-slate-600 max-w-2xl mx-auto">Posts by Featured listing owners — practical notes from businesses listed on PakListings.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {communityPosts.map((post) => (
-                  <article key={post.id} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-8 shadow-sm hover:border-[#1D4ED8] hover:shadow-xl transition-all flex flex-col justify-between group">
+                  <article key={post.id} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-8 shadow-sm hover:border-[#0E7490] hover:shadow-xl transition-all flex flex-col justify-between group">
                     <div>
-                      <span className="text-xs font-bold text-blue-700 bg-blue-50 px-3 py-1 rounded-full">Community Post</span>
-                      <h3 className="text-xl font-bold text-[#0F172A] mt-4 mb-3 group-hover:text-[#1D4ED8] transition-colors leading-snug">{post.title}</h3>
+                      <span className="text-xs font-bold text-cyan-700 bg-cyan-50 px-3 py-1 rounded-full">Community Post</span>
+                      <h3 className="text-xl font-bold text-[#0F172A] mt-4 mb-3 group-hover:text-[#0E7490] transition-colors leading-snug">{post.title}</h3>
                       <p className="text-slate-600 leading-relaxed line-clamp-3">{post.excerpt}</p>
                       {post.authorName && (
                         <p className="text-xs text-slate-400 mt-3">By {post.authorName}</p>
                       )}
                     </div>
-                    <Link href={`/blog/${post.slug}/`} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#1D4ED8] hover:underline">
+                    <Link href={`/blog/${post.slug}/`} className="mt-6 inline-flex items-center gap-2 text-sm font-bold text-[#0E7490] hover:underline">
                       Read Post <ArrowRight className="w-4 h-4" />
                     </Link>
                   </article>
@@ -266,19 +268,19 @@ export default async function BlogPage() {
               {FEATURED_POSTS.map((post, idx) => {
                 const IconComp = post.icon
                 return (
-                  <div key={idx} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-8 shadow-sm hover:border-[#1D4ED8] hover:shadow-xl transition-all flex flex-col justify-between group">
+                  <div key={idx} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-8 shadow-sm hover:border-[#0E7490] hover:shadow-xl transition-all flex flex-col justify-between group">
                     <div>
                       <div className="flex items-center justify-between mb-4">
-                        <span className="text-xs font-bold text-[#1D4ED8] bg-blue-50 px-3 py-1 rounded-full">{post.category}</span>
+                        <span className="text-xs font-bold text-[#0E7490] bg-cyan-50 px-3 py-1 rounded-full">{post.category}</span>
                         <span className="text-xs text-slate-400 font-medium flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {post.readTime}</span>
                       </div>
-                      <h3 className="text-xl font-bold text-[#0F172A] mb-3 group-hover:text-[#1D4ED8] transition-colors leading-snug">{post.title}</h3>
+                      <h3 className="text-xl font-bold text-[#0F172A] mb-3 group-hover:text-[#0E7490] transition-colors leading-snug">{post.title}</h3>
                       <p className="text-xs text-slate-600 leading-relaxed mb-6">{post.excerpt}</p>
                     </div>
 
                     <Link
                       href={`/blog/${post.slug}`}
-                      className="text-xs font-bold text-[#1D4ED8] hover:underline inline-flex items-center gap-1.5 pt-4 border-t border-slate-200"
+                      className="text-xs font-bold text-[#0E7490] hover:underline inline-flex items-center gap-1.5 pt-4 border-t border-slate-200"
                     >
                       <span>Read Full Guide</span>
                       <ArrowRight className="w-4 h-4" />
@@ -291,7 +293,7 @@ export default async function BlogPage() {
         </section>
 
         {/* CATEGORIES CHIPS */}
-        <section className="py-12 bg-[#EFF6FF] border-b border-[#E2E8F0]">
+        <section className="py-12 bg-[#ECFEFF] border-b border-[#E2E8F0]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-[#0F172A]">Browse Blog Categories</h2>
@@ -299,9 +301,9 @@ export default async function BlogPage() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-center">
               {CATEGORIES.map((cat, idx) => (
-                <div key={idx} className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-sm hover:border-[#1D4ED8] transition-all">
+                <div key={idx} className="bg-white border border-[#E2E8F0] rounded-xl p-4 shadow-sm hover:border-[#0E7490] transition-all">
                   <div className="font-bold text-[#0F172A] text-xs sm:text-sm mb-1">{cat.name}</div>
-                  <div className="text-[10px] text-[#1D4ED8] font-semibold">{cat.count}</div>
+                  <div className="text-[10px] text-[#0E7490] font-semibold">{cat.count}</div>
                 </div>
               ))}
             </div>
@@ -321,7 +323,7 @@ export default async function BlogPage() {
                 <div key={idx} className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between mb-3 text-xs">
-                      <span className="font-bold text-[#1D4ED8]">{post.category}</span>
+                      <span className="font-bold text-[#0E7490]">{post.category}</span>
                       <span className="text-slate-400 font-medium">{post.readTime}</span>
                     </div>
                     <h3 className="font-bold text-[#0F172A] text-base mb-2 leading-snug">{post.title}</h3>
@@ -330,7 +332,7 @@ export default async function BlogPage() {
 
                   <div className="flex justify-between items-center pt-4 border-t border-slate-200 text-xs">
                     <span className="text-slate-400">{post.date}</span>
-                    <Link href={`/blog/${post.slug}`} className="font-bold text-[#1D4ED8] hover:underline inline-flex items-center gap-1">
+                    <Link href={`/blog/${post.slug}`} className="font-bold text-[#0E7490] hover:underline inline-flex items-center gap-1">
                       <span>Read More</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
@@ -345,24 +347,24 @@ export default async function BlogPage() {
         <section className="py-16 bg-[#F8FAFC]">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="bg-white border border-[#E2E8F0] rounded-2xl p-8 shadow-md text-center">
-              <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Subscribe to PakPin Business Newsletter</h2>
-              <p className="text-xs sm:text-sm text-slate-600 mb-6">Get weekly free business listing tips, SEO strategies, and Pakistan business news delivered to your inbox.</p>
+              <h2 className="text-2xl font-bold text-[#0F172A] mb-2">Subscribe to PakListings Business Newsletter</h2>
+              <p className="text-xs sm:text-sm text-slate-600 mb-6">Get weekly business listing tips, SEO strategies, and Pakistan business news delivered to your inbox.</p>
 
               <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
                 <input
                   type="email"
                   placeholder="Enter your email address..."
-                  className="flex-1 px-4 py-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#1D4ED8]"
+                  className="flex-1 px-4 py-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-xl text-sm focus:outline-none focus:border-[#0E7490]"
                   required
                 />
                 <button
                   type="submit"
-                  className="px-6 py-3 bg-[#F43F5E] hover:bg-[#D97706] text-white font-bold rounded-xl transition-colors shadow-md text-sm shrink-0"
+                  className="px-6 py-3 bg-[#7C3AED] hover:bg-[#D97706] text-white font-bold rounded-xl transition-colors shadow-md text-sm shrink-0"
                 >
-                  Subscribe Free
+                  Subscribe
                 </button>
               </form>
-              <p className="text-[10px] text-slate-400 mt-3">100% free forever. No spam, unsubscribe anytime with one click.</p>
+              <p className="text-[10px] text-slate-400 mt-3">No spam, unsubscribe anytime with one click.</p>
             </div>
           </div>
         </section>

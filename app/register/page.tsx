@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 import { Mail, Lock, UserPlus, Building2, Phone, User, ArrowRight, Eye, EyeOff, AlertCircle, Check, X } from 'lucide-react'
@@ -37,6 +37,24 @@ function mapRegisterError(err: any): string {
 }
 
 export default function RegisterPage() {
+  return (
+    <>
+      <Navbar />
+      <main className="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen py-16 px-4 flex items-center justify-center">
+        <Suspense fallback={<div className="text-center text-slate-400 text-sm">Loading...</div>}>
+          <RegisterForm />
+        </Suspense>
+      </main>
+      <Footer />
+    </>
+  )
+}
+
+function RegisterForm() {
+  const searchParams = useSearchParams()
+  // Where to send the user after sign-in (e.g. /add-business): kept
+  // through signup so the chain ends back at the page they came from.
+  const next = searchParams.get('next')
   const [ownerName, setOwnerName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -92,7 +110,7 @@ export default function RegisterPage() {
       await signOut(auth)
 
       toast.success('Account created successfully. Please sign in to continue.')
-      router.push('/login?registered=1')
+      router.push(next ? `/login?registered=1&next=${encodeURIComponent(next)}` : '/login?registered=1')
     } catch (err: any) {
       const friendly = mapRegisterError(err)
       setErrorMsg(friendly)
@@ -103,15 +121,12 @@ export default function RegisterPage() {
   }
 
   return (
-    <>
-      <Navbar />
-      <main className="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen py-16 px-4 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+    <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-700 mb-3">
+            <div className="inline-flex p-3 rounded-2xl bg-cyan-50 text-cyan-700 mb-3">
               <UserPlus className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Register PakPin Account</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Register PakListings Account</h1>
             <p className="text-xs text-slate-500 mt-1">List your business and connect with customers across Pakistan</p>
           </div>
 
@@ -133,7 +148,7 @@ export default function RegisterPage() {
                   value={ownerName}
                   onChange={(e) => setOwnerName(e.target.value)}
                   placeholder="Muhammad Ali"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
               </div>
             </div>
@@ -148,7 +163,7 @@ export default function RegisterPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="ali@company.pk"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
               </div>
             </div>
@@ -165,7 +180,7 @@ export default function RegisterPage() {
                   value={phone}
                   onChange={(e) => setPhone(sanitizePhoneInput(e.target.value))}
                   placeholder="+92 300 1234567"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
               </div>
               {phoneError && <p className="text-[11px] text-red-600 font-medium mt-1">{phoneError}</p>}
@@ -180,7 +195,7 @@ export default function RegisterPage() {
                   value={company}
                   onChange={(e) => setCompany(e.target.value)}
                   placeholder="Pak Tech Solutions"
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
               </div>
             </div>
@@ -195,7 +210,7 @@ export default function RegisterPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Create a strong password"
-                  className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+                  className="w-full pl-10 pr-11 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
                 />
                 <button
                   type="button"
@@ -210,7 +225,7 @@ export default function RegisterPage() {
                 {passwordChecks.map((check) => (
                   <li
                     key={check.key}
-                    className={`flex items-center gap-2 text-[11px] font-medium ${check.passed ? 'text-blue-700' : 'text-slate-400'}`}
+                    className={`flex items-center gap-2 text-[11px] font-medium ${check.passed ? 'text-cyan-700' : 'text-slate-400'}`}
                   >
                     {check.passed ? (
                       <Check className="w-3.5 h-3.5 shrink-0" />
@@ -226,7 +241,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <span>{isLoading ? 'Creating Account...' : 'Register Free Account'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -235,13 +250,10 @@ export default function RegisterPage() {
 
           <div className="mt-6 pt-6 border-t border-slate-100 text-center text-xs text-slate-500">
             Already have an account?{' '}
-            <Link href="/login" className="text-blue-700 font-bold hover:underline">
+            <Link href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'} className="text-cyan-700 font-bold hover:underline">
               Sign In Here
             </Link>
           </div>
-        </div>
-      </main>
-      <Footer />
-    </>
+    </div>
   )
 }

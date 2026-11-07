@@ -13,7 +13,7 @@ type CityComboboxProps = {
 }
 
 const defaultClassName =
-  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700'
+  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700'
 
 export default function CityCombobox({
   value,
@@ -135,8 +135,8 @@ export default function CityCombobox({
               }}
               onMouseEnter={() => setHighlight(i)}
               className={`px-4 py-2 cursor-pointer flex items-center justify-between ${
-                i === highlight ? 'bg-blue-50' : ''
-              } ${city === value ? 'font-bold text-blue-800' : 'text-slate-700'}`}
+                i === highlight ? 'bg-cyan-50' : ''
+              } ${city === value ? 'font-bold text-cyan-800' : 'text-slate-700'}`}
             >
               <span>{city}</span>
               {city === value && <Check className="w-4 h-4 shrink-0" />}

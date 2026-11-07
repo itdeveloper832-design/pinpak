@@ -14,7 +14,7 @@ function Stars({ value }: { value: number }) {
   return (
     <span className="inline-flex items-center gap-0.5" aria-label={`${value} out of 5 stars`}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <Star key={i} className={`w-3.5 h-3.5 ${i <= value ? 'fill-rose-400 text-rose-400' : 'text-slate-300'}`} />
+        <Star key={i} className={`w-3.5 h-3.5 ${i <= value ? 'fill-violet-400 text-violet-400' : 'text-slate-300'}`} />
       ))}
     </span>
   )
@@ -44,7 +44,7 @@ function ReviewCard({
       <p className="text-[11px] text-slate-400">
         Business:{' '}
         {data.businessSlug ? (
-          <Link href={`/business/${data.businessSlug}`} target="_blank" className="text-blue-700 font-semibold hover:underline">
+          <Link href={`/business/${data.businessSlug}`} target="_blank" className="text-cyan-700 font-semibold hover:underline">
             {data.businessSlug}
           </Link>
         ) : (

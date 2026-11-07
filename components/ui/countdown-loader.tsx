@@ -18,7 +18,7 @@ export default function CountdownLoader({ onComplete, isDataLoading, label }: Co
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] bg-[#f8fafc] w-full">
-      <Loader2 className="w-8 h-8 text-[#60a5fa] animate-spin mb-2" />
+      <Loader2 className="w-8 h-8 text-[#22D3EE] animate-spin mb-2" />
       <p className="text-sm text-slate-500 font-medium">{label || "Loading directory..."}</p>
     </div>
   )

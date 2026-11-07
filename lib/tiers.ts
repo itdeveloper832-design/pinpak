@@ -1,5 +1,5 @@
 // ============================================================
-// PakPin — paid listing tiers
+// PakListings — paid listing tiers
 // ------------------------------------------------------------
 // Every new listing (business, company, job) is sold on one of
 // three tiers. Prices are PKR.
@@ -57,7 +57,7 @@ export const TIERS: Record<ListingTier, TierDef> = {
     label: 'Basic',
     price: 99,
     tagline: 'Get listed — one-time add',
-    features: ['Listed on PakPin after approval', 'Shows in search, city and category pages', 'No edits after submission'],
+    features: ['Listed on PakListings after approval', 'Shows in search, city and category pages', 'No edits after submission'],
     canEdit: false,
     projectLimit: 0,
     blogLimit: 0,

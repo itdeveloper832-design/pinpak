@@ -4,8 +4,8 @@ import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Cookie, Shield, Check, X, Settings2 } from 'lucide-react'
 
-export const COOKIE_CONSENT_KEY = 'pakpin_cookie_consent'
-export const COOKIE_PREFS_KEY = 'pakpin_cookie_preferences'
+export const COOKIE_CONSENT_KEY = 'paklistings_cookie_consent'
+export const COOKIE_PREFS_KEY = 'paklistings_cookie_preferences'
 
 export interface CookiePreferences {
   essential: boolean
@@ -78,7 +78,7 @@ export default function CookieConsentBanner() {
 
       // Notify consent-gated loaders (Google Analytics, Vercel Analytics)
       // so granting or revoking takes effect without a reload.
-      window.dispatchEvent(new Event('pakpin:consent-changed'))
+      window.dispatchEvent(new Event('paklistings:consent-changed'))
 
       // Notify consent listeners if a data layer is present
       if (typeof window !== 'undefined' && (window as any).dataLayer) {
@@ -101,10 +101,10 @@ export default function CookieConsentBanner() {
           role="dialog"
           aria-live="polite"
           aria-label="Cookie consent banner"
-          className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-xl z-50 bg-[#0f172a] text-white p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-700/80 animate-in fade-in slide-in-from-bottom-5 duration-300"
+          className="fixed bottom-20 md:bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-xl z-50 bg-[#0f172a] text-white p-5 sm:p-6 rounded-2xl shadow-2xl border border-slate-700/80 animate-in fade-in slide-in-from-bottom-5 duration-300"
         >
           <div className="flex items-start gap-3.5">
-            <div className="w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-500/30 text-blue-400 flex items-center justify-center shrink-0 mt-0.5">
+            <div className="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 flex items-center justify-center shrink-0 mt-0.5">
               <Cookie className="w-5 h-5" />
             </div>
             <div className="space-y-2 flex-1">
@@ -112,12 +112,12 @@ export default function CookieConsentBanner() {
                 <span>Cookie &amp; Privacy Preferences</span>
               </h2>
               <p className="text-xs text-slate-300 leading-relaxed">
-                PakPin uses cookies to guarantee platform security and analyze search trends. You can accept all or customize preferences at any time. Read our{' '}
-                <Link href="/cookie-policy" className="text-blue-400 underline hover:text-blue-300">
+                PakListings uses cookies to guarantee platform security and analyze search trends. You can accept all or customize preferences at any time. Read our{' '}
+                <Link href="/cookie-policy" className="text-cyan-400 underline hover:text-cyan-300">
                   Cookie Policy
                 </Link>{' '}
                 and{' '}
-                <Link href="/privacy" className="text-blue-400 underline hover:text-blue-300">
+                <Link href="/privacy" className="text-cyan-400 underline hover:text-cyan-300">
                   Privacy Policy
                 </Link>.
               </p>
@@ -142,7 +142,7 @@ export default function CookieConsentBanner() {
               </button>
               <button
                 onClick={() => applyConsent('accepted')}
-                className="px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-500 rounded-xl shadow-md transition-colors cursor-pointer"
+                className="px-4 py-2 text-xs font-bold text-white bg-cyan-700 hover:bg-cyan-500 rounded-xl shadow-md transition-colors cursor-pointer"
               >
                 Accept All
               </button>
@@ -162,7 +162,7 @@ export default function CookieConsentBanner() {
           <div className="bg-[#0f172a] text-white w-full max-w-lg rounded-2xl p-6 border border-slate-700 shadow-2xl space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-blue-400" />
+                <Shield className="w-5 h-5 text-cyan-400" />
                 <h2 id="cookie-settings-title" className="text-base font-bold text-white">Manage Cookie Settings</h2>
               </div>
               <button
@@ -188,7 +188,7 @@ export default function CookieConsentBanner() {
                   </div>
                   <p className="text-[11px] text-slate-400">Required for directory navigation, form submission, and security.</p>
                 </div>
-                <input type="checkbox" checked disabled className="w-4 h-4 accent-blue-700 cursor-not-allowed opacity-70" />
+                <input type="checkbox" checked disabled className="w-4 h-4 accent-cyan-700 cursor-not-allowed opacity-70" />
               </div>
 
               {/* Analytics */}
@@ -204,7 +204,7 @@ export default function CookieConsentBanner() {
                     onChange={(e) => setPrefs({ ...prefs, analytics: e.target.checked })}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-700"></div>
+                  <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-cyan-700"></div>
                 </label>
               </div>
 
@@ -219,7 +219,7 @@ export default function CookieConsentBanner() {
               </button>
               <button
                 onClick={() => applyConsent('customized', prefs)}
-                className="px-4 py-2 text-xs font-bold text-white bg-blue-700 hover:bg-blue-500 rounded-xl shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 text-xs font-bold text-white bg-cyan-700 hover:bg-cyan-500 rounded-xl shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
               >
                 <Check className="w-3.5 h-3.5" />
                 <span>Save Preferences</span>

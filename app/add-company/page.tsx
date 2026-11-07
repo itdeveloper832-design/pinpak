@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
@@ -13,6 +14,7 @@ import { CATEGORIES, CITIES } from '@/lib/data'
 import CityCombobox from '@/components/city-combobox'
 import { isValidPakistaniPhone, normalizePakistaniPhone, sanitizePhoneInput } from '@/lib/validation'
 import { writeOwnerContact } from '@/lib/owner-contact'
+import { safeErrorMessage } from '@/lib/user-error'
 import { queueSubmissionEmails } from '@/lib/mail'
 import TierSelect from '@/components/tier-select'
 import PaymentScreen from '@/components/payment-screen'
@@ -25,14 +27,20 @@ function slugify(value: string): string {
     .replace(/^-+|-+$/g, '')
 }
 
+const DRAFT_KEY = 'paklistings_add_company_draft'
+
 const inputClass =
-  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700'
+  'w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700'
 const labelClass = 'block text-xs font-bold text-slate-700 mb-1'
 
 export default function AddCompanyPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
-  const [authLoading, setAuthLoading] = useState(true)
+  // True once Firebase has reported the first auth state. The form
+  // renders before that (and for signed-out visitors) so Googlebot
+  // and first-time visitors see the real page; only the submit is
+  // gated behind sign-in.
+  const [authChecked, setAuthChecked] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const [name, setName] = useState('')
@@ -48,23 +56,73 @@ export default function AddCompanyPage() {
   const [address, setAddress] = useState('')
   const [description, setDescription] = useState('')
 
+  // Draft restore: a signed-out visitor who filled the form, was sent
+  // to sign in on submit, and came back via /login?next= lands here
+  // with their entries intact (same tab, sessionStorage).
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem(DRAFT_KEY)
+      if (raw) {
+        const draft = JSON.parse(raw) as {
+          name?: string
+          industry?: string
+          city?: string
+          phone?: string
+          email?: string
+          website?: string
+          address?: string
+          description?: string
+          tier?: ListingTier
+        }
+        if (draft.name && typeof draft.name === 'string') {
+          setName(draft.name)
+          if (draft.industry) setIndustry(draft.industry)
+          if (draft.city) setCity(draft.city)
+          if (draft.phone) setPhone(draft.phone)
+          if (draft.email) setEmail(draft.email)
+          if (draft.website) setWebsite(draft.website)
+          if (draft.address) setAddress(draft.address)
+          if (draft.description) setDescription(draft.description)
+          if (draft.tier) setTier(draft.tier)
+        }
+      }
+    } catch {
+      // Corrupt draft — ignore it and start with a blank form.
+    }
+    try {
+      sessionStorage.removeItem(DRAFT_KEY)
+    } catch {
+      // Storage unavailable — nothing to clean up.
+    }
+  }, [])
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (u) => {
-      if (!u) {
-        router.push('/login')
-        return
-      }
       setUser(u)
-      setAuthLoading(false)
+      setAuthChecked(true)
     })
     return () => unsub()
-  }, [router])
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
     if (!isValidPakistaniPhone(phone)) {
       toast.error('Please enter a valid Pakistani mobile number (e.g. 0300 1234567 or +92 300 1234567).')
+      return
+    }
+    if (!user) {
+      // Save the completed form so the sign-in round-trip does not
+      // wipe it; /login?next= brings the user straight back here.
+      try {
+        sessionStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({ name, industry, city, phone, email, website, address, description, tier })
+        )
+      } catch {
+        // Storage unavailable — continue to sign-in anyway.
+      }
+      toast.info('Please sign in to submit your company — you will come straight back here.')
+      router.push('/login?next=/add-company')
       return
     }
     setIsSubmitting(true)
@@ -89,30 +147,24 @@ export default function AddCompanyPage() {
       })
       // Owner contact (login email) is private: it goes to the
       // owner/admin-only subcollection, never into the main document
-      // (see lib/owner-contact.ts).
-      await writeOwnerContact('companies', ref.id, user.uid, user.email || '')
+      // (see lib/owner-contact.ts). The write is non-fatal, but a
+      // failure is surfaced: without it, admin reject/delete emails
+      // silently fall back to the listing's public email field, which
+      // may not be the owner's login email.
+      const contactSaved = await writeOwnerContact('companies', ref.id, user.uid, user.email || '')
+      if (!contactSaved) {
+        toast.warning('Company saved, but your contact email could not be stored — admin messages about this listing may not reach you. Please contact support.')
+      }
       // The profile is SAVED now; the payment screen below collects the
       // tier payment. Submission emails go out only after the proof is
       // submitted (see onSubmitted on the PaymentScreen).
       setSaved({ id: ref.id, name: name.trim() })
       toast.success('Company saved — complete your payment below.')
     } catch (err: any) {
-      toast.error(`Could not submit your company: ${err?.message || 'Unknown error'}`)
+      toast.error(`Could not submit your company: ${safeErrorMessage(err)}`)
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  if (authLoading) {
-    return (
-      <>
-        <Navbar />
-        <main className="bg-[#F8FAFC] min-h-screen py-16 px-4 flex items-center justify-center">
-          <p className="text-sm text-slate-400">Loading...</p>
-        </main>
-        <Footer />
-      </>
-    )
   }
 
   // Payment step: the profile is saved; collect the tier payment here.
@@ -155,13 +207,35 @@ export default function AddCompanyPage() {
     <>
       <Navbar />
       <main className="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen py-16 px-4 flex items-center justify-center">
-        <div className="max-w-lg w-full bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
+        <div className="max-w-lg w-full">
+          {authChecked && !user && (
+            <div className="mb-4 p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 font-medium flex items-center gap-2">
+              <Info className="w-4 h-4 text-amber-600 shrink-0" />
+              <span>
+                You can fill in the form now — you will be asked to sign in when you submit.{' '}
+                <Link href="/login?next=/add-company" className="text-cyan-700 font-bold hover:underline">
+                  Sign in
+                </Link>
+                {' '}or{' '}
+                <Link href="/register?next=/add-company" className="text-cyan-700 font-bold hover:underline">
+                  create an account
+                </Link>
+                .
+              </span>
+            </div>
+          )}
+          <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xl">
           <div className="text-center mb-8">
-            <div className="inline-flex p-3 rounded-2xl bg-blue-50 text-blue-700 mb-3">
+            <div className="inline-flex p-3 rounded-2xl bg-cyan-50 text-cyan-700 mb-3">
               <Factory className="w-8 h-8" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Add Your Company</h1>
-            <p className="text-xs text-slate-500 mt-1">Affordable one-time company profile — build trust with buyers across Pakistan</p>
+            <p className="text-xs text-slate-500 mt-1">One-time company profile from PKR 99 — put your firm in front of buyers</p>
+            <p className="text-sm text-slate-600 mt-3 max-w-lg mx-auto">
+              Buyers looking for a manufacturer, supplier or exporter start with industry and city.
+              Give them both, plus what your firm actually makes or supplies, a working phone number
+              and an address they can trust — then your profile is reviewed before it appears.
+            </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -212,9 +286,9 @@ export default function AddCompanyPage() {
               <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Tell buyers what your company does, your products or services, and your track record." className={inputClass} />
             </div>
 
-            <div className="flex gap-2.5 p-3.5 bg-blue-50 border border-blue-100 rounded-xl text-xs text-slate-600">
-              <Info className="w-4 h-4 text-blue-700 shrink-0 mt-0.5" />
-              <span>Your company profile goes through a quick review and appears publicly on PakPin after approval.</span>
+            <div className="flex gap-2.5 p-3.5 bg-cyan-50 border border-cyan-100 rounded-xl text-xs text-slate-600">
+              <Info className="w-4 h-4 text-cyan-700 shrink-0 mt-0.5" />
+              <span>Your company profile is reviewed after you submit. Once the payment is verified and the profile is approved, it appears publicly on PakListings.</span>
             </div>
 
             <TierSelect value={tier} onChange={setTier} />
@@ -222,12 +296,59 @@ export default function AddCompanyPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <span>{isSubmitting ? 'Submitting...' : 'Submit Company'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
+          </div>
+
+          <section className="mt-8" aria-label="Frequently asked questions">
+            <h2 className="text-lg font-extrabold text-slate-900 mb-4">Frequently asked questions</h2>
+            <div className="space-y-3">
+              <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                <h3 className="font-bold text-slate-900 text-sm">What should a company profile include?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Your company name, industry, city and phone number are required. Email, website,
+                  address and a description are optional — but buyers judge a firm on them, so name
+                  the products or services you actually supply and the sectors you serve.
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                <h3 className="font-bold text-slate-900 text-sm">What happens after I submit?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Your company profile is saved, then you pay for your plan and upload a payment
+                  screenshot. We verify the payment and review the profile — once approved, it goes
+                  public on PakListings and we email you.
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                <h3 className="font-bold text-slate-900 text-sm">How much does a company profile cost?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  A one-time payment, not a monthly subscription: Basic PKR 99, Premium PKR 199 or
+                  Featured PKR 299. Premium and Featured let you request edits and showcase projects
+                  on your profile; Basic does not.
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                <h3 className="font-bold text-slate-900 text-sm">Do I need an account to add a company?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Yes. You can fill in the form first, and when you submit you will be asked to sign
+                  in or create an account — you come straight back to this page afterwards, with your
+                  entries intact.
+                </p>
+              </div>
+              <div className="bg-white border border-slate-200 rounded-2xl p-5">
+                <h3 className="font-bold text-slate-900 text-sm">How do buyers find my company?</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  Approved companies appear on the companies list and in search, so buyers can find
+                  you by industry and city and contact you directly. If you are hiring, post the role
+                  on the jobs board as well — it points candidates back to your firm.
+                </p>
+              </div>
+            </div>
+          </section>
         </div>
       </main>
       <Footer />

@@ -17,13 +17,13 @@ function slugify(value: string): string {
 export const revalidate = 3600
 
 export const metadata: Metadata = {
-  title: 'Cities Directory Pakistan | PakPin Enterprise Hub',
+  title: 'Cities Directory Pakistan | PakListings Enterprise Hub',
   description: 'Look through business listings, companies, jobs and services in Pakistani cities — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar and more.',
-  alternates: { canonical: 'https://www.geotaggingphotos.com/cities/' },
+  alternates: { canonical: 'https://www.paklistings.com/cities/' },
   openGraph: {
-    title: 'Cities Directory Pakistan | PakPin Enterprise Hub',
+    title: 'Cities Directory Pakistan | PakListings Enterprise Hub',
     description: 'Look through business listings, companies, jobs and services in Pakistani cities — Karachi, Lahore, Islamabad, Rawalpindi, Faisalabad, Multan, Peshawar and more.',
-    url: 'https://www.geotaggingphotos.com/cities/',
+    url: 'https://www.paklistings.com/cities/',
     type: 'website',
   },
 }
@@ -38,7 +38,7 @@ export default async function CitiesIndexPage() {
 
       <section className="bg-[#0F172A] text-white py-14 px-4 sm:px-6 lg:px-8 border-b border-slate-800 text-center">
         <div className="max-w-3xl mx-auto space-y-4">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold border border-blue-500/30">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-400 text-xs font-bold border border-cyan-500/30">
             <MapPin className="w-3.5 h-3.5" />
             <span>Pakistani Geographic Directory</span>
           </span>
@@ -54,7 +54,7 @@ export default async function CitiesIndexPage() {
         {/* Top Metropolitan Hubs */}
         <div className="space-y-4">
           <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-blue-700" />
+            <MapPin className="w-5 h-5 text-cyan-700" />
             <span>Top Metropolitan Business Hubs</span>
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
@@ -66,13 +66,13 @@ export default async function CitiesIndexPage() {
                   href={`/city/${city.toLowerCase().replace(/\s+/g, '-')}`}
                   className="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-xs hover:shadow-lg transition-all text-center space-y-2 group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-700 flex items-center justify-center mx-auto group-hover:bg-blue-700 group-hover:text-white transition-colors">
+                  <div className="w-10 h-10 rounded-full bg-cyan-50 text-cyan-700 flex items-center justify-center mx-auto group-hover:bg-cyan-700 group-hover:text-white transition-colors">
                     <Building2 className="w-5 h-5" />
                   </div>
-                  <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-blue-700 transition-colors">
+                  <h3 className="font-extrabold text-slate-900 text-sm group-hover:text-cyan-700 transition-colors">
                     {city}
                   </h3>
-                  <span className="text-[11px] font-semibold text-blue-700 block">
+                  <span className="text-[11px] font-semibold text-cyan-700 block">
                     {count === 0 ? 'No listings yet' : `${count} ${count === 1 ? 'listing' : 'listings'}`}
                   </span>
                 </Link>
@@ -93,7 +93,7 @@ export default async function CitiesIndexPage() {
                 <Link
                   key={city}
                   href={`/city/${city.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-700 hover:bg-blue-50 hover:text-blue-800 hover:border-blue-200 font-semibold transition-colors flex items-center justify-between gap-2"
+                  className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/60 text-slate-700 hover:bg-cyan-50 hover:text-cyan-800 hover:border-cyan-200 font-semibold transition-colors flex items-center justify-between gap-2"
                 >
                   <span className="min-w-0 truncate">{city}</span>
                   <span className="flex items-center gap-1.5 shrink-0">

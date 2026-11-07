@@ -9,8 +9,8 @@ export function formatDate(value: any): string {
 
 export function StatusBadge({ status }: { status: string }) {
   const styles: Record<string, string> = {
-    pending: 'bg-rose-50 text-rose-700 border-rose-200',
-    approved: 'bg-blue-50 text-blue-800 border-blue-200',
+    pending: 'bg-violet-50 text-violet-700 border-violet-200',
+    approved: 'bg-cyan-50 text-cyan-800 border-cyan-200',
     rejected: 'bg-red-50 text-red-700 border-red-200',
   }
   const cls = styles[status] || 'bg-slate-50 text-slate-600 border-slate-200'
@@ -39,7 +39,7 @@ export function AdminEmpty({ text }: { text: string }) {
 
 export const adminBtn =
   'px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer disabled:opacity-50'
-export const approveBtn = `${adminBtn} bg-blue-700 border-blue-700 text-white hover:bg-blue-800`
+export const approveBtn = `${adminBtn} bg-cyan-700 border-cyan-700 text-white hover:bg-cyan-800`
 export const rejectBtn = `${adminBtn} bg-white border-red-200 text-red-600 hover:bg-red-50`
-export const neutralBtn = `${adminBtn} bg-white border-slate-200 text-slate-700 hover:border-blue-500`
+export const neutralBtn = `${adminBtn} bg-white border-slate-200 text-slate-700 hover:border-cyan-500`
 export const dangerBtn = `${adminBtn} bg-white border-slate-200 text-slate-500 hover:border-red-300 hover:text-red-600`

@@ -49,7 +49,7 @@ This document lists all 108 active / pending business listings found in the data
 | 16 | Lake View Resort | `rzaali1209@gmail.com` | +923111178643 | Karachi | approved |
 | 17 | PM Ramzan Relief Package CNIC Eligibility Portal | `contact@business.pk` | 03038940443 | Islamabad | approved |
 | 18 | Rs 25000 Prize Bond Draw Schedule | `contact@business.pk` | 03038548545 | Lahore | approved |
-| 19 | 10Pearls | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
+| 19 | 10Pearls | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
 | 20 | Shadab Group Real Estate & Builders | `shadabgrouprealestate@gmail.com` | +92 305 7860084 | Sargodha | approved |
 | 21 | Swapot | `contact@swapot.com` |  03284888978 | Lahore | approved |
 | 22 | Multani Sohan Halwa | `hafizsohalhalwa@gmail.com` | +92 326 0000033 | Multan | approved |
@@ -80,53 +80,53 @@ This document lists all 108 active / pending business listings found in the data
 | 47 | Stack Expert | `stackexpertofficial094@gmail.com` | 03154441479 | Islamabad | pending |
 | 48 | Glee Gather | `info@gleegather.com` | 0325-8919081 | Karachi | pending |
 | 49 | 750 Prize Bond List 2025 | `contact@business.pk` | 03038548545 | Lahore | approved |
-| 50 | Aga Khan University Hospital Pakistan | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 51 | Airblue Limited | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 52 | Arbisoft | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 53 | Bahria Town | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 54 | Beaconhouse School System | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 55 | Daraz | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 56 | EFU Insurance Group | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 57 | Faisal Movers | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 58 | FAST National University of Computer & Emerging Sciences (FAST-NUCES) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 59 | Graana.com | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 60 | HBL - Habib Bank Limited | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 61 | Honda Atlas Cars (Pakistan) Limited | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 62 | Indus Hospital & Health Network | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 63 | Indus Motor Company Limited - Toyota Pakistan | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 64 | Islamabad Serena Hotel | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 65 | Jazz - Pakistan Mobile Communications Limited | `info@geotaggingphotos.com` | Official WhatsApp self-service: 0300 300 8000 | Islamabad | approved |
-| 66 | Khaadi | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 67 | Kolachi Restaurant | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 68 | Lahore University of Management Sciences (LUMS) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 69 | Leopards Courier Services | `info@geotaggingphotos.com` | UAN (021) 111-300-786 | Karachi | approved |
-| 70 | Meezan Bank Limited | `info@geotaggingphotos.com` | +92 21 111 331 331 | Karachi | approved |
-| 71 | Monal Lahore | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 72 | M&P Express Logistics | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 73 | Mustakbil.com | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
+| 50 | Aga Khan University Hospital Pakistan | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 51 | Airblue Limited | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 52 | Arbisoft | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 53 | Bahria Town | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 54 | Beaconhouse School System | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 55 | Daraz | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 56 | EFU Insurance Group | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 57 | Faisal Movers | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 58 | FAST National University of Computer & Emerging Sciences (FAST-NUCES) | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 59 | Graana.com | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 60 | HBL - Habib Bank Limited | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 61 | Honda Atlas Cars (Pakistan) Limited | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 62 | Indus Hospital & Health Network | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 63 | Indus Motor Company Limited - Toyota Pakistan | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 64 | Islamabad Serena Hotel | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 65 | Jazz - Pakistan Mobile Communications Limited | `info@paklistings.com` | Official WhatsApp self-service: 0300 300 8000 | Islamabad | approved |
+| 66 | Khaadi | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 67 | Kolachi Restaurant | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 68 | Lahore University of Management Sciences (LUMS) | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 69 | Leopards Courier Services | `info@paklistings.com` | UAN (021) 111-300-786 | Karachi | approved |
+| 70 | Meezan Bank Limited | `info@paklistings.com` | +92 21 111 331 331 | Karachi | approved |
+| 71 | Monal Lahore | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 72 | M&P Express Logistics | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 73 | Mustakbil.com | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
 | 74 | National Bank of Pakistan (NBP) | `customer@nbp.com.pk` | 111-627-627 or 021-111-627-627 | Karachi | approved |
-| 75 | National University of Sciences & Technology (NUST) | `info@geotaggingphotos.com` | +92-51-111-11-6878 — verify official page | Islamabad | approved |
-| 76 | Nayatel | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 77 | NetSol Technologies | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
+| 75 | National University of Sciences & Technology (NUST) | `info@paklistings.com` | +92-51-111-11-6878 — verify official page | Islamabad | approved |
+| 76 | Nayatel | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 77 | NetSol Technologies | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
 | 78 | Orange Line Metro Station Timings & Routes | `info@pma.punjab.gov.pk` | (042) 111-222-627 | Lahore | approved |
-| 79 | Pak Suzuki Motor Company Limited | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 80 | Pakistan International Airlines (PIA) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 81 | Pakistan Telecommunication Company Limited (PTCL) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 82 | Pearl-Continental Hotels & Resorts | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 83 | PriceOye | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 84 | Rehman Travels (Pvt.) Ltd. | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
-| 85 | ROZEE.PK | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 86 | Salt'n Pepper Restaurants | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 87 | Sastaticket.pk | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 88 | SereneAir | `info@geotaggingphotos.com` | +92 21 111 000 000 | Islamabad | approved |
+| 79 | Pak Suzuki Motor Company Limited | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 80 | Pakistan International Airlines (PIA) | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 81 | Pakistan Telecommunication Company Limited (PTCL) | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 82 | Pearl-Continental Hotels & Resorts | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 83 | PriceOye | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 84 | Rehman Travels (Pvt.) Ltd. | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
+| 85 | ROZEE.PK | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 86 | Salt'n Pepper Restaurants | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 87 | Sastaticket.pk | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 88 | SereneAir | `info@paklistings.com` | +92 21 111 000 000 | Islamabad | approved |
 | 89 | Shadab Group Real Estate & Builders | `shadabgrouprealestate@gmail.com` | +92 305 7860084 | Sargodha | approved |
-| 90 | Shaukat Khanum Memorial Cancer Hospital and Research Centre | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 91 | Sui Northern Gas Pipelines Limited (SNGPL) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 92 | Systems Limited | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
-| 93 | TCS Courier | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 94 | Telemart | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 95 | United Bank Limited (UBL) | `info@geotaggingphotos.com` | +92 21 111 000 000 | Karachi | approved |
-| 96 | Zameen.com | `info@geotaggingphotos.com` | +92 21 111 000 000 | Lahore | approved |
+| 90 | Shaukat Khanum Memorial Cancer Hospital and Research Centre | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 91 | Sui Northern Gas Pipelines Limited (SNGPL) | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 92 | Systems Limited | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
+| 93 | TCS Courier | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 94 | Telemart | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 95 | United Bank Limited (UBL) | `info@paklistings.com` | +92 21 111 000 000 | Karachi | approved |
+| 96 | Zameen.com | `info@paklistings.com` | +92 21 111 000 000 | Lahore | approved |
 | 97 | Hutaib Industrial Solution | `hutaibseo@gmail.com` | +9221111052052 | Karachi | approved |
 | 98 | The Monal Restaurant - Pakistan's Premier Dining Experience | `info@themonal.com` | 051-111777778  | Islamabad | approved |
 | 99 | Kolachi Restaurant | `contact@business.pk` | 021 111 111 001 | Karachi | approved |

@@ -13,7 +13,7 @@ interface BreadcrumbsProps {
 export default function Breadcrumbs({ items }: BreadcrumbsProps) {
   return (
     <nav aria-label="Breadcrumb" className="flex items-center space-x-2 text-sm text-gray-500 mb-6 overflow-x-auto whitespace-nowrap pb-2">
-      <Link href="/" className="flex items-center gap-1 hover:text-[#60a5fa] transition-colors">
+      <Link href="/" className="flex items-center gap-1 hover:text-[#22D3EE] transition-colors">
         <Home className="w-4 h-4" />
         <span className="hidden sm:inline">Home</span>
       </Link>
@@ -22,11 +22,11 @@ export default function Breadcrumbs({ items }: BreadcrumbsProps) {
         <div key={index} className="flex items-center space-x-2">
           <ChevronRight className="w-4 h-4 text-gray-400 shrink-0" />
           {item.href ? (
-            <Link href={item.href} className="hover:text-[#60a5fa] transition-colors max-w-[150px] truncate">
+            <Link href={item.href} className="hover:text-[#22D3EE] transition-colors max-w-[150px] truncate">
               {item.name}
             </Link>
           ) : (
-            <span className="text-[#0f2b3d] font-medium max-w-[150px] truncate">
+            <span className="text-[#155E75] font-medium max-w-[150px] truncate">
               {item.name}
             </span>
           )}

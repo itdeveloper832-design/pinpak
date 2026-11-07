@@ -1,13 +1,13 @@
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Contact PakPin – Support, Listings & Partnerships',
-  description: 'Contact PakPin: email support@geotaggingphotos.com or admin@geotaggingphotos.com, call +92 334 5636230, or visit Office 303, Evacuee Trust Complex, F-5/1, Islamabad.',
-  alternates: { canonical: 'https://www.geotaggingphotos.com/contact/' },
+  title: 'Contact PakListings – Support, Listings & Partnerships',
+  description: 'Contact PakListings: email support@paklistings.com or admin@paklistings.com, call +92 334 5636230, or visit Office 303, Evacuee Trust Complex, F-5/1, Islamabad.',
+  alternates: { canonical: 'https://www.paklistings.com/contact/' },
   openGraph: {
-    title: 'Contact PakPin – Support, Listings & Partnerships',
-    description: 'Contact PakPin: email support@geotaggingphotos.com or admin@geotaggingphotos.com, call +92 334 5636230, or visit Office 303, Evacuee Trust Complex, F-5/1, Islamabad.',
-    url: 'https://www.geotaggingphotos.com/contact/',
+    title: 'Contact PakListings – Support, Listings & Partnerships',
+    description: 'Contact PakListings: email support@paklistings.com or admin@paklistings.com, call +92 334 5636230, or visit Office 303, Evacuee Trust Complex, F-5/1, Islamabad.',
+    url: 'https://www.paklistings.com/contact/',
     type: 'website',
   },
 }

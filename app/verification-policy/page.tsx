@@ -3,15 +3,15 @@ import Navbar from '@/components/navbar'
 import Footer from '@/components/footer'
 
 export const metadata: Metadata = {
-  title: 'Verification Policy | PakPin - Pakistan Business Directory',
-  description: 'How PakPin verifies business profiles, addresses, contact details, and professional credentials across Pakistan.',
+  title: 'Verification Policy | PakListings Badges & Business Checks',
+  description: 'How PakListings checks businesses and professionals before awarding a Verified Badge: phone and address checks, documents, and when verification can be removed.',
   alternates: {
-    canonical: 'https://www.geotaggingphotos.com/verification-policy/',
+    canonical: 'https://www.paklistings.com/verification-policy/',
   },
   openGraph: {
-    title: 'Verification Policy | PakPin - Pakistan Business Directory',
-    description: 'How PakPin verifies business profiles, addresses, contact details, and professional credentials across Pakistan.',
-    url: 'https://www.geotaggingphotos.com/verification-policy/',
+    title: 'Verification Policy | PakListings Badges & Business Checks',
+    description: 'How PakListings checks businesses and professionals before awarding a Verified Badge: phone and address checks, documents, and when verification can be removed.',
+    url: 'https://www.paklistings.com/verification-policy/',
     type: 'website',
   },
 }
@@ -26,20 +26,20 @@ export default function VerificationPolicyPage() {
             Verification Policy & Badge Protocol
           </h1>
           <p className="text-sm text-slate-500 mb-8 border-b border-slate-100 pb-4">
-            Last Updated: August 2026 • PakPin Directory Ecosystem
+            Last Updated: August 2026 • PakListings Directory Ecosystem
           </p>
 
           <div className="space-y-6 text-sm text-slate-600 leading-relaxed">
             {/* Core Disclaimer Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-2xl p-5 text-blue-950 font-medium space-y-1">
-              <strong className="block text-blue-950 font-bold">Important Verification Notice:</strong>
+            <div className="bg-cyan-50 border border-cyan-200 rounded-2xl p-5 text-cyan-950 font-medium space-y-1">
+              <strong className="block text-cyan-950 font-bold">Important Verification Notice:</strong>
               <p>
-                When the Verified Badge launches, PakPin verification will indicate that the listing or profile completed PakPin&apos;s verification process. Verification does not independently guarantee every claim made by the business or individual.
+                When the Verified Badge launches, PakListings verification will indicate that the listing or profile completed PakListings&apos;s verification process. Verification does not independently guarantee every claim made by the business or individual.
               </p>
             </div>
 
             <p>
-              The <strong>Verified Badge</strong> on PakPin is launching soon and is not available yet. When it opens, it will indicate that a business listing or professional profile has undergone a document check to confirm primary identity, operational contact details, and administrative legitimacy.
+              The <strong>Verified Badge</strong> on PakListings is launching soon and is not available yet. When it opens, it will indicate that a business listing or professional profile has undergone a document check to confirm primary identity, operational contact details, and administrative legitimacy.
             </p>
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">1. Business Verification Steps (When the Badge Launches)</h2>
@@ -57,7 +57,7 @@ export default function VerificationPolicyPage() {
 
             <h2 className="text-xl font-bold text-slate-900 pt-4">3. Revocation of Verified Status</h2>
             <p>
-              When the badge launches, PakPin will reserve the right to suspend or revoke verification status if an entity changes contact information without notification, provides misleading information, or receives substantiated unresolved user complaints.
+              When the badge launches, PakListings will reserve the right to suspend or revoke verification status if an entity changes contact information without notification, provides misleading information, or receives substantiated unresolved user complaints.
             </p>
           </div>
         </div>

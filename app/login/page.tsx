@@ -10,6 +10,16 @@ import { toast } from 'sonner'
 import { auth } from '@/lib/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 
+// Only same-site relative paths are accepted as a post-login
+// destination (e.g. /add-business). Anything else — absolute URLs,
+// protocol-relative URLs, empty values — falls back to /dashboard,
+// so a ?next= parameter can never bounce the user to another site.
+function safeNext(value: string | null): string {
+  if (!value) return '/dashboard'
+  if (!value.startsWith('/') || value.startsWith('//')) return '/dashboard'
+  return value
+}
+
 function mapLoginError(err: any): string {
   switch (err?.code) {
     case 'auth/invalid-credential':
@@ -38,6 +48,8 @@ function LoginForm() {
   const router = useRouter()
 
   const justRegistered = searchParams.get('registered') === '1'
+  const next = searchParams.get('next')
+  const returnTo = safeNext(next)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -53,11 +65,11 @@ function LoginForm() {
         userId: cred.user.uid,
         role: 'member',
       }
-      sessionStorage.setItem('pakpin_user_session', JSON.stringify(sessionPayload))
-      localStorage.setItem('pakpin_user_session', JSON.stringify(sessionPayload))
-      toast.success('Successfully logged into PakPin.')
+      sessionStorage.setItem('paklistings_user_session', JSON.stringify(sessionPayload))
+      localStorage.setItem('paklistings_user_session', JSON.stringify(sessionPayload))
+      toast.success('Successfully logged into PakListings.')
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push(returnTo)
       }, 500)
     } catch (err: any) {
       setErrorMsg(mapLoginError(err))
@@ -69,19 +81,22 @@ function LoginForm() {
   return (
     <div className="max-w-md w-full bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 shadow-xl space-y-6">
       <div className="text-center space-y-2">
-        <div className="inline-flex p-3.5 rounded-2xl bg-blue-50 text-blue-700 shadow-inner">
+        <div className="inline-flex p-3.5 rounded-2xl bg-cyan-50 text-cyan-700 shadow-inner">
           <LogIn className="w-8 h-8" />
         </div>
-        <h1 className="text-2xl font-extrabold text-slate-900">Sign In to PakPin</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900">Sign In to PakListings</h1>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          Access your PakPin account and saved preferences.
+          Access your PakListings account and saved preferences.
         </p>
       </div>
 
       {justRegistered && (
-        <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl text-xs text-blue-800 font-medium flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 text-blue-700 shrink-0" />
-          <span>Your account was created. Sign in with your email and password to open your dashboard.</span>
+        <div className="p-3.5 bg-cyan-50 border border-cyan-200 rounded-xl text-xs text-cyan-800 font-medium flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 text-cyan-700 shrink-0" />
+          <span>
+            Your account was created. Sign in with your email and password
+            {next ? ' to continue.' : ' to open your dashboard.'}
+          </span>
         </div>
       )}
 
@@ -103,7 +118,7 @@ function LoginForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+              className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
             />
           </div>
         </div>
@@ -118,7 +133,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-blue-700"
+              className="w-full pl-10 pr-11 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-cyan-700"
             />
             <button
               type="button"
@@ -145,8 +160,8 @@ function LoginForm() {
         <p className="text-xs text-slate-500">
           Don&apos;t have an account yet?{' '}
           <Link
-            href="/register"
-            className="text-blue-700 font-bold hover:underline"
+            href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}
+            className="text-cyan-700 font-bold hover:underline"
           >
             Create Account
           </Link>

@@ -7,6 +7,7 @@ import { SEED_BUSINESSES, getSeedBusiness } from '@/lib/seed-businesses'
 import type { SeedBusiness } from '@/lib/seed-businesses'
 import { fetchBusinessBySlug } from '@/lib/public-listings'
 import { isReleased, releaseDateLabel } from '@/lib/release'
+import { detailTitle, fitMetaDescription } from '@/lib/seo-content'
 
 // Business detail route — two kinds of listings:
 // 1. SEED listings (lib/seed-businesses.ts): directory-created pages for
@@ -46,102 +47,85 @@ const loadBusiness = cache(async (slug: string): Promise<any | null> => {
 })
 
 /**
- * Title guard (owner's spec: 50-60 chars, 65 hard ceiling). The full
- * form is used when it fits; otherwise the category is dropped — the
- * business name itself is never truncated. A handful of very long
- * names still exceed 65 even in the short form (name + city + brand
- * alone); those are reported as outliers rather than cut.
+ * Title guard (owner's spec: 50-60 chars, hard cap 60) — see
+ * detailTitle in lib/seo-content.ts. The full form is used when
+ * it fits; otherwise the category is dropped, then honest
+ * extenders are tried; only very long names are truncated, at a
+ * word boundary with an ellipsis, and the city is never dropped.
+ * Phone-less listings never get a phone-implying extender.
  */
-function businessTitle(name: string, category: string | undefined, city: string | undefined): string {
-  const cityLabel = city || 'Pakistan'
-  const full = category
-    ? `${name} — ${category} in ${cityLabel} | PakPin`
-    : `${name} in ${cityLabel} | PakPin`
-  if (full.length <= 65) {
-    if (full.length >= 50) return full
-    // Short name: extend with one generic directory word (never a
-    // business fact) so the title uses the snippet instead of wasting
-    // it. Guarded so a category already ending in "Services" gets
-    // "Providers" instead of the redundant "Services Services".
-    if (category) {
-      const extender = /services$/i.test(category) ? 'Providers' : 'Services'
-      const extended = `${name} — ${category} ${extender} in ${cityLabel} | PakPin`
-      if (extended.length >= 50 && extended.length <= 65) return extended
-    }
-    return full
-  }
-  // Full form over 65: category dropped (name never truncated).
-  const fallback = `${name} in ${cityLabel} | PakPin`
-  if (fallback.length >= 50) return fallback
-  // Fallback itself short: pad with a generic, claim-free suffix
-  // (no contact claim — phone-less listings must not imply contact
-  // details exist). Covers every observed fallback length 37-49.
-  const padded = `${name} in ${cityLabel}: Details & More | PakPin`
-  if (padded.length >= 50 && padded.length <= 65) return padded
-  return fallback
+function businessTitle(name: string, category: string | undefined, city: string | undefined, hasPhone: boolean): string {
+  return detailTitle(name, category, city, hasPhone)
 }
 
-/** Word-boundary truncate to at most `max` chars, keeping whole words. */
-function truncateWords(text: string, max: number): string {
-  if (text.length <= max) return text
-  const cut = text.slice(0, max)
-  const lastSpace = cut.lastIndexOf(' ')
-  return (lastSpace > 0 ? cut.slice(0, lastSpace) : cut).trimEnd()
-}
+// Tails for topping up a short Firestore description (150-160).
+// All state what the profile shows — contact details, address,
+// hours, services — never a fact about the business itself.
+const DESCRIPTION_TAILS = [
+  ' Find contact details and more on PakListings.',
+  ' Browse similar options to compare and choose the right one.',
+  ' See its PakListings profile for more details.',
+  ' Call or message the business directly from its profile.',
+  ' Check its address, hours and services on PakListings.',
+  ' Compare similar options nearby before you decide.',
+  ' See more on its PakListings profile.',
+  ' More on its PakListings profile.',
+  ' More on PakListings.',
+  ' Call now.',
+]
 
 /**
- * Interest-led description (120-158 chars) from a Firestore business's
- * own description. Longer descriptions are word-boundary truncated;
- * shorter ones are topped up with generic directory wording only —
- * no business facts are invented.
+ * Description (150-160 chars) from a Firestore business's own
+ * description. Longer descriptions are word-boundary truncated;
+ * shorter ones are topped up with the tails above. A description
+ * under 50 chars is treated as missing and replaced with a
+ * factual name + category + city sentence — never invented detail.
  */
 function firestoreMetaDescription(business: any): string {
   const raw = (business.description || '').replace(/\s+/g, ' ').trim()
-  if (raw.length >= 120) {
-    if (raw.length <= 158) return raw
-    return `${truncateWords(raw, 155)}...`
-  }
   const categoryLabel = business.category || business.mainCategory || 'Business'
-  let desc = raw || `${business.name} is a ${categoryLabel} business in ${business.city || 'Pakistan'}.`
-  const suffixes = [
-    'Find contact details and more on PakPin.',
-    'Browse similar options to compare and choose the right one.',
-    'See its PakPin profile for more details.',
-  ]
-  for (const suffix of suffixes) {
-    if (desc.length >= 120) break
-    desc = `${desc} ${suffix}`
-  }
-  if (desc.length > 158) return `${truncateWords(desc, 155)}...`
-  return desc
+  const text = raw.length >= 50
+    ? raw
+    : `${business.name} is a ${categoryLabel} business in ${business.city || 'Pakistan'}.`
+  return fitMetaDescription(text, DESCRIPTION_TAILS)
 }
 
+// Clause pools for topping up a short seed description (150-160).
+// Phone seeds may reference calling the number listed here;
+// phone-less seeds never claim contact details exist.
+const SEED_PHONE_CLAUSES = [
+  ' Call the number listed here for services, timings and availability — the profile also lists its address and opening hours.',
+  ' Call the number listed here to check services, timings and availability before you visit.',
+  ' Call the number listed here to check services and availability.',
+  ' Call the number listed here to check availability.',
+  ' The profile also lists its address and opening hours.',
+  ' Compare similar options in this city before you decide.',
+  ' Call the number listed here.',
+  ' The profile also lists its address.',
+  ' See its address and opening hours.',
+]
+
+const SEED_NOPHONE_CLAUSES = [
+  ' The profile lists its address, opening hours and services — browse more options in this city and category to compare.',
+  ' Browse more options in this city and category to compare choices, check what suits you, and find the right fit.',
+  ' Browse more options in this city and category to compare and choose.',
+  ' The profile lists its address, opening hours and services.',
+  ' Compare similar options in this city before you decide.',
+  ' Browse more options in this city to compare.',
+  ' See its address and opening hours.',
+  ' Its address and hours are listed.',
+  ' Compare similar options nearby.',
+]
+
 /**
- * Seed description (120-158 chars, interest-led) built ONLY from the
- * seed's own attributes: name, city, category and phone presence.
- * Phone seeds may reference calling the number listed here; phone-less
- * seeds never claim contact details exist and use a discovery angle
- * (browsing more options in the same city/category) instead. The
- * candidate tails are tried longest-first within the 158 ceiling, so
- * every seed lands in range whatever its name length.
+ * Seed description (150-160 chars) built ONLY from the seed's
+ * own attributes: name, city, category and phone presence.
+ * A single clause is tried first, then a pair, so every seed
+ * lands in range whatever its name length.
  */
 function seedMetaDescription(seed: SeedBusiness): string {
-  const base = `Find ${seed.name} in ${seed.city} — ${seed.category} on PakPin.`
-  const tails = seed.phone
-    ? [
-        ' Call the number listed here to check availability.',
-        ' Call the number listed here to check services and availability.',
-        ' Call the number listed here to check services and timings before you visit.',
-      ]
-    : [
-        ' Browse more options in this city to compare.',
-        ' Browse more options in this city and category to compare and choose.',
-        ' Browse more options in this city and category to compare choices and find the right fit.',
-        ' Browse more options in this city and category to compare choices, check what suits you, and find the right fit.',
-      ]
-  const candidates = tails.map((tail) => `${base}${tail}`)
-  const fitting = candidates.filter((candidate) => candidate.length <= 158)
-  return fitting.length > 0 ? fitting[fitting.length - 1] : candidates[0]
+  const base = `Find ${seed.name} in ${seed.city} — ${seed.category} on PakListings.`
+  return fitMetaDescription(base, seed.phone ? SEED_PHONE_CLAUSES : SEED_NOPHONE_CLAUSES)
 }
 
 export async function generateMetadata({
@@ -152,24 +136,24 @@ export async function generateMetadata({
   const { slug } = await params
   const seed = getSeedBusiness(slug)
   if (seed) {
-    const title = businessTitle(seed.name, seed.category, seed.city)
+    const title = businessTitle(seed.name, seed.category, seed.city, !!seed.phone)
     const description = seedMetaDescription(seed)
-    const canonical = `https://www.geotaggingphotos.com/business/${seed.slug}/`
+    const canonical = `https://www.paklistings.com/business/${seed.slug}/`
     return {
       title,
       description,
       alternates: { canonical },
       openGraph: {
-        title: `${seed.name} | PakPin`,
+        title,
         description,
         url: canonical,
-        siteName: 'PakPin',
+        siteName: 'PakListings',
         locale: 'en_PK',
         type: 'website',
       },
       twitter: {
         card: 'summary',
-        title: `${seed.name} | PakPin`,
+        title,
         description,
       },
     }
@@ -181,8 +165,8 @@ export async function generateMetadata({
     // index instead of inheriting the homepage meta.
     return { robots: { index: false, follow: false } }
   }
-  const canonical = `https://www.geotaggingphotos.com/business/${slug}/`
-  const title = businessTitle(business.name, business.category || business.mainCategory, business.city)
+  const canonical = `https://www.paklistings.com/business/${slug}/`
+  const title = businessTitle(business.name, business.category || business.mainCategory, business.city, !!business.phone)
   if (!isReleased(business.approvedAt, Date.now())) {
     // Approved but not yet released: an honest title only, no
     // description (the profile itself is still hidden) and noindex.
@@ -197,7 +181,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonical,
-      siteName: 'PakPin',
+      siteName: 'PakListings',
       locale: 'en_PK',
       type: 'website',
     },

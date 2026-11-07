@@ -111,19 +111,19 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
   }, [q, city, liveItems, typeFilter])
 
   const iconFor = (type: Result['type']) =>
-    type === 'City' ? <MapPin className="w-5 h-5 text-blue-700" />
-    : type === 'Guide' ? <BookOpen className="w-5 h-5 text-rose-600" />
-    : type === 'Business' ? <Building2 className="w-5 h-5 text-blue-700" />
-    : type === 'Company' ? <Briefcase className="w-5 h-5 text-indigo-600" />
-    : <LayoutGrid className="w-5 h-5 text-blue-700" />
+    type === 'City' ? <MapPin className="w-5 h-5 text-cyan-700" />
+    : type === 'Guide' ? <BookOpen className="w-5 h-5 text-violet-600" />
+    : type === 'Business' ? <Building2 className="w-5 h-5 text-cyan-700" />
+    : type === 'Company' ? <Briefcase className="w-5 h-5 text-violet-600" />
+    : <LayoutGrid className="w-5 h-5 text-cyan-700" />
 
   return (
     <main id="main-content" className="flex-1">
       <section className="bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto space-y-5">
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Search PakPin</h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Search PakListings</h1>
           <form action="/search" method="GET" className="flex gap-3">
-            <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl text-left">
+            <div className="flex-1 min-w-0 flex items-center gap-3 px-4 py-3 bg-white rounded-2xl text-left">
               <Search className="w-5 h-5 text-slate-400 shrink-0" />
               <label htmlFor="search-page-q" className="sr-only">Search categories, cities and guides</label>
               <input
@@ -136,7 +136,7 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
                 className="w-full bg-transparent text-slate-900 placeholder:text-slate-400 text-sm focus:outline-none"
               />
             </div>
-            <button type="submit" className="px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-2xl transition-colors">
+            <button type="submit" className="px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-2xl transition-colors">
               Search
             </button>
           </form>
@@ -154,7 +154,7 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
                 aria-pressed={typeFilter === filter}
                 className={`px-3.5 py-1.5 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
                   typeFilter === filter
-                    ? 'bg-blue-700 border-blue-700 text-white'
+                    ? 'bg-cyan-700 border-cyan-700 text-white'
                     : 'bg-white/10 border-white/20 text-slate-200 hover:bg-white/20'
                 }`}
               >
@@ -171,21 +171,21 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
             <div className="space-y-2">
               <h2 className="font-extrabold text-slate-900 text-lg">No results found</h2>
               <p className="text-sm text-slate-500 max-w-md mx-auto">
-                Nothing matches that search yet. PakPin is a growing directory — the business you are
+                Nothing matches that search yet. PakListings is a growing directory — the business you are
                 looking for may simply not be listed yet.
               </p>
             </div>
             <Link
               href="/add-business"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-blue-700 hover:bg-blue-800 text-white font-bold text-sm rounded-xl transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-cyan-700 hover:bg-cyan-800 text-white font-bold text-sm rounded-xl transition-colors"
             >
-              Run this business? Add it free <ArrowRight className="w-4 h-4" />
+              Run this business? Add it from PKR 99 <ArrowRight className="w-4 h-4" />
             </Link>
             <div className="pt-2 space-y-3">
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Popular categories</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {CATEGORIES.slice(0, 6).map((cat) => (
-                  <Link key={cat.id} href={`/category/${cat.id}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 hover:border-blue-500">
+                  <Link key={cat.id} href={`/category/${cat.id}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 hover:border-cyan-500">
                     {cat.name}
                   </Link>
                 ))}
@@ -193,14 +193,14 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
               <p className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Popular cities</p>
               <div className="flex flex-wrap justify-center gap-2">
                 {TOP_CITIES.slice(0, 8).map((c) => (
-                  <Link key={c} href={`/city/${cityToSlug(c)}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 hover:border-blue-500">
+                  <Link key={c} href={`/city/${cityToSlug(c)}`} className="px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-full text-xs font-semibold text-slate-700 hover:border-cyan-500">
                     {c}
                   </Link>
                 ))}
               </div>
               <p className="text-xs text-slate-500">
-                Or browse all <Link href="/categories" className="text-blue-700 font-semibold hover:underline">categories</Link> and{' '}
-                <Link href="/cities" className="text-blue-700 font-semibold hover:underline">cities</Link> directly.
+                Or browse all <Link href="/categories" className="text-cyan-700 font-semibold hover:underline">categories</Link> and{' '}
+                <Link href="/cities" className="text-cyan-700 font-semibold hover:underline">cities</Link> directly.
               </p>
             </div>
           </div>
@@ -211,7 +211,7 @@ export default function SearchResults({ initialLiveItems }: { initialLiveItems: 
                 <Link
                   href={item.href}
                   prefetch={false}
-                  className="flex gap-4 bg-white rounded-2xl border border-slate-200 p-5 hover:border-blue-500 hover:shadow-md transition-all"
+                  className="flex gap-4 bg-white rounded-2xl border border-slate-200 p-5 hover:border-cyan-500 hover:shadow-md transition-all"
                 >
                   <div className="shrink-0 w-11 h-11 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
                     {iconFor(item.type)}

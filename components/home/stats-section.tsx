@@ -1,6 +1,6 @@
 const stats = [
   { value: '24', label: 'Business Categories', icon: '🏢' },
-  { value: 'Free', label: 'Listing — Always', icon: '👥' },
+  { value: 'PKR 99', label: 'One-Time Listing Fee', icon: '👥' },
   { value: '180+', label: 'City Guides', icon: '📍' },
 ]
 
@@ -15,7 +15,7 @@ export default function StatsSection() {
               className="bg-white rounded-2xl p-6 text-center shadow-sm border border-gray-100 card-hover"
             >
               <div className="text-3xl mb-2" aria-hidden="true">{stat.icon}</div>
-              <div className="text-3xl font-bold text-[#0f2b3d]">{stat.value}</div>
+              <div className="text-3xl font-bold text-[#155E75]">{stat.value}</div>
               <div className="text-sm text-gray-500 mt-1 font-medium">{stat.label}</div>
             </div>
           ))}

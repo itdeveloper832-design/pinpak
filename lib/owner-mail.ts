@@ -33,7 +33,7 @@ export async function queueOwnerEmail(to: string, subject: string, text: string,
   }
 }
 
-const SUPPORT_LINE = 'Questions? Contact our team at https://www.geotaggingphotos.com/contact and we will be happy to help.'
+const SUPPORT_LINE = 'Questions? Contact our team at https://www.paklistings.com/contact and we will be happy to help.'
 
 function esc(s: string): string {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -46,7 +46,7 @@ export function buildRejectionEmail(args: {
   note?: string
 }): { subject: string; text: string; html: string } {
   const { listingName, ownerName, reasons, note } = args
-  const subject = `Your PakPin listing '${listingName}' was not approved`
+  const subject = `Your PakListings listing '${listingName}' was not approved`
   const greeting = ownerName ? `Dear ${ownerName},` : 'Hello,'
   const reasonLines = reasons.map((r) => `- ${r}`).join('\n')
   const reasonItems = reasons.map((r) => `<li>${esc(r)}</li>`).join('')
@@ -54,38 +54,38 @@ export function buildRejectionEmail(args: {
   const text = [
     greeting,
     '',
-    `Thank you for submitting '${listingName}' to PakPin. Our review team has checked your listing, and unfortunately we could not approve it in its current form.`,
+    `Thank you for submitting '${listingName}' to PakListings. Our review team has checked your listing, and unfortunately we could not approve it in its current form.`,
     '',
     'Here is what needs attention:',
     reasonLines,
     ...(note ? ['', `A note from our review team: ${note}`] : []),
     '',
     'What to do next:',
-    'This listing cannot be re-approved as it stands, so please do not wait for it to appear. Instead, submit a fresh, corrected listing at https://www.geotaggingphotos.com/add-business and address each point above — accurate details, a reachable phone number, the right category, and a clear description written in your own words.',
+    'This listing cannot be re-approved as it stands, so please do not wait for it to appear. Instead, submit a fresh, corrected listing at https://www.paklistings.com/add-business and address each point above — accurate details, a reachable phone number, the right category, and a clear description written in your own words.',
     '',
-    'Listings that follow our guidelines (https://www.geotaggingphotos.com/business-listing-guidelines) are normally approved without any problem.',
+    'Listings that follow our guidelines (https://www.paklistings.com/business-listing-guidelines) are normally approved without any problem.',
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
 
   const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.6;max-width:600px;margin:0 auto">
   <div style="background:#0f172a;color:#ffffff;padding:20px 24px;border-radius:12px 12px 0 0">
-    <strong style="font-size:18px">PakPin</strong>
+    <strong style="font-size:18px">PakListings</strong>
   </div>
   <div style="border:1px solid #e2e8f0;border-top:none;padding:24px;border-radius:0 0 12px 12px">
     <p>${esc(greeting)}</p>
-    <p>Thank you for submitting <strong>${esc(listingName)}</strong> to PakPin. Our review team has checked your listing, and unfortunately we could not approve it in its current form.</p>
+    <p>Thank you for submitting <strong>${esc(listingName)}</strong> to PakListings. Our review team has checked your listing, and unfortunately we could not approve it in its current form.</p>
     <p><strong>Here is what needs attention:</strong></p>
     <ul>${reasonItems}</ul>
     ${note ? `<p><strong>A note from our review team:</strong> ${esc(note)}</p>` : ''}
     <p><strong>What to do next:</strong> this listing cannot be re-approved as it stands, so please submit a fresh, corrected listing at
-    <a href="https://www.geotaggingphotos.com/add-business">geotaggingphotos.com/add-business</a> and address each point above — accurate details, a reachable phone number, the right category, and a clear description in your own words.</p>
-    <p>Listings that follow our <a href="https://www.geotaggingphotos.com/business-listing-guidelines">listing guidelines</a> are normally approved without any problem.</p>
-    <p>Questions? <a href="https://www.geotaggingphotos.com/contact">Contact our team</a> and we will be happy to help.</p>
-    <p>— The PakPin Team</p>
+    <a href="https://www.paklistings.com/add-business">paklistings.com/add-business</a> and address each point above — accurate details, a reachable phone number, the right category, and a clear description in your own words.</p>
+    <p>Listings that follow our <a href="https://www.paklistings.com/business-listing-guidelines">listing guidelines</a> are normally approved without any problem.</p>
+    <p>Questions? <a href="https://www.paklistings.com/contact">Contact our team</a> and we will be happy to help.</p>
+    <p>— The PakListings Team</p>
   </div>
 </div>`.trim()
 
@@ -98,18 +98,18 @@ export function buildDeletionEmail(args: {
   note?: string
 }): { subject: string; text: string; html: string } {
   const { listingName, ownerName, note } = args
-  const subject = `Your PakPin listing '${listingName}' has been removed`
+  const subject = `Your PakListings listing '${listingName}' has been removed`
   const greeting = ownerName ? `Dear ${ownerName},` : 'Hello,'
 
   const text = [
     greeting,
     '',
-    `We are writing to let you know that your PakPin listing '${listingName}' has been removed from the directory by our moderation team.`,
+    `We are writing to let you know that your PakListings listing '${listingName}' has been removed from the directory by our moderation team.`,
     ...(note ? ['', `Reason given: ${note}`] : []),
     '',
     'If this business is still operating, you are welcome to create a new listing that follows our guidelines:',
-    '- Listing guidelines: https://www.geotaggingphotos.com/business-listing-guidelines',
-    '- Add a business: https://www.geotaggingphotos.com/add-business',
+    '- Listing guidelines: https://www.paklistings.com/business-listing-guidelines',
+    '- Add a business: https://www.paklistings.com/add-business',
     '',
     'A fresh listing with accurate details, a reachable phone number and the correct category will go through review in the normal way.',
     '',
@@ -117,25 +117,25 @@ export function buildDeletionEmail(args: {
     '',
     SUPPORT_LINE,
     '',
-    '— The PakPin Team',
+    '— The PakListings Team',
   ].join('\n')
 
   const html = `
 <div style="font-family:Arial,Helvetica,sans-serif;color:#0f172a;line-height:1.6;max-width:600px;margin:0 auto">
   <div style="background:#0f172a;color:#ffffff;padding:20px 24px;border-radius:12px 12px 0 0">
-    <strong style="font-size:18px">PakPin</strong>
+    <strong style="font-size:18px">PakListings</strong>
   </div>
   <div style="border:1px solid #e2e8f0;border-top:none;padding:24px;border-radius:0 0 12px 12px">
     <p>${esc(greeting)}</p>
-    <p>We are writing to let you know that your PakPin listing <strong>${esc(listingName)}</strong> has been removed from the directory by our moderation team.</p>
+    <p>We are writing to let you know that your PakListings listing <strong>${esc(listingName)}</strong> has been removed from the directory by our moderation team.</p>
     ${note ? `<p><strong>Reason given:</strong> ${esc(note)}</p>` : ''}
     <p>If this business is still operating, you are welcome to create a new listing that follows our
-    <a href="https://www.geotaggingphotos.com/business-listing-guidelines">listing guidelines</a> — start at
-    <a href="https://www.geotaggingphotos.com/add-business">geotaggingphotos.com/add-business</a>.</p>
+    <a href="https://www.paklistings.com/business-listing-guidelines">listing guidelines</a> — start at
+    <a href="https://www.paklistings.com/add-business">paklistings.com/add-business</a>.</p>
     <p>A fresh listing with accurate details, a reachable phone number and the correct category will go through review in the normal way.</p>
     <p>If you would like to list again, please fill in all the details again from scratch — a removed listing cannot be restored.</p>
-    <p>Questions? <a href="https://www.geotaggingphotos.com/contact">Contact our team</a> and we will be happy to help.</p>
-    <p>— The PakPin Team</p>
+    <p>Questions? <a href="https://www.paklistings.com/contact">Contact our team</a> and we will be happy to help.</p>
+    <p>— The PakListings Team</p>
   </div>
 </div>`.trim()
 
